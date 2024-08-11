@@ -1,6 +1,6 @@
 # Statistical Methods in Artificial Intelligence (Monsoon '24)
 
-Name:
+Name: Soham Vaishnav
 
-Roll Number:
+Roll Number: 2022112002
 
