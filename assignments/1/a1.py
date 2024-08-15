@@ -16,7 +16,7 @@ perf_measures = importlib.import_module('performance-measures')
 RawDataDIR = os.path.join(UserDIR, "./data/external/")
 PreProcessDIR = os.path.join(UserDIR, "./data/interim/")
 
-def Dataloader(DataDIR: str, datafilename: str, model: str):
+def DataLoader(DataDIR: str, datafilename: str, model: str):
     ''' 
     Loads the data from the directory. \n
     Note: Currently this function only deals with reading .csv files.
@@ -42,7 +42,23 @@ def Dataloader(DataDIR: str, datafilename: str, model: str):
 
     return data
 
-def Datasplitter(train: float, splitValid: bool, test: float, data: pd.DataFrame, model: str, class_feature: str):
+def DataWriter(DataDIR: str, datafilename: str, extension: str, data: pd.DataFrame) -> str:
+    '''
+    Writes data in the desired format (extension) at the given location having the desired name.\n
+    Note: The function currently handles only .csv files.
+
+    Arguments:
+    DataDIR = the directory where data will be written into
+    datafilename = the name of the file of data which will be written
+    extension = the format of storage (e.g: .csv)
+    '''
+    assert os.path.exists(DataDIR), f"{DataDIR} path is invalid!"
+    data_path = os.path.join(DataDIR, datafilename)
+    data.to_csv(data_path, index = True)
+    
+    return data_path
+
+def DataSplitter(train: float, splitValid: bool, test: float, data: pd.DataFrame, model: str, class_feature: str) -> pd.DataFrame:
     ''' 
     Splits the data into train, validation and test sets based on the user defined ratios.\n
     The split is done based on stratified sampling to sustain the diversity of data in all the 
@@ -94,7 +110,7 @@ def Datasplitter(train: float, splitValid: bool, test: float, data: pd.DataFrame
         j = 0
         for i in range(0, len(count)):
             if (i == 0):
-                train_set = data_sorted[j:count[i]+j].sample(frac = train, random_state = 42)
+                train_set = data_sorted[j:count[i]+j].sample(frac = train , random_state = 42)
                 data_sorted_temp = data_sorted[j:count[i]+j].drop(train_set.index, axis=0)
 
                 test_set = data_sorted_temp.sample(n = int(label_ratios_test[i]), random_state = 42)
@@ -117,10 +133,31 @@ def Datasplitter(train: float, splitValid: bool, test: float, data: pd.DataFrame
         return train_set, valid_set, test_set
     return train_set, test_set
 
-model = KNN()
-data = Dataloader(RawDataDIR, 'spotify.csv', 'KNN')
-# train_set, valid_set, test_set = Datasplitter(0.8, False, 0.2, data, 'KNN', 'track_genre')
-train_set, test_set = Datasplitter(0.8, False, 0.2, data, 'KNN', 'track_genre')
+def DataRefiner(dataset: pd.DataFrame,  model: str) -> pd.DataFrame:
+    ''' 
+    Performs preprocessing on the data like removing null and NaN, and duplicate datapoints as well.
 
-# print(train_set.shape, valid_set.shape, test_set.shape)
-print(train_set.shape, test_set.shape)
+    Arguments:
+    dataset = the dataset that the user is dealing with.
+    model = the kind of model that the data is being preprocessed for.
+    '''
+    if (model == 'KNN'):
+        dataset = dataset.drop_duplicates(subset = ['track_id'], keep = 'first')
+        dataset = dataset.dropna(axis = 0)
+        print("Final shape of the Data: ", dataset.shape)
+
+    return dataset
+    
+model = KNN()
+isValid = True
+data = DataLoader(RawDataDIR, 'spotify.csv', 'KNN')
+data = DataRefiner(data, 'KNN')
+train_set, valid_set, test_set = DataSplitter(0.7, isValid, 0.2, data, 'KNN', 'track_genre')
+print("Training set: ", train_set.shape)
+print("Testing set: ", test_set.shape)
+print("Validation set: ", valid_set.shape)
+
+KNN_PreProcessDIR = os.path.join(PreProcessDIR, 'spotify_KNN/')
+DataWriter(KNN_PreProcessDIR, 'train_set_refined.csv', '.csv', train_set)
+DataWriter(KNN_PreProcessDIR, 'test_set_refined.csv', '.csv', test_set)
+DataWriter(KNN_PreProcessDIR, 'valid_set_refined.csv', '.csv', valid_set)
