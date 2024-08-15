@@ -60,11 +60,11 @@ def Datasplitter(train: float, splitValid: bool, test: float, data: pd.DataFrame
     if (not splitValid and train+test != 1):
         print("The sum of train and test ratios does not equate to unity. Please enter valid ratios "
               "or allow creation of validation set.")
-        return None
+        return None, None
     elif (splitValid and train+test == 1):
         print("The sum of train and test ratios equate to unity and thus, the valid set cannot be "
               "created. Please enter appropriate ratios.")
-        return None
+        return None, None, None
     
     if (model == 'KNN'):
         labels = data[class_feature]
