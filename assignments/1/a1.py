@@ -142,7 +142,7 @@ def DataRefiner(dataset: pd.DataFrame,  model: str) -> pd.DataFrame:
     model = the kind of model that the data is being preprocessed for.
     '''
     if (model == 'KNN'):
-        dataset = dataset.drop_duplicates(subset = ['track_id'], keep = 'first')
+        # dataset = dataset.drop_duplicates(subset = ['track_id'], keep = 'first')
         dataset = dataset.dropna(axis = 0)
         dataset['duration_ms'] = dataset['duration_ms']/(60*1000)
         dataset = dataset.rename(columns = {'duration_ms':'duration_min'})

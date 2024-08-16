@@ -87,7 +87,7 @@ class KNN:
         dist_matrix = dist_matrix[:,0:self.k+1] #selecting the first k columns
 
         #need to note that while sorting, the index of the sorted datapoints in the original train set
-        #must remain accessable else the labels won't be known and it will create whole lot of another
+        #must remain accessable else the labels won't be known and it will create whole lot of other
         #set of problems
 
         for i in range(dist_matrix.shape[0]):
