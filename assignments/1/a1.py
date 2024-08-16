@@ -144,20 +144,42 @@ def DataRefiner(dataset: pd.DataFrame,  model: str) -> pd.DataFrame:
     if (model == 'KNN'):
         dataset = dataset.drop_duplicates(subset = ['track_id'], keep = 'first')
         dataset = dataset.dropna(axis = 0)
+        dataset['duration_ms'] = dataset['duration_ms']/(60*1000)
+        dataset = dataset.rename(columns = {'duration_ms':'duration_min'})
         print("Final shape of the Data: ", dataset.shape)
 
+    return dataset
+
+def DataNormaliser(dataset: pd.DataFrame, model: str) -> pd.DataFrame:
+    ''' 
+    Normalises the data across all features to ensure that no one feature is singularly given undue 
+    importance given its larger magnitude.
+
+    Arguments:
+    dataset = the data that is being used for the task.
+    model = the model for which the dataset is being used.
+    '''
+    if (model == 'KNN'):
+        for i in dataset.columns:
+            if (type(dataset[i].iloc[0]) == str or dataset[i].iloc[0].dtype == bool):
+                continue
+            means = np.mean(dataset[i], axis = 0)
+            vars = np.var(dataset[i], axis = 0)
+            dataset[i] = (dataset[i] - means)/np.sqrt(vars)
+    
     return dataset
     
 model = KNN()
 isValid = True
 data = DataLoader(RawDataDIR, 'spotify.csv', 'KNN')
 data = DataRefiner(data, 'KNN')
+data = DataNormaliser(data, 'KNN')
 train_set, valid_set, test_set = DataSplitter(0.7, isValid, 0.2, data, 'KNN', 'track_genre')
 print("Training set: ", train_set.shape)
 print("Testing set: ", test_set.shape)
 print("Validation set: ", valid_set.shape)
 
 KNN_PreProcessDIR = os.path.join(PreProcessDIR, 'spotify_KNN/')
-DataWriter(KNN_PreProcessDIR, 'train_set_refined.csv', '.csv', train_set)
-DataWriter(KNN_PreProcessDIR, 'test_set_refined.csv', '.csv', test_set)
-DataWriter(KNN_PreProcessDIR, 'valid_set_refined.csv', '.csv', valid_set)
+DataWriter(KNN_PreProcessDIR, 'train_set_normalised.csv', '.csv', train_set)
+DataWriter(KNN_PreProcessDIR, 'test_set_normalised.csv', '.csv', test_set)
+DataWriter(KNN_PreProcessDIR, 'valid_set_normalised.csv', '.csv', valid_set)
