@@ -1,9 +1,15 @@
 import numpy as np
 from matplotlib import pyplot as plt
 import pandas as pd
-import importlib
+import sys
 import os
 
+AssignDIR = os.path.dirname(os.path.dirname(os.path.abspath('knn.py')))
+UserDIR = os.path.dirname(AssignDIR)
+
+sys.path.append(UserDIR)
+
+from performance_measures.confusion_matrix import Confusion_Matrix, Measures
 
 class KNN:
     ''' 
@@ -59,6 +65,7 @@ class KNN:
         '''
         self._X_train = X_train
         self._y_train = y_train
+        self._norm_X_train = np.linalg.norm(self._X_train)
 
         return None
     
@@ -71,12 +78,16 @@ class KNN:
         X_valid = A dataframe containing the data points and their features for validation.
         y_valid = A dataframe containing the labels corresponding to the X_valid being used.
         '''
-        if (self.dist_metric == 'L2'):
+        if (self.dist_metric == 'l2'):
             dist_matrix = pd.DataFrame([np.sqrt(np.sum((X_valid.iloc[i] - self._X_train)**2, axis = 1)) 
                                             for i in range(X_valid.shape[0])], index = X_valid.index)
-        elif (self.dist_metric == 'L1'):
-            dist_matrix = pd.DataFrame([np.sum((X_valid.iloc[i] - self._X_train), axis = 1)
+        elif (self.dist_metric == 'l1'):
+            dist_matrix = pd.DataFrame([np.sum(np.abs(X_valid.iloc[i] - self._X_train), axis = 1)
                                             for i in range(X_valid.shape[0])], index = X_valid.index)
+        elif (self.dist_metric == 'cosine'):
+            dist_matrix = pd.DataFrame([1 - np.dot(self._X_train, X_valid.iloc[i])/(self._norm_X_train*np.linalg.norm(X_valid.iloc[i]))
+                                            for i in range(X_valid.shape[0])],
+                                            index = X_valid.index, columns = self._X_train.index)
 
         #dist_matrix is a matrix containing the distance of all the points in the validation set from
         #all the points in the train set.
@@ -84,17 +95,24 @@ class KNN:
         #columns denote the datapoints in the train set. Demo for this is shown at the end of this file.
 
         pred_labels = []
+        rights = 0
         for i in range(dist_matrix.shape[0]):
             temp = dist_matrix.iloc[i].sort_values(axis = 0)
             temp = temp[0:self.k]
             uniqs, count = np.unique(self._y_train.loc[temp.index], return_counts = True)
-            max_index = 0
-            for j in range(0, len(count)):
-                if (count[j] > max_index):
-                    max_index = count[j]
-                    label = uniqs[j]
+            label = uniqs[np.argmax(count)]
+            if (label == y_valid.iloc[i]):
+                rights += 1
             pred_labels.append(label)
+        print(rights/dist_matrix.shape[0])
         pred_labels = pd.DataFrame(pred_labels, index = X_valid.index)
+        
+        self._Meas = Measures(pred_values = pred_labels, true_values = y_valid, 
+                             labels = np.unique(self._y_train))
+        print("Accuracy = ", self._Meas.accuracy()*100)
+        print("P_mac:P_mic = ", self._Meas.precision())
+        print("R_mac:R_mic = ", self._Meas.recall())
+        print("f1_mac:f1_mic = ", self._Meas.f1_score())
 
         return pred_labels
     
@@ -107,12 +125,16 @@ class KNN:
         X_test = A dataframe containing the data points and their features for testing.
         y_test = A dataframe containing the labels corresponding to the X_test being used.
         '''
-        if (self.dist_metric == 'L2'):
+        if (self.dist_metric == 'l2'):
             dist_matrix = pd.DataFrame([np.sqrt(np.sum((X_test.iloc[i] - self._X_train)**2, axis = 1)) 
                                             for i in range(X_test.shape[0])], index = X_test.index)
-        elif (self.dist_metric == 'L1'):
-            dist_matrix = pd.DataFrame([np.sum((X_test.iloc[i] - self._X_train), axis = 1)
+        elif (self.dist_metric == 'l1'):
+            dist_matrix = pd.DataFrame([np.sum(np.abs(X_test.iloc[i] - self._X_train), axis = 1)
                                             for i in range(X_test.shape[0])], index = X_test.index)
+        elif (self.dist_metric == 'cosine'):
+            dist_matrix = pd.DataFrame([1 - np.dot(self._X_train, X_test.iloc[i])/(self._norm_X_train*np.linalg.norm(X_test.iloc[i]))
+                                            for i in range(X_test.shape[0])],
+                                            index = X_test.index, columns = self._X_train.index)
 
         #dist_matrix is a matrix containing the distance of all the points in the validation set from
         #all the points in the train set.
@@ -131,6 +153,13 @@ class KNN:
                     label = uniqs[j]
             pred_labels.append(label)
         pred_labels = pd.DataFrame(pred_labels, index = X_test.index)
+
+        self._Meas = Measures(pred_values = pred_labels, true_values = y_test, 
+                             labels = np.unique(self._y_train))
+        print("Accuracy = ", self._Meas.accuracy())
+        print("P_mac:P_mic = ", self._Meas.precision())
+        print("R_mac:R_mic = ", self._Meas.recall())
+        print("f1_mac:f1_mic = ", self._Meas.f1_score())
 
         return pred_labels
 
