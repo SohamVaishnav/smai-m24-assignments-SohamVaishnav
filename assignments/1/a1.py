@@ -3,7 +3,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 import sys 
-import importlib
 
 AssignDIR = os.path.dirname(os.path.dirname(os.path.abspath('a1.py')))
 UserDIR = os.path.dirname(AssignDIR)
@@ -11,7 +10,8 @@ UserDIR = os.path.dirname(AssignDIR)
 sys.path.append(UserDIR)
 
 from models.knn.knn import KNN
-perf_measures = importlib.import_module('performance-measures')
+from performance_measures.confusion_matrix import Confusion_Matrix, Measures
+
 
 RawDataDIR = os.path.join(UserDIR, "./data/external/")
 PreProcessDIR = os.path.join(UserDIR, "./data/interim/")
@@ -213,6 +213,16 @@ X_valid = valid_set.drop(columns = ['track_genre'], axis = 1)
 # DataWriter(KNN_PreProcessDIR, 'test_set_normalised.csv', '.csv', test_set)
 # DataWriter(KNN_PreProcessDIR, 'valid_set_normalised.csv', '.csv', valid_set)
 
-model.SetNumNeighbors(20)
+model.SetNumNeighbors(10)
+model.SetDistMetric('l2')
 model.train(X_train, y_train)
-# model.eval(X_valid, y_valid)
+pred_values = model.eval(X_valid, y_valid)
+# DataWriter(KNN_PreProcessDIR, 'predicted_val_cosine.csv', '.csv', pred_values)
+# pred_values = DataLoader(KNN_PreProcessDIR, 'predicted_values_cosine.csv', 'KNN')
+
+# print("FN: ", CM._FN, "\n\n")
+# print("FP: ", CM._FP, "\n\n")
+# print("TN: ", CM._TN, "\n\n")
+# print("TP: ", CM._TP, "\n\n")
+
+################################ VISUALISATION ###################################
