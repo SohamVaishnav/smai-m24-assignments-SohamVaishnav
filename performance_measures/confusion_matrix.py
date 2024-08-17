@@ -108,6 +108,9 @@ class Measures():
         pass 
 
     def precision(self) -> float:
+        ''' 
+        Computes precision scores - mirco and macro - for the model.
+        '''
         temp = [self._CM._TP,  
                 self._CM._FP]
         denom = Counter()
@@ -128,6 +131,9 @@ class Measures():
         return pred_macro, pred_micro
     
     def recall(self) -> float:
+        ''' 
+        Computes recall scores - micro and macro - for the model.
+        '''
         temp = [self._CM._TP,  
                 self._CM._FN]
         denom = Counter()
@@ -148,6 +154,9 @@ class Measures():
         return recall_macro, recall_micro
     
     def f1_score(self) -> float:
+        ''' 
+        Computes f1 scores - micro and macro - for the model.
+        '''
         f1_macro = 2*self._pred_macro*self._recall_macro/(self._pred_macro+self._recall_macro)
         f1_micro = 2*self._pred_micro*self._recall_micro/(self._pred_micro+self._recall_micro)
 
@@ -156,6 +165,9 @@ class Measures():
         return f1_macro, f1_micro
     
     def accuracy(self) -> float:
+        ''' 
+        Computes model accuracy.
+        '''
         Acc = sum(self._CM._TP.values())/(self._CM._ConfMat.to_numpy().sum())
         self._acc = Acc
         return Acc
