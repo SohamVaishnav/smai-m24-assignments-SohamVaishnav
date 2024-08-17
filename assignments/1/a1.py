@@ -15,6 +15,7 @@ perf_measures = importlib.import_module('performance-measures')
 
 RawDataDIR = os.path.join(UserDIR, "./data/external/")
 PreProcessDIR = os.path.join(UserDIR, "./data/interim/")
+KNN_PreProcessDIR = os.path.join(PreProcessDIR, 'spotify_KNN/')
 
 def DataLoader(DataDIR: str, datafilename: str, model: str):
     ''' 
@@ -142,12 +143,28 @@ def DataRefiner(dataset: pd.DataFrame,  model: str) -> pd.DataFrame:
     model = the kind of model that the data is being preprocessed for.
     '''
     if (model == 'KNN'):
-        # dataset = dataset.drop_duplicates(subset = ['track_id'], keep = 'first')
+        dataset = dataset.drop_duplicates(subset = ['track_id'], keep = 'first')
         dataset = dataset.dropna(axis = 0)
         dataset['duration_ms'] = dataset['duration_ms']/(60*1000)
         dataset = dataset.rename(columns = {'duration_ms':'duration_min'})
         print("Final shape of the Data: ", dataset.shape)
 
+    return dataset
+
+def Word2Num(dataset: pd.DataFrame, string_features, model: str) -> pd.DataFrame:
+    ''' 
+    Converts the string entries into some number which can then be used for classification. 
+    
+    Arguments:
+    dataset = the original data that the model is dealing with
+    string_features = the columns from the dataset that contain string entries
+    model = denoted which model is the data being used for.
+    '''
+    for i in string_features:
+        words, count = np.unique(dataset[i], return_counts = True)
+        nums = count/np.max(count)
+        encodings = {value: nums[i] for i, value in enumerate(words)}
+        dataset[i] = dataset[i].replace(encodings)
     return dataset
 
 def DataNormaliser(dataset: pd.DataFrame, model: str) -> pd.DataFrame:
@@ -171,15 +188,31 @@ def DataNormaliser(dataset: pd.DataFrame, model: str) -> pd.DataFrame:
     
 model = KNN()
 isValid = True
-data = DataLoader(RawDataDIR, 'spotify.csv', 'KNN')
-data = DataRefiner(data, 'KNN')
+data = DataLoader(KNN_PreProcessDIR, 'spotify_word2num.csv', 'KNN')
+# data = DataRefiner(data, 'KNN')
+string_features = ['track_id', 'artists', 'album_name', 'track_name', 'explicit']
+# data = Word2Num(data, string_features, 'KNN')
 data = DataNormaliser(data, 'KNN')
 train_set, valid_set, test_set = DataSplitter(0.7, isValid, 0.2, data, 'KNN', 'track_genre')
 print("Training set: ", train_set.shape)
 print("Testing set: ", test_set.shape)
 print("Validation set: ", valid_set.shape)
 
-KNN_PreProcessDIR = os.path.join(PreProcessDIR, 'spotify_KNN/')
-DataWriter(KNN_PreProcessDIR, 'train_set_normalised.csv', '.csv', train_set)
-DataWriter(KNN_PreProcessDIR, 'test_set_normalised.csv', '.csv', test_set)
-DataWriter(KNN_PreProcessDIR, 'valid_set_normalised.csv', '.csv', valid_set)
+#removing of columns with string values
+y_train = train_set['track_genre']
+X_train = train_set.drop(columns = ['track_genre'], axis = 1)
+
+y_test = test_set['track_genre']
+X_test = test_set.drop(columns = 'track_genre', axis = 1)
+
+y_valid = valid_set['track_genre']
+X_valid = valid_set.drop(columns = ['track_genre'], axis = 1)
+
+# DataWriter(KNN_PreProcessDIR, 'spotify_word2num.csv', '.csv', data)
+# DataWriter(KNN_PreProcessDIR, 'train_set_normalised.csv', '.csv', train_set)
+# DataWriter(KNN_PreProcessDIR, 'test_set_normalised.csv', '.csv', test_set)
+# DataWriter(KNN_PreProcessDIR, 'valid_set_normalised.csv', '.csv', valid_set)
+
+model.SetNumNeighbors(20)
+model.train(X_train, y_train)
+# model.eval(X_valid, y_valid)
