@@ -3,13 +3,13 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 import sys 
+import seaborn as sns
 
 AssignDIR = os.path.dirname(os.path.dirname(os.path.abspath('a1.py')))
 UserDIR = os.path.dirname(AssignDIR)
 
 sys.path.append(UserDIR)
 
-from models.knn.knn import KNN
 from performance_measures.confusion_matrix import Confusion_Matrix, Measures
 
 
@@ -185,6 +185,9 @@ def DataNormaliser(dataset: pd.DataFrame, model: str) -> pd.DataFrame:
             dataset[i] = (dataset[i] - means)/np.sqrt(vars)
     
     return dataset
+
+################################### KNN ####################################
+from models.knn.knn import KNN
     
 model = KNN()
 isValid = True
@@ -220,9 +223,10 @@ pred_values = model.eval(X_valid, y_valid)
 # DataWriter(KNN_PreProcessDIR, 'predicted_val_cosine.csv', '.csv', pred_values)
 # pred_values = DataLoader(KNN_PreProcessDIR, 'predicted_values_cosine.csv', 'KNN')
 
-# print("FN: ", CM._FN, "\n\n")
-# print("FP: ", CM._FP, "\n\n")
-# print("TN: ", CM._TN, "\n\n")
-# print("TP: ", CM._TP, "\n\n")
+################################ Linear Regression ################################
+from models.linear_regression.linear_regression import LinearRegression
+
+model = LinearRegression()
+
 
 ################################ VISUALISATION ###################################
