@@ -55,6 +55,112 @@ class KNN:
         '''
         return self.k
     
+    def DataSplitter(self, train: float, splitValid: bool, test: float, data: pd.DataFrame, class_feature: str) -> pd.DataFrame:
+        ''' 
+        Splits the data into train, validation and test sets based on the user defined ratios.\n
+        The split is done based on stratified sampling to sustain the diversity of data in all the 
+        three sets. \n
+        Note: If splitValid is set to True, enter the values of train and test ratios accordingly. The 
+        function will not divide the testing set into two parts if train + test ratios = 1
+
+        Arguments:
+        train = the ratio of data that needs to be set aside as training set.
+        splitValid = boolean value to denote whether the validation set is required or no.
+        test = the ratio of data that needs to be set aside as testing set.
+        data = the dataset that is being discussed.
+        '''
+        if (not splitValid and train+test != 1):
+            print("The sum of train and test ratios does not equate to unity. Please enter valid ratios "
+                  "or allow creation of validation set.")
+            return None, None
+        elif (splitValid and train+test == 1):
+            print("The sum of train and test ratios equate to unity and thus, the valid set cannot be "
+                  "created. Please enter appropriate ratios.")
+            return None, None, None
+    
+        labels = data[class_feature]
+        uniqs, count = np.unique(labels, return_counts = True)
+        print("The labels are: \n", uniqs)
+        uniform_class_distribution = 0
+        for i in range(len(uniqs)-1):
+            if (count[i] == count[i+1]):
+                uniform_class_distribution += 1
+            else:
+                uniform_class_distribution = 0
+        if (uniform_class_distribution == len(uniqs)-1):
+            print("The classes are uniformly distributed across the data.")
+        else:
+            print("The classes are not uniformly distributed across the data.")
+
+        labels_ratios = count/np.sum(count)
+        label_ratios_train = labels_ratios*train*data.shape[0]
+        label_ratios_test = labels_ratios*test*data.shape[0]
+        train_set = test_set = pd.DataFrame()
+        if (splitValid):
+            valid = 1 - (train + test)
+            label_ratios_valid = labels_ratios*valid*data.shape[0]
+            valid_set = pd.DataFrame()
+
+        data_sorted = data.sort_values(class_feature)
+        j = 0
+        for i in range(0, len(count)):
+            if (i == 0):
+                train_set = data_sorted[j:count[i]+j].sample(frac = train , random_state = 42)
+                data_sorted_temp = data_sorted[j:count[i]+j].drop(train_set.index, axis=0)
+
+                test_set = data_sorted_temp.sample(n = int(label_ratios_test[i]), random_state = 42)
+                data_sorted_temp = data_sorted_temp.drop(test_set.index, axis=0)
+
+            else:
+                temp = data_sorted[j:count[i]+j].sample(frac = train, random_state = 42)
+                data_sorted_temp = data_sorted[j:count[i]+j].drop(temp.index, axis=0)
+                train_set = pd.concat([train_set, temp])
+
+                temp = data_sorted_temp.sample(n = int(label_ratios_test[i]), random_state = 42)
+                data_sorted_temp = data_sorted_temp.drop(temp.index, axis=0)
+                test_set = pd.concat([test_set, temp])
+
+            j += count[i] 
+        
+        if (splitValid):
+            temp = pd.concat([train_set, test_set])
+            valid_set = data.drop(temp.index, axis = 0)
+            return train_set, valid_set, test_set
+        
+        return train_set, test_set
+    
+    def DataRefiner(self, dataset: pd.DataFrame) -> pd.DataFrame:
+        ''' 
+        Performs preprocessing on the data like removing null and NaN, and duplicate datapoints as well.
+
+        Arguments:
+        dataset = the dataset that the user is dealing with.
+        '''
+        dataset = dataset.drop_duplicates(subset = ['track_id'], keep = 'first')
+        dataset = dataset.dropna(axis = 0)
+        dataset['duration_ms'] = dataset['duration_ms']/(60*1000)
+        dataset = dataset.rename(columns = {'duration_ms':'duration_min'})
+        print("Final shape of the Data: ", dataset.shape)
+
+        return dataset
+    
+    def DataNormaliser(self, dataset: pd.DataFrame) -> pd.DataFrame:
+        ''' 
+        Normalises the data across all features to ensure that no one feature is singularly given undue 
+        importance given its larger magnitude.
+
+        Arguments:
+        dataset = the data that is being used for the task.
+        '''
+        for i in dataset.columns:
+            if (type(dataset[i].iloc[0]) == str or dataset[i].iloc[0].dtype == bool):
+                continue
+            means = np.mean(dataset[i], axis = 0)
+            vars = np.var(dataset[i], axis = 0)
+            dataset[i] = (dataset[i] - means)/np.sqrt(vars)
+    
+        return dataset
+    
     def train(self, X_train: pd.DataFrame, y_train: pd.DataFrame) -> None:
         ''' 
         Trains the model for classification tasks. (No concept of epochs for KNN)
