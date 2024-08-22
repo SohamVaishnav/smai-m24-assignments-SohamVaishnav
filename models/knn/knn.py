@@ -210,7 +210,7 @@ class KNN:
             if (label == y_valid.iloc[i]):
                 rights += 1
             pred_labels.append(label)
-        print(rights/dist_matrix.shape[0])
+            
         pred_labels = pd.DataFrame(pred_labels, index = X_valid.index)
         
         self._Meas = Measures(pred_values = pred_labels, true_values = y_valid, 
