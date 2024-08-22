@@ -17,9 +17,18 @@ class LinearRegression:
     run the algorithm over a dataset, create a model in the main code by calling the class and running 
     the 'train', 'eval' and 'test' functions as and when required.
     '''
-    def __init__(self) -> None:
-        self._lambda = 0
-        self._lr = 0
+    def __init__(self, lr = 0, degree = 1, l = 0) -> None:
+        ''' 
+        Initialises the model. 
+
+        Arguments:
+        lr = learning rate (kept 0 by default).
+        degree = the degree of curve that needs to be fit (kept 1 by default).
+        l = value of regularisation parameter (kept 0 by default).
+        '''
+        self._lambda = l
+        self._lr = lr
+        self._degree = degree
         pass
 
     def SetLambda(self, l) -> None:
@@ -59,7 +68,8 @@ class LinearRegression:
     
     def SetDegree(self, degree: int) -> None:
         ''' 
-        Helps in setting the degree of the curve that needs to be fit onto data.
+        Helps in setting the degree of the curve that needs to be fit onto data.\n
+        Note: Degree is assumed to be 1 by default.
 
         Arguments:
         degree = value denoting degree of the fitting curve.
@@ -115,12 +125,31 @@ class LinearRegression:
            y_valid = y[train_range+test_range:high]
            return X_train, y_train, X_valid, y_valid, X_test, y_test
 
-        return X_train, y_train, X_test, y_test  
+        return X_train, y_train, X_test, y_test 
+
+    def Transform2Poly(self, X: float) -> float:
+        ''' 
+        For nth degree regression, the function converts the given set of values of the independent 
+        variable to a set of values that contains all the values up to nth degree.
+
+        Arguments:
+        X = initial set of data points of the independent variable.
+        ''' 
+        if (self._degree == 1):
+            return X
+        temp = X.copy()
+        for i in range(2, self._degree+1):
+            X = np.c_[X, temp**i]
+
+        return X
       
-    def train(self, X_train: float, y_train: float, method: str, epochs: int):
+    def train(self, X_train: float, y_train: float, method: str, epochs: int, regularise = False, reg_method = None) -> float:
         ''' 
         Train the model using the dependent (y) and independent (x) variables and any of the two 
-        possible methods - closed form or gradient descent. 
+        possible methods - closed form or gradient descent. The function also incorporates the effect
+        of regularisation on the weights.\n
+        Note: The code will automatically add a column of ones to the independent variable to account 
+        for the bias term. 
 
         Arguments:
         X_train = independent variable (or values in x)
@@ -128,13 +157,31 @@ class LinearRegression:
         method = string value denoting which of the two forms of training from those mentioned in 
                  description should be used for training.
         epochs = the number of times the code needs to be run
+        regularise = boolean value to denote whether regularisation is required or no.
+        reg_method = the method of regularisation to be used.
         '''
-        self._data_dim = X_train.ndim
-        beta = np.zeros((self._data_dim+1, 1))
+        if (X_train.ndim >= 2):
+            beta = np.zeros((X_train.shape[1]+1, 1))
+        elif (X_train.ndim == 1):
+            beta = np.zeros((2, 1))
         X_train = np.c_[np.ones(len(X_train)), X_train]
         y_train = y_train.reshape((y_train.shape[0], 1))
+        print(beta.shape)
         if (method == 'cf'):
-            beta = np.matmul(np.matmul(np.linalg.inv(np.matmul(X_train.T, X_train)), X_train.T), y_train)
+            if (regularise):
+                if (reg_method == 'l2'):
+                    beta = np.matmul(np.matmul(np.linalg.inv(np.matmul(X_train.T, X_train) + 
+                                                         self._lambda*np.identity(X_train.shape[1])), 
+                                                         X_train.T), 
+                                                         y_train)
+                elif (reg_method == 'l1'):
+                    print("Closed form solution does not exist for L1 regularisation due to "
+                          "non-differentiability of the reguliser.")
+                    return None
+            else:
+                beta = np.matmul(np.matmul(np.linalg.inv(np.matmul(X_train.T, X_train)), 
+                                           X_train.T), 
+                                           y_train)
             self._beta = beta
             return beta, None
         elif (method == 'gd'):
@@ -144,9 +191,23 @@ class LinearRegression:
             mse = []
             for i in range(epochs):
                 y_pred = np.matmul(X_train, beta)
-                mse.append(np.mean(np.matmul(y_pred.T - y_train.T, y_pred - y_train)))
-                grad = 2*np.mean(np.matmul(X_train.T, y_pred - y_train), axis = 1)
-                grad = grad.reshape((grad.shape[0], 1))
+                if (regularise):
+                    if (reg_method == 'l2'):   
+                        mse.append(np.mean(np.matmul(y_pred.T - y_train.T, y_pred - y_train)) + 
+                                       self._lambda*np.matmul(beta.T, beta))
+                        grad = 2*np.mean(np.matmul(X_train.T, y_pred - y_train), axis = 1)
+                        grad = grad.reshape((grad.shape[0], 1))
+                        grad += 2*self._lambda*beta
+                    elif (reg_method == 'l1'):
+                        mse.append(np.mean(np.matmul(y_pred.T - y_train.T, y_pred - y_train)) + 
+                                       self._lambda*np.sum(np.abs(beta)))
+                        grad = 2*np.mean(np.matmul(X_train.T, y_pred - y_train), axis = 1)
+                        grad = grad.reshape((grad.shape[0], 1))
+                        grad += self._lambda*np.sign(beta)
+                else:
+                    mse.append(np.mean(np.matmul(y_pred.T - y_train.T, y_pred - y_train)))
+                    grad = 2*np.mean(np.matmul(X_train.T, y_pred - y_train), axis = 1)
+                    grad = grad.reshape((grad.shape[0], 1))
                 beta -= self._lr*grad
 
             self._beta = beta
@@ -167,7 +228,17 @@ class LinearRegression:
 
         return y_pred, mse
     
+    def test(self, X_test, y_test):        
+        ''' 
+        Evaluate the model performance on the validation set.
 
+        Arguments:
+        X_valid = validation set used for evaluation
+        y_valid = the validation set of dependent variable corresponding to the values in X_valid
+        '''
+        X_test = np.c_[np.ones(len(X_test)), X_test]
+        y_test = y_test.reshape((y_test.shape[0], 1))
+        y_pred = np.matmul(X_test, self._beta)
+        mse = np.mean(np.matmul(y_pred.T - y_test.T, y_pred - y_test))
 
-    
-    # elif (model == 'LinReg'):
+        return y_pred, mse
