@@ -11,21 +11,37 @@ The spotify dataset contains 114000 data points with 20 features. The features l
 |---|---|
 | track_id | string |
 | artists | string | 
-| album_name | Date of the purchase |
-| track_name | float | Total amount spent on the purchase (dollars) |
-| popularity | string | Category of the purchased product |
-| duration_ms | string | Category of the purchased product |
-| explicit | string | Category of the purchased product |
-| danceability | string | Category of the purchased product |
-| energy | string | Category of the purchased product |
-| key | string | Category of the purchased product |
-| loudness | string | Category of the purchased product |
-| mode | string | Category of the purchased product |
-| speechiness | string | Category of the purchased product |
-| acousticness | string | Category of the purchased product |
-| instrumentalness | string | Category of the purchased product |
-| liveliness | string | Category of the purchased product |
-| valence | string | Category of the purchased product |
-| tempo | string | Category of the purchased product |
-| time_signature | string | Category of the purchased product |
-| track_genre | string | Category of the purchased product |
+| album_name | string |
+| track_name | string |
+| popularity | float |
+| duration_ms | float |
+| explicit | bool |
+| danceability | float |
+| energy | float |
+| key | int |
+| loudness | float |
+| mode | int |
+| speechiness | float |
+| acousticness | float |
+| instrumentalness | float |
+| liveliness | float |
+| valence | float |
+| tempo | float |
+| time_signature | int |
+| track_genre | string |
+
+Since the task is to deploy KNN for predicting music genre, the last feature becomes the label set. For the other columns, the string ones can be either removed or encoded into some numeric form for them to be useable by the model. \\
+For visualisation, I have plotted the numeric features. The individual figures can be seen in `./figure`. For the combined plots, refer to the following figures:
+To add a figure in the README.md file, you can use the following markdown syntax:
+
+```markdown
+![Features Before and After preprocessing](./figures/All_Features.png)
+```
+For some features like acousticness, instrumentalness, tempo and valence, after looking at the distribution, it felt better to represent them in the following manner as well:
+
+| ![Acousticness](./figures/Acousticness_aliter.png) | ![Instrumentalness](./figures/Instrumentalness_aliter.png) | ![Tempo](./figures/Tempo_aliter.png) | ![Valence](./figures/Valence_aliter.png) |
+|---|---|---|---|
+
+
+
+
