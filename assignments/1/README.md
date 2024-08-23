@@ -34,9 +34,9 @@ Since the task is to deploy KNN for predicting music genre, the last feature bec
 For visualisation, I have plotted the numeric features. The individual figures can be seen in `./figure`. For the combined plots, refer to the following figures:
 To add a figure in the README.md file, you can use the following markdown syntax:
 
-```markdown
+
 ![Features Before and After preprocessing](./figures/All_Features.png)
-```
+
 For some features like acousticness, instrumentalness, tempo and valence, after looking at the distribution, it felt better to represent them in the following manner as well:
 
 | ![Acousticness](./figures/Acousticness_aliter.png) | ![Instrumentalness](./figures/Instrumentalness_aliter.png) | 
