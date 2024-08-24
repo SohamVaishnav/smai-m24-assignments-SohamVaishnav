@@ -108,9 +108,7 @@ Followed the structure mentioned in the doc. \
 All the top performing hyperparameters are those with **Manhattan** distance metric and that is very much in line with how the data is scattered in the feature space. 
 **Note**: All the metrics shown above are measured with no columns dropped. This analysis is done later.
 
-- The k v/s accuracy plot for best pair of k and distance metric looks as follows:
-NEED TO ENTER THE PLOT
-
+- The k v/s accuracy plot for best pair of k and distance metric has a minima at k = 15
 - From the data visualisation we can say that dropping the string features affects the performance by margin of around 7%.
 - I also tried by dropping columns such as `key`, `duration_min`, `time_signature`, `mode`, `popularity`, `energy` and `instrumentalness`, and their combinations for testing the model on the validation set to check their effect on the accuracy.
     - dropping `key`, `duration_min`, `time_signature` and `mode` gives better accuracy with an increase of around 2%
@@ -133,7 +131,7 @@ k = 15 and distance metric = l1
 Metrics:
 | Set | Accuracy | Precision_macro | Recall_macro | f1_macro |
 |---|---|---|---|---|
-| validate | 35 | l1 | 36.32 | |
+| validate | 37 |  |
 | test | 10 | l1 | 36.11 | |
 
 
