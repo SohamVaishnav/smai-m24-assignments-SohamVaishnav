@@ -83,14 +83,28 @@ Followed the structure mentioned in the doc. \
     - Once converted, the strings - now numerals - are treated just like any other numeric feature and go through the same preprocessing tasks.
 
  ![Features After Word2num and Preprocessing](./figures/PairPlot_AP_W2N.png)
+ We can observe that by visualising the correlation of the string features with other numeric features, the genres seem to be more *identifiable* due to slightly better scatter and some disjoint regions. The effects of this addition will also be visible in the model performance.
 
 - Functions like `DataLoader()` and `DataWriter()` have also been written for keeping the code modular.
 
 #### Task 3: Hyperparameter Tuning
 - In concordance with our initial analysis during data visualisation, the best `{k, dist_metric}` pair for a train:valid:test split of `80:10:10` in terms of giving highest accuracy is `{k=15, dist_metric = l1}` with an accuracy on validation set of 36.88%. 
+- Top 10 `{k, dist_metric}` pairs that give the highest accuracy are as follows:
 
+| rank | k | dist_metric | accuracy |
+|---|---|---|---|
+| 1 |  15 | l1 | 36.88 | 
+| 2 | 35 | l1 | 36.32 | 
+| 3 | 10 | l1 | 36.11 |
+| 4 | 1 | l1 | 35.71 |
+| 5 | 50 | l1 | 35.30 |
+| 6 | 5 | l1 | 34.74 |
+| 7 | 65 | l1 | 34.57 |
+| 8 | 80 | l1 | 34.34 |
+| 9 | 100 | l1 | 33.83 |
+| 10 | 150 | l1 | 32.98 |
 
-
+All the top performing hyperparameters are those with **Manhattan** distance metric and that is very much in line with how the data is scattered in the feature space. 
 
 
 
