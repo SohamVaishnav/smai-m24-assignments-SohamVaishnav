@@ -139,11 +139,11 @@ Metrics:
 
 ### 3: Linear Regression
 The data `linreg.csv` was shuffled and split into train:validate:test sets in ratio 80:10:10. Following table highlights the metrics:
-| Set | Std. Dev. | Variance | Mean |
-|---|---|---|---|
-| train |  15 | l1 | 36.88 | 
-| validate | 35 | l1 | 36.32 | 
-| test | 10 | l1 | 36.11 |
+| Set | Std. Dev. | Variance |
+|---|---|---|
+| train | 0.57 | 0.33 | 
+| validate | 0.62 | 0.31 | 
+| test | 0.59 | 0.34 |
 
 ![Splitted Data](./figures/SplitData_LinReg.png)
 
@@ -157,33 +157,66 @@ The data `linreg.csv` was shuffled and split into train:validate:test sets in ra
 
 #### Degree 1
 Obtained values of parameters: 
-`beta = `
+`beta = [0.903, 1.59]`
 | Set | Std. Dev. | Variance | MSE |
 |---|---|---|---|
-| train |  15 | l1 | | 
-| test | 10 | l1 | |
+| train |  0.57 | 0.33 | 113.46 | 
+| test | 0.59 | 0.34 | 7.62 |
 
 Plot for line of best fit:
-ENTER THE PLOT HERE
+![Best_fit_Deg1](./figures/BestFit_Deg1.png)
 
 #### Degree > 1
 Tabularising the outputs:
 - For train set:
 | k | Std. Dev. | Variance | MSE |
 |---|---|---|---|
-| | 15 | l1 | | 
-| | 10 | l1 | |
+| 2 | 0.92 | 0.86 | 71.37 | 
+| 3 | 1.0 | 1.01 | 27.44 |
+| 4 | 1.04 | 1.09 | 22.90 | 
+| 5 | 1.06 | 1.12 | 18.36 |
+| 6 | 1.05 | 1.11 | 16.11 | 
+| 7 | 1.09 | 1.20 | 11.38 |
+| 10 | 1.03 | 1.06 | 7.82 | 
+| 12 | 1.08 | 1.17 | 5.94 |
 
 - For test set:
 | k | Std. Dev. | Variance | MSE |
 |---|---|---|---|
-| | 15 | l1 | | 
-| | 10 | l1 | |
+| 2 | 0.96 | 0.93 | 6.64 | 
+| 3 | 1.01 | 1.02 | 3.99 |
+| 4 | 0.89 | 0.80 | 11.50 | 
+| 5 | 0.71 | 0.50 | 2.01 |
+| 6 | 0.74 | 0.55 | 1.38 | 
+| 7 | 0.86 | 0.74 | 1.55 |
+| 10 | 1.16 | 1.34 | 0.90 | 
+| 12 | 1.09 | 1.20 | 0.72 |
+
+![Deg_gt_1](./figures/Deg_gt_1.png)
+Here the plots are in the increasing order of power (from top-left to bottom-right).
 
 #### Regularisation
 Splitted Datasets:
 
 ![Splitted Data for Regularisation](./figures/SplitData_LinReg_R.png)
+
+The output plots are as follows:
+
+![W/o Reg](./figures/Without_Regularisation.png)
+
+![Regularisation-l1](./figures/l1_Reg.png)
+
+![Regularisation-l2](./figures/l2_Reg.png)
+
+- The effect of overfitting is not very clearly visible due to some reasons
+    - Training set too large and quite smooth so the curve almost fits easily
+    - Range of values of X is too small for the effects of regularisation to be seen
+- For the MSE, Std Dev. and Var values for this task, refer to `Reg_l1_out.csv` and `Reg_l2_out.csv`.
+
+Remarks:
+On looking at the beta values obtained during regularisation, the effects were visible - in that, the larger values of beta were being driven more and more closer to 0.
+
+
 
 
 
