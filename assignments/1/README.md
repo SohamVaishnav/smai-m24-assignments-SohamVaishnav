@@ -160,13 +160,13 @@ ENTER THE PLOT HERE
 
 #### Degree > 1
 Tabularising the outputs:
-- For train set
+- For train set:
 | k | Std. Dev. | Variance | MSE |
 |---|---|---|---|
 | |  15 | l1 | | 
 | | 10 | l1 | |
 
-- For test set
+- For test set:
 | k | Std. Dev. | Variance | MSE |
 |---|---|---|---|
 | |  15 | l1 | | 
