@@ -106,22 +106,27 @@ Followed the structure mentioned in the doc. \
 | 10 | 150 | l1 | 32.98 |
 
 All the top performing hyperparameters are those with **Manhattan** distance metric and that is very much in line with how the data is scattered in the feature space. 
+**Note**: All the metrics shown above are measured with no columns dropped. This analysis is done later.
+
 - The k v/s accuracy plot for best pair of k and distance metric looks as follows:
 NEED TO ENTER THE PLOT
 
 - From the data visualisation we can say that dropping the string features affects the performance by margin of around 7%.
-- I also tried by dropping columns such as `duration_min`, `time_signature`, `mode`, `popularity`, `energy` and `instrumentalness`, and their combinations for testing the model on the validation set to check their effect on the accuracy.
-    - dropping `key` gives better accuracy with an increase of around 1%
-    - 
+- I also tried by dropping columns such as `key`, `duration_min`, `time_signature`, `mode`, `popularity`, `energy` and `instrumentalness`, and their combinations for testing the model on the validation set to check their effect on the accuracy.
+    - dropping `key`, `duration_min`, `time_signature` and `mode` gives better accuracy with an increase of around 2%
+    - dropping features such as `popularity`, `energy` and `instrumentalness` vastly affects the accuracy, so much so that it dips by 12%! (Kind of expected as well)
 
 #### Task 4: Optimisation
 - My original model itsel is an optimised version of KNN because I tried to vectorise the code as much as possible in the first go itself. 
     - Vectorisation was most necessary in calculating distances and in predicting the labels where sorting and majority selection were involved.
     - `cosine` distance metric takes the most time out of the three distance metrics due to an additional matrix consisting of the norm of the train and validation/test sets.
 - Following are the model stats:
-    - Initial KNN - Vectorised version
-    - Best KNN - Uses **k=15** and **l1** as distance metric
-    - Most Optimised KNN - Uses 
+    - Initial KNN - Vectorised version which took around 3 minutes for `predict()` function
+    - Best KNN - Uses **k=15** and **l1** as distance metric takes similar time as the initial KNN
+    - Most Optimised KNN - One major modification is that here I calculate the distance metrics for batches of the validation/test datasets which utilises numpy functions thereby quickening the process by around 1.5 minutes (here the time taken is 96.36 seconds)
+    - SKLearn KNN - Using the same hyperparameters there is a drastic difference in the time taken for the model - only 17.93 seconds
+-Plot for train dataset size v/s inference time
+
 
 #### Spotify-2 Dataset
 k = 15 and distance metric = l1
@@ -139,6 +144,9 @@ The data `linreg.csv` was shuffled and split into train:validate:test sets in ra
 | train |  15 | l1 | 36.88 | 
 | validate | 35 | l1 | 36.32 | 
 | test | 10 | l1 | 36.11 |
+
+![Splitted Data](./figures/SplitData_LinReg.png)
+
 
 #### Implementation of Linear Regularisation Class
 - Goes by the name `LinearRegularisation()` under the specified folder
@@ -163,18 +171,19 @@ Tabularising the outputs:
 - For train set:
 | k | Std. Dev. | Variance | MSE |
 |---|---|---|---|
-| |  15 | l1 | | 
+| | 15 | l1 | | 
 | | 10 | l1 | |
 
 - For test set:
 | k | Std. Dev. | Variance | MSE |
 |---|---|---|---|
-| |  15 | l1 | | 
+| | 15 | l1 | | 
 | | 10 | l1 | |
 
 #### Regularisation
+Splitted Datasets:
 
-
+![Splitted Data for Regularisation](./figures/SplitData_LinReg_R.png)
 
 
 
