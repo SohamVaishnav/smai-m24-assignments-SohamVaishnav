@@ -214,7 +214,6 @@ The output plots are as follows:
 - The effect of overfitting is not very clearly visible due to some reasons
     - Training set too large and quite smooth so the curve almost fits easily
     - Range of values of X is too small for the effects of regularisation to be seen
-- For the MSE, Std Dev. and Var values for this task, refer to `Reg_l1_out.csv` and `Reg_l2_out.csv`.
 
 Remarks:
 On looking at the beta values obtained during regularisation, the effects were visible - in that, the larger values of beta were being driven more and more closer to 0.
