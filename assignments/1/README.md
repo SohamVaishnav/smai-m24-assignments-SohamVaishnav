@@ -78,9 +78,9 @@ Followed the structure mentioned in the doc. \
 
 #### Some add ons:
 - I have added a function called `Word2Num()` inside `a1.py` which does the task of converting string features to some numerical form - generates embeddings for the strings.
- - The method that I have used here is based on the probability distribution of the strings with respect to the max occurance. Therefore, each string is given a value in the range `(0, 1)` where 1 will be given to the string which occurs the most. 
- - This allows me to sustain and visualise the effect that each string feature has/does not have on the determination of music genres.
- - Once converted, the strings - now numerals - are treated just like any other numeric feature and go through the same preprocessing tasks.
+    - The method that I have used here is based on the probability distribution of the strings with respect to the max occurance. Therefore, each string is given a value in the range `(0, 1)` where 1 will be given to the string which occurs the most. 
+    - This allows me to sustain and visualise the effect that each string feature has/does not have on the determination of music genres.
+    - Once converted, the strings - now numerals - are treated just like any other numeric feature and go through the same preprocessing tasks.
 
  ![Features After Word2num and Preprocessing](./figures/PairPlot_AP_W2N.png)
 
