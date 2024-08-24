@@ -88,7 +88,8 @@ Followed the structure mentioned in the doc. \
 - Functions like `DataLoader()` and `DataWriter()` have also been written for keeping the code modular.
 
 #### Task 3: Hyperparameter Tuning
-- In concordance with our initial analysis during data visualisation, the best `{k, dist_metric}` pair for a train:valid:test split of `80:10:10` in terms of giving highest accuracy is `{k=15, dist_metric = l1}` with an accuracy on validation set of 36.88%. 
+- In concordance with our initial analysis during data visualisation, the best `{k, dist_metric}` pair for a train:valid:test split of `80:10:10` in terms of giving highest accuracy is `{k=15, dist_metric = l1}` with an accuracy on validation set of 36.88%. \
+**Note**: The dataset used here is the one obtained after applying `Word2Num()` on the string features. In case of simply removing those columns, we get the same hyperparameter pair but giving an accuracy of 29.96%. This makes it evident that the string features do play a role in determining the genre.
 - Top 10 `{k, dist_metric}` pairs that give the highest accuracy are as follows:
 
 | rank | k | dist_metric | accuracy |
@@ -105,6 +106,78 @@ Followed the structure mentioned in the doc. \
 | 10 | 150 | l1 | 32.98 |
 
 All the top performing hyperparameters are those with **Manhattan** distance metric and that is very much in line with how the data is scattered in the feature space. 
+- The k v/s accuracy plot for best pair of k and distance metric looks as follows:
+NEED TO ENTER THE PLOT
+
+- From the data visualisation we can say that dropping the string features affects the performance by margin of around 7%.
+- I also tried by dropping columns such as `duration_min`, `time_signature`, `mode`, `popularity`, `energy` and `instrumentalness`, and their combinations for testing the model on the validation set to check their effect on the accuracy.
+    - dropping `key` gives better accuracy with an increase of around 1%
+    - 
+
+#### Task 4: Optimisation
+- My original model itsel is an optimised version of KNN because I tried to vectorise the code as much as possible in the first go itself. 
+    - Vectorisation was most necessary in calculating distances and in predicting the labels where sorting and majority selection were involved.
+    - `cosine` distance metric takes the most time out of the three distance metrics due to an additional matrix consisting of the norm of the train and validation/test sets.
+- Following are the model stats:
+    - Initial KNN - Vectorised version
+    - Best KNN - Uses **k=15** and **l1** as distance metric
+    - Most Optimised KNN - Uses 
+
+#### Spotify-2 Dataset
+k = 15 and distance metric = l1
+Metrics:
+| Set | Accuracy | Precision_macro | Recall_macro | f1_macro |
+|---|---|---|---|---|
+| validate | 35 | l1 | 36.32 | |
+| test | 10 | l1 | 36.11 | |
+
+
+### 3: Linear Regression
+The data `linreg.csv` was shuffled and split into train:validate:test sets in ratio 80:10:10. Following table highlights the metrics:
+| Set | Std. Dev. | Variance | Mean |
+|---|---|---|---|
+| train |  15 | l1 | 36.88 | 
+| validate | 35 | l1 | 36.32 | 
+| test | 10 | l1 | 36.11 |
+
+#### Implementation of Linear Regularisation Class
+- Goes by the name `LinearRegularisation()` under the specified folder
+- Contains helper functions like `SetDegree()`, `GetDegree()`, `SetLambda()`, `GetLambda()`, `SetLearningRate()` and `GetLearningRate()` for setting and accessing the hyperparameters for various operations
+- Contains `train()` and `predict()` functions for finding the parameters and predicting the dependent variable
+- Contains `DataSplitter()` specific to Linear Regularisation
+- Contains `Transform2Poly()` which transforms the X variable to higher degrees used for regularisation and polynomial regression.
+
+#### Degree 1
+Obtained values of parameters: 
+`beta = `
+| Set | Std. Dev. | Variance | MSE |
+|---|---|---|---|
+| train |  15 | l1 | | 
+| test | 10 | l1 | |
+
+Plot for line of best fit:
+ENTER THE PLOT HERE
+
+#### Degree > 1
+Tabularising the outputs:
+- For train set
+| k | Std. Dev. | Variance | MSE |
+|---|---|---|---|
+| |  15 | l1 | | 
+| | 10 | l1 | |
+
+- For test set
+| k | Std. Dev. | Variance | MSE |
+|---|---|---|---|
+| |  15 | l1 | | 
+| | 10 | l1 | |
+
+#### Regularisation
+
+
+
+
+
 
 
 
