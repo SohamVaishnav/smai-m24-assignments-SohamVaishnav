@@ -45,6 +45,18 @@ For some features like acousticness, instrumentalness, tempo and valence, after 
 | ![Tempo](./figures/Tempo_aliter.png) | ![Valence](./figures/Valence_aliter.png) |
 |---|---|
 
+Here, we can clearly observe the effects of normalisation on the data (covered in the next section). \\
+For the labels, I visualised their distribution using a histogram so as to give an idea about how to split the data into train, validation and test sets.
+
+![Features Before and After preprocessing](./figures/genre_distribution.png)
+
+Initially, all the classes were equally distributed across the datapoints and thus it did not make sense to perform stratified sampling. But if we observe the data after preprocessing, it is clear that stratified sampling is required (covered in the next section). \\
+
+Since, we had to visualise the correlation between various features, I felt it most appropriate to generate a pair plot between features over the labels so as to give an idea of how they all are related.
+
+![Features Before and After preprocessing](./figures/PairPlot_BP.png)
+
+
 
 
 
