@@ -200,8 +200,8 @@ class KNN:
                 dist_matrix = pd.DataFrame([np.sum(np.abs(X_valid.iloc[i] - self._X_train), axis = 1)
                                             for i in range(X_valid.shape[0])], index = X_valid.index)
             else:
-                dist_matrix = ([np.sum((X_valid.values[x:x+1000, None] - self._X_train.values)**2, axis= 2) for x in range(0, X_valid.shape[0], 1000)])
-                dist_matrix = pd.DataFrame(dist_matrix.reshape((dist_matrix.shape[1], dist_matrix.shape[2])).T, index=X_valid.index, columns=self._X_train.index)
+                dist_matrix = np.row_stack([np.sum((X_valid.values[x:x+10, None] - self._X_train.values)**2, axis= 2) for x in range(0, X_valid.shape[0], 10)])
+                dist_matrix = pd.DataFrame(dist_matrix, index=X_valid.index, columns=self._X_train.index)
 
         elif (self.dist_metric == 'cosine'):
             if (mode == 'initial'):
