@@ -143,7 +143,7 @@ class LinearRegression:
 
         return X
       
-    def train(self, X_train: float, y_train: float, method: str, epochs: int, regularise = False, reg_method = None) -> float:
+    def fit(self, X_train: float, y_train: float, method: str, epochs: int, regularise = False, reg_method = None) -> float:
         ''' 
         Train the model using the dependent (y) and independent (x) variables and any of the two 
         possible methods - closed form or gradient descent. The function also incorporates the effect
@@ -161,9 +161,9 @@ class LinearRegression:
         reg_method = the method of regularisation to be used.
         '''
         if (X_train.ndim >= 2):
-            beta = np.zeros((X_train.shape[1]+1, 1))
+            beta = np.zeros((X_train.shape[1]+1, 1), np.float32)
         elif (X_train.ndim == 1):
-            beta = np.zeros((2, 1))
+            beta = np.zeros((2, 1), dtype = np.float32)
         X_train = np.c_[np.ones(len(X_train)), X_train]
         y_train = y_train.reshape((y_train.shape[0], 1))
         print(beta.shape)
@@ -211,24 +211,24 @@ class LinearRegression:
                 beta -= self._lr*grad
 
             self._beta = beta
-        return beta, mse
+        return beta, mse[len(mse)-1], y_pred
     
-    def eval(self, X_valid: float, y_valid: float) -> float:
-        ''' 
-        Evaluate the model performance on the validation set.
+    # def eval(self, X_valid: float, y_valid: float) -> float:
+    #     ''' 
+    #     Evaluate the model performance on the validation set.
 
-        Arguments:
-        X_valid = validation set used for evaluation
-        y_valid = the validation set of dependent variable corresponding to the values in X_valid
-        '''
-        X_valid = np.c_[np.ones(len(X_valid)), X_valid]
-        y_valid = y_valid.reshape((y_valid.shape[0], 1))
-        y_pred = np.matmul(X_valid, self._beta)
-        mse = np.mean(np.matmul(y_pred.T - y_valid.T, y_pred - y_valid))
+    #     Arguments:
+    #     X_valid = validation set used for evaluation
+    #     y_valid = the validation set of dependent variable corresponding to the values in X_valid
+    #     '''
+    #     X_valid = np.c_[np.ones(len(X_valid)), X_valid]
+    #     y_valid = y_valid.reshape((y_valid.shape[0], 1))
+    #     y_pred = np.matmul(X_valid, self._beta)
+    #     mse = np.mean(np.matmul(y_pred.T - y_valid.T, y_pred - y_valid))
 
-        return y_pred, mse
+    #     return y_pred, mse
     
-    def test(self, X_test, y_test):        
+    def predict(self, X_test, y_test):        
         ''' 
         Evaluate the model performance on the validation set.
 
