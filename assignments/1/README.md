@@ -60,7 +60,7 @@ Initially, all the classes were equally distributed across the datapoints and th
 
 Since, we had to visualise the correlation between various features, I felt it most appropriate to generate a pair plot between features over the labels so as to give an idea of how they all are related.
 
-![Features Before and After preprocessing](./figures/PairPlot_BP.png)
+![Features Before Preprocessing](./figures/PairPlot_BP.png)
 
 The pair plot is a great way of gaining insights into the dataset:
 - Intuitively, since there are 114 classes (or labels) the plots are very congested
@@ -69,12 +69,25 @@ The pair plot is a great way of gaining insights into the dataset:
 - Since data is too closely packed in the feature space, **Manhattan Distance** will give better results than other metrics and **Cosine Similarity** will perform the worst
 
 #### Task 2: KNN Implementation
-Followed the structure mentioned in the doc. \\
-- Additionally, the class `KNN()` contains functions such as `DataSplitter()` and `DataNormaliser()` which have more to do with the model than with any data in particular. The reason for not putting the above functions in the `a1.py` is because if KNN has to be used later, these will be useful then and there. \\
+Followed the structure mentioned in the doc. \
+- Additionally, the class `KNN()` contains functions such as `DataSplitter()` and `DataNormaliser()` which have more to do with the model than with any data in particular. The reason for not putting the above functions in the `a1.py` is because if KNN has to be used later, these will be useful then and there. \
 - `DataNormaliser()` along with another function in `a1.py` called `DataRefiner()` help in preprocessing of the data where they collectively remove the `null` and `NaN` values and also normalise the remaining numeric values.
 - The class also has another function `FindDistance()` which makes use of the distance metric set by the user and computes the distance metric which can then be used for prediction purposes. All the operations in here are vectorised to promote temporal efficiency.
 - Functions such as `SetNumNeighbors()`, `GetNumNeighbors()`, `SetDistMetric()` and `GetDistMetric()` serve in the purpose of easier access and setting of hyperparameters.
 - `predict()` function iterates through the rows of distance metric and finds `argmax()` of labels corresponding to the nearest k points from the train set. It makes use of the performance metrics coded in the folder `.../performance_measures` inside `confusion_matrix.py` that help calculate accuracy, macro and micro precision, recall and f1_score. Predicted values and scores are returned.
+
+#### Some add ons:
+- I have added a function called `Word2Num()` inside `a1.py` which does the task of converting string features to some numerical form - generates embeddings for the strings.
+ - The method that I have used here is based on the probability distribution of the strings with respect to the max occurance. Therefore, each string is given a value in the range `(0, 1)` where 1 will be given to the string which occurs the most. 
+ - This allows me to sustain and visualise the effect that each string feature has/does not have on the determination of music genres.
+ - Once converted, the strings - now numerals - are treated just like any other numeric feature and go through the same preprocessing tasks.
+
+ ![Features After Word2num and Preprocessing](./figures/PairPlot_AP_W2N.png)
+
+- Functions like `DataLoader()` and `DataWriter()` have also been written for keeping the code modular.
+
+#### Task 3: Hyperparameter Tuning
+- In concordance with our initial analysis during data visualisation, the best `{k, dist_metric}` pair for a train:valid:test split of `80:10:10` in terms of giving highest accuracy is `{k=15, dist_metric = l1}` with an accuracy on validation set of 36.88%. 
 
 
 
