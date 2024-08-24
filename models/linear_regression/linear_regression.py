@@ -3,6 +3,7 @@ from matplotlib import pyplot as plt
 import pandas as pd
 import sys
 import os
+import cv2 
 
 AssignDIR = os.path.dirname(os.path.dirname(os.path.abspath('linear_regression.py')))
 UserDIR = os.path.dirname(AssignDIR)
@@ -190,7 +191,35 @@ class LinearRegression:
                 return None
             mse = []
             for i in range(epochs):
+                # if i % 10 == 0:
+                #     plt.plot(range(len(mse)), mse)
+                #     plt.xlabel('Epochs')
+                #     plt.ylabel('Mean Squared Error')
+                #     plt.title('MSE vs Epochs')
+                #     plt.savefig(f'epoch_{i}.png')
+                #     plt.close()
                 y_pred = np.matmul(X_train, beta)
+                # if i % 10 == 0:
+                #     plt.plot(range(len(y_pred)), np.var(y_pred, axis = 1))
+                #     plt.xlabel('Epochs')
+                #     plt.ylabel('Variance')
+                #     plt.title('Variance of y_pred vs Epochs')
+                #     plt.savefig(f'variance_epoch_{i}.png')
+                #     plt.close()
+                #     plt.plot(range(len(y_pred)), np.std(y_pred, axis = 1))
+                #     plt.xlabel('Epochs')
+                #     plt.ylabel('Standard Deviation')
+                #     plt.title('Standard Deviation of y_pred vs Epochs')
+                #     plt.savefig(f'std_epoch_{i}.png')
+                #     plt.close()
+
+                #     plt.scatter(X_train[:, 1], y_train)
+                #     plt.plot(X_train[:, 1], y_pred, color = 'red')
+                #     plt.xlabel('X_train')
+                #     plt.ylabel('y_train')
+                #     plt.title('Line of Best Fit')
+                #     plt.savefig(f'line_of_best_fit_{i}.png')
+                #     plt.close()
                 if (regularise):
                     if (reg_method == 'l2'):   
                         mse.append(np.mean(np.matmul(y_pred.T - y_train.T, y_pred - y_train)) + 
