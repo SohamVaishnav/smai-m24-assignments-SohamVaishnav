@@ -169,7 +169,7 @@ Plot for line of best fit:
 #### Degree > 1
 Tabularising the outputs:
 - For train set:
-| k | Std. Dev. | Variance | MSE |
+| k | Standard Dev | Variance | MSE |
 |---|---|---|---|
 | 2 | 0.92 | 0.86 | 71.37 | 
 | 3 | 1.0 | 1.01 | 27.44 |
@@ -181,7 +181,7 @@ Tabularising the outputs:
 | 12 | 1.08 | 1.17 | 5.94 |
 
 - For test set:
-| k | Std. Dev. | Variance | MSE |
+| k | Standard Dev | Variance | MSE |
 |---|---|---|---|
 | 2 | 0.96 | 0.93 | 6.64 | 
 | 3 | 1.01 | 1.02 | 3.99 |
