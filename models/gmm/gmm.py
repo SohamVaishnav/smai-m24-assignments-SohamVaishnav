@@ -16,8 +16,8 @@ class GaussianMixtureModel():
     This class is used to perform Gaussian Mixture Model on the given dataset.
     '''
     def __init__(self) -> None:
-        ''' 
-        This function is used to initialize the class object.
+        '''
+        This function is used to initialize the class.
         '''
         self._params = None
         self._membership = None

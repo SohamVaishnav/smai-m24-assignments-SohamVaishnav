@@ -16,8 +16,11 @@ class PCA():
     This class is used to perform PCA on the given dataset.
     '''
     def __init__(self, n_components: int) -> None:
-        ''' 
-        This function is used to initialize the class object.
+        '''
+        This function is used to initialize the class.
+
+        Parameters:
+            n_components (int): The number of components to keep.
         '''
         self.n_components = n_components
         pass
