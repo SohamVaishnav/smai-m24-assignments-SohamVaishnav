@@ -16,7 +16,7 @@ class KMeansClustering():
     This class is used to perform K-Means Clustering on the given dataset.
     '''
 
-    def __init__(self, k: int, epochs = 10) -> None:
+    def __init__(self, k = 2, epochs = 10) -> None:
         ''' 
         This function is used to initialize the class.
 
@@ -26,7 +26,17 @@ class KMeansClustering():
         '''
         self._k = k
         self._epochs = epochs
+        self._data = None
         pass
+
+    def setK(self, k: int) -> None:
+        ''' 
+        This function is used to set the number of clusters.
+
+        Parameters:
+            k (int): The number of clusters
+        '''
+        self._k = k
 
     def getK(self):
         ''' 
@@ -38,25 +48,32 @@ class KMeansClustering():
         ''' 
         This function is used to initialize the centroids of the clusters using KMeans++ method.
         '''
-        centroids = []
-        indices = []
-        centroids.append(self._train_data.sample(n=1, axis=0, random_state=42).drop('words', axis=1))
-        indices.append(centroids[0].index[0])
-        temp = self._train_data.drop(centroids[0].index, axis=0)
-        temp.drop('words', axis=1, inplace=True)
+        centroids = pd.DataFrame()
+        centroids = pd.concat([centroids, self._data.sample(n=1, axis=0, random_state=42)])
+        temp = self._data.drop(centroids.iloc[0].name, axis=0)
 
         for i in range(1, self._k):
-            dist = pd.DataFrame([np.sum((temp.iloc[j].values - centroids[i-1].values)**2, axis=1) for j in range(temp.shape[0])], 
-                                columns=[centroids[i-1].index[0]])
+            dist = pd.DataFrame([np.sum((temp.iloc[j].values - centroids.iloc[i-1].values)**2) for j in range(temp.shape[0])], 
+                                columns=[centroids.iloc[i-1].name], index=temp.index)
             dist = dist/np.sum(dist)
             next = dist.sample(n=1, axis=0, random_state=42)
-            centroids.append(temp.loc[next.index])
-            indices.append(next.index[0])
+            centroids = pd.concat([centroids, temp.loc[next.index]])
             temp = temp.drop(next.index, axis=0)
-        centroids = np.array(centroids)
-        return centroids, indices
+        return centroids
     
-    def fit(self, Data: pd.DataFrame) -> np.ndarray:
+    def getCentroids(self):
+        ''' 
+        This function is used to return the centroids of the clusters.
+        '''
+        self._centroids = pd.DataFrame()
+        for i in range(self._k):
+            temp = self._data[self._data['clusters'] == i].copy()
+            temp.drop('clusters', axis=1, inplace=True)
+            self._centroids = pd.concat([self._centroids, pd.DataFrame([np.mean(temp.values, axis=0)], 
+                                                                       columns=temp.columns, index=[i])])
+        return None
+    
+    def fit(self) -> np.ndarray:
         ''' 
         This function is used to fit the model to the dataset by dividing it into k appropriate 
         clusters.
@@ -64,11 +81,19 @@ class KMeansClustering():
         Parameters:
             TrainData (pd.DataFrame): The training data on which the model is to be fit.
         '''
-        self._data = Data
-        centroids, indices = self.InitCentroids()
-        for i in range(self._epochs):
-            pass
-        return centroids
+        centroids = self.InitCentroids()
+        self._centroids = centroids
+        # WCSS = []
+        for k in range(self._epochs):
+            dist = np.row_stack([np.sum((self._data.values[:,None] - centroids.values)**2, axis=2)])
+            dist = pd.DataFrame(dist, columns=centroids.index, index=self._data.index)
+            self._data['clusters'] = np.argmin(dist, axis=1)
+            self.getCentroids()
+            if (k != self._epochs-1):
+                self._data = self._data.drop('clusters', axis=1)
+        WCSS = self.getCost()
+        self._data = self._data.drop('clusters', axis=1)
+        return self._centroids, WCSS
 
     def predict(self):
         ''' 
@@ -81,15 +106,10 @@ class KMeansClustering():
         This function is used to return the cost of the model which is Within-Cluster-Sum-of-Squares
         (WCSS).
         '''
-        self._mod_cost = None
-        return self._mod_cost
-
-
-# a = 2*np.ones((10, 3))
-# b = np.ones((1, 3))
-# b[0, 0] = b[2, 2] = b[3, 2] = b[4, 1] = 0
-# c = np.row_stack([np.sum((a[x] - b)**2, axis = 1) for x in range(a.shape[0])])
-# print(c, "\n\n")
-# c = np.sort(c, axis = 1)
-# print(c, "\n\n")
-# print(c[:,0:3])
+        self._model_cost = 0
+        for i in range(self._k):
+            temp = self._data[self._data['clusters'] == i].copy()
+            temp.drop('clusters', axis=1, inplace=True)
+            cost = np.sum((temp.values - self._centroids.iloc[i].values)**2, axis = 1)
+            self._model_cost += np.sum(cost)
+        return self._model_cost
