@@ -14,5 +14,9 @@ UserDIR = os.path.dirname(AssignDIR)
 
 sys.path.append(UserDIR)
 
+from models.kmeans.kmeans import KMeansClustering
+from models.pca.pca import PCA
+from models.gmm.gmm import GaussianMixtureModel
+
 RawDataDIR = os.path.join(UserDIR, "./data/external/")
 PreProcessDIR = os.path.join(UserDIR, "./data/interim/")
