@@ -72,24 +72,32 @@ def VIT_Split(data: pd.DataFrame) -> pd.DataFrame:
 # print(data.head())
 
 data = DataLoader(PreProcessDIR, "word-embeddings_v1.feather")
-# print(data['words'])
 
 model = KMeansClustering(epochs = 10)
 data_used = data.drop('words', axis=1)
 model._data = data_used
 err = []
-for k in range(2, 30):
+err_log = []
+for k in range(2, 200):
+    print(k)
     model.setK(k)
     centroids, WCSS = model.fit()
     err.append(WCSS)
-    print("WCSS for k = "+ str(k) +" is " + str(WCSS))
+    err_log.append("WCSS for k = "+ str(k) +" is " + str(WCSS))
 
-er = []
-for i in range(2, 30):
+# err_log = pd.DataFrame(err_log)
+# err_log.to_csv(os.path.join(CurrDIR, "err_logs/kmeans_wcss.csv"), index=False)
+
+err_sk = []
+err_log = []
+for i in range(2, 200):
     model = KMeans(n_clusters = i, random_state = 42, n_init = 1, max_iter = 10, init = 'k-means++')
     model.fit(data_used)
-    er.append(model.inertia_)
-    print("WCSS for k = "+ str(i) +" is " + str(model.inertia_))
+    err_sk.append(model.inertia_)
+    err_log.append("WCSS for k = "+ str(i) +" is " + str(model.inertia_))
+
+# err_log = pd.DataFrame(err_log)
+# err_log.to_csv(os.path.join(CurrDIR, "err_logs/kmeans_wcss_sklearn.csv"), index=False)
 
 # fig = sp.make_subplots()
 # fig.add_trace(go.Scatter(x = list(range(2, 30)), y = err, mode = 'lines+markers', name = 'KMeans++'))
