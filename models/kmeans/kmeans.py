@@ -53,10 +53,10 @@ class KMeansClustering():
         temp = self._data.drop(centroids.iloc[0].name, axis=0)
 
         for i in range(1, self._k):
-            dist = pd.DataFrame([np.sum((temp.iloc[j].values - centroids.iloc[i-1].values)**2) for j in range(temp.shape[0])], 
-                                columns=[centroids.iloc[i-1].name], index=temp.index)
+            dist = np.row_stack([np.sum((temp.values[:,None] - centroids[i-1:i:].values)**2, axis = 2)])
+            dist = pd.DataFrame(dist, columns=centroids[i-1:i:].index, index=temp.index)
             dist = dist/np.sum(dist)
-            next = dist.sample(n=1, axis=0, random_state=42)
+            next = dist.sample(n=1, axis=0, random_state=42, weights=dist.values.flatten())
             centroids = pd.concat([centroids, temp.loc[next.index]])
             temp = temp.drop(next.index, axis=0)
         return centroids
@@ -65,12 +65,17 @@ class KMeansClustering():
         ''' 
         This function is used to return the centroids of the clusters.
         '''
-        self._centroids = pd.DataFrame()
+
+        #update the centroids
+        # self._centroids = self._data.groupby('clusters').mean()
+
+        self._centroids = []
         for i in range(self._k):
             temp = self._data[self._data['clusters'] == i].copy()
             temp.drop('clusters', axis=1, inplace=True)
-            self._centroids = pd.concat([self._centroids, pd.DataFrame([np.mean(temp.values, axis=0)], 
-                                                                       columns=temp.columns, index=[i])])
+            self._centroids.append(np.mean(temp.values, axis=0))
+            # self._centroids = pd.concat([self._centroids, pd.DataFrame([np.mean(temp.values, axis=0)], 
+            #                                                            columns=temp.columns, index=[i])])
         return None
     
     def fit(self) -> np.ndarray:
@@ -83,7 +88,6 @@ class KMeansClustering():
         '''
         centroids = self.InitCentroids()
         self._centroids = centroids
-        # WCSS = []
         for k in range(self._epochs):
             dist = np.row_stack([np.sum((self._data.values[:,None] - centroids.values)**2, axis=2)])
             dist = pd.DataFrame(dist, columns=centroids.index, index=self._data.index)
@@ -110,6 +114,6 @@ class KMeansClustering():
         for i in range(self._k):
             temp = self._data[self._data['clusters'] == i].copy()
             temp.drop('clusters', axis=1, inplace=True)
-            cost = np.sum((temp.values - self._centroids.iloc[i].values)**2, axis = 1)
+            cost = np.sum((temp.values - self._centroids[i])**2, axis = 1)
             self._model_cost += np.sum(cost)
         return self._model_cost
