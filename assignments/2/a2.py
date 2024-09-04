@@ -71,14 +71,16 @@ def VIT_Split(data: pd.DataFrame) -> pd.DataFrame:
 # data = DataLoader(RawDataDIR, "word-embeddings.feather")
 # print(data.head())
 
-data = DataLoader(PreProcessDIR, "word-embeddings_v1.feather")
+# data = DataLoader(PreProcessDIR, "word-embeddings_v1.feather")
+
+data = pd.read_csv(os.path.join(RawDataDIR, "data.csv")) #test dataset from Kaggle
 
 model = KMeansClustering(epochs = 10)
-data_used = data.drop('words', axis=1)
+data_used = data.drop('color', axis=1)
 model._data = data_used
 err = []
 err_log = []
-for k in range(2, 200):
+for k in range(1, 30):
     print(k)
     model.setK(k)
     centroids, WCSS = model.fit()
@@ -90,7 +92,7 @@ for k in range(2, 200):
 
 err_sk = []
 err_log = []
-for i in range(2, 200):
+for i in range(1, 30):
     model = KMeans(n_clusters = i, random_state = 42, n_init = 1, max_iter = 10, init = 'k-means++')
     model.fit(data_used)
     err_sk.append(model.inertia_)
@@ -99,20 +101,12 @@ for i in range(2, 200):
 # err_log = pd.DataFrame(err_log)
 # err_log.to_csv(os.path.join(CurrDIR, "err_logs/kmeans_wcss_sklearn.csv"), index=False)
 
-# fig = sp.make_subplots()
-# fig.add_trace(go.Scatter(x = list(range(2, 30)), y = err, mode = 'lines+markers', name = 'KMeans++'))
-# fig.add_trace(go.Scatter(x = list(range(2, 30)), y = er, mode = 'lines+markers', name = 'KMeans'))
-# fig.update_xaxes(title_text = "K")
-# fig.update_yaxes(title_text = "WCSS")
-# fig.show()
+fig = sp.make_subplots()
+fig.add_trace(go.Scatter(x = list(range(1, 30)), y = err, mode = 'lines+markers', name = 'KMeans_self'))
+fig.add_trace(go.Scatter(x = list(range(1, 30)), y = err_sk, mode = 'lines+markers', name = 'KMeans_Sklearn'))
+fig.update_xaxes(title_text = "K")
+fig.update_yaxes(title_text = "WCSS")
+fig.update_layout(title_text = "WCSS vs K for KMeans")
+fig.show()
 
-# a = 2*np.ones((2, 2))
-# a = pd.DataFrame(a)
-# b = 3*np.ones((2, 2))
-# b[0, 0] = 0
-# b[1, 1] = 1
-# b[0, 1] = 2
-# b[1, 0] = 3
-# b = pd.DataFrame(b)
-# print(b)
-# print(np.mean(b.values, axis = 0))
+########################## PCA ##########################
