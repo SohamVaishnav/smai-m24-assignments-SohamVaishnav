@@ -15,7 +15,7 @@ class PCA():
     ''' 
     This class is used to perform PCA on the given dataset.
     '''
-    def __init__(self, n_components: int) -> None:
+    def __init__(self, n_components = 2) -> None:
         '''
         This function is used to initialize the class.
 
@@ -25,16 +25,29 @@ class PCA():
         self.n_components = n_components
         pass
 
-    def GetComponents(self):
+    def getComponents(self):
         ''' 
-        This function is used to get the number of components.
+        This function is used to get the number of components being considered for PCA.
         '''
         return self.n_components
+    
+    def getEigenvalues(self):
+        ''' 
+        This function is used to get the eigenvalues of the covariance matrix.
+        '''
+        pass
+
+    def getEigenVectors(self):
+        ''' 
+        This function is used to get the eigenvectors of the covariance matrix.
+        '''
+        pass
     
     def fit(self):
         ''' 
         This function is used to fit the model.
         '''
+        
         pass
 
     def transform(self):
