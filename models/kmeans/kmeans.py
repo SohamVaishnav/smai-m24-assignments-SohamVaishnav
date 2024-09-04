@@ -49,7 +49,7 @@ class KMeansClustering():
         This function is used to initialize the centroids of the clusters using KMeans++ method.
         '''
         centroids = pd.DataFrame()
-        centroids = pd.concat([centroids, self._data.sample(n=1, axis=0, random_state=42)])
+        centroids = pd.concat([centroids, self._data.sample(n=self._k, axis=0, random_state=42)])
         temp = self._data.drop(centroids.iloc[0].name, axis=0)
 
         for i in range(1, self._k):
@@ -65,10 +65,6 @@ class KMeansClustering():
         ''' 
         This function is used to return the centroids of the clusters.
         '''
-
-        #update the centroids
-        # self._centroids = self._data.groupby('clusters').mean()
-
         self._centroids = []
         for i in range(self._k):
             temp = self._data[self._data['clusters'] == i].copy()
