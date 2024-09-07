@@ -35,29 +35,43 @@ class PCA():
         ''' 
         This function is used to get the eigenvalues of the covariance matrix.
         '''
-        pass
+        return self._eigvals
 
     def getEigenVectors(self):
         ''' 
         This function is used to get the eigenvectors of the covariance matrix.
         '''
-        pass
+        return self._eigvecs
     
-    def fit(self):
+    def fit(self, dataset: pd.DataFrame):
         ''' 
         This function is used to fit the model.
+
+        Parameters:
+            dataset (pd.DataFrame): The dataset on which PCA is to be performed
         '''
-        
-        pass
+        self._data = dataset
+
+        self.CovMat = dataset.cov()
+        self._eigvals, self._eigvecs = np.linalg.eig(self.CovMat)
+        self._eigvals = np.sort(np.real(self._eigvals))[::-1]
+        self._eigvecs = np.real(self._eigvecs)[self._eigvals.argsort()[::-1]]
+
+        self._princComps = self._eigvecs[:self.n_components]
+        return None
 
     def transform(self):
         ''' 
         This function is used to transform the model according to the fit.
         '''
-        pass
+        data_trans = self._data.dot(self._princComps.T)
+        self._data_trans = data_trans
+        return data_trans
 
-    def checkPCA(self):
+    def checkPCA(self) -> bool:
         ''' 
         This function is used to check whether the dimensions have been reduced.
         '''
-        pass
+        if (self._data_trans.shape[1] == self.n_components and self._data.shape[1] >= self.n_components) :
+            return True
+        return False
