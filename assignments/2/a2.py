@@ -72,41 +72,57 @@ def VIT_Split(data: pd.DataFrame) -> pd.DataFrame:
 # print(data.head())
 
 # data = DataLoader(PreProcessDIR, "word-embeddings_v1.feather")
+# print(data.head())
 
-data = pd.read_csv(os.path.join(RawDataDIR, "data.csv")) #test dataset from Kaggle
+# data = pd.read_csv(os.path.join(RawDataDIR, "data.csv")) #test dataset from Kaggle
 
-model = KMeansClustering(epochs = 10)
-data_used = data.drop('color', axis=1)
-model._data = data_used
-err = []
-err_log = []
-for k in range(1, 30):
-    print(k)
-    model.setK(k)
-    centroids, WCSS = model.fit()
-    err.append(WCSS)
-    err_log.append("WCSS for k = "+ str(k) +" is " + str(WCSS))
+# model = KMeansClustering(epochs = 10)
+# data_used = data.drop('color', axis=1)
+# model._data = data_used
+# err = []
+# err_log = []
+# for k in range(1, 30):
+#     print(k)
+#     model.setK(k)
+#     centroids, WCSS = model.fit()
+#     err.append(WCSS)
+#     err_log.append("WCSS for k = "+ str(k) +" is " + str(WCSS))
 
 # err_log = pd.DataFrame(err_log)
 # err_log.to_csv(os.path.join(CurrDIR, "err_logs/kmeans_wcss.csv"), index=False)
 
-err_sk = []
-err_log = []
-for i in range(1, 30):
-    model = KMeans(n_clusters = i, random_state = 42, n_init = 1, max_iter = 10, init = 'k-means++')
-    model.fit(data_used)
-    err_sk.append(model.inertia_)
-    err_log.append("WCSS for k = "+ str(i) +" is " + str(model.inertia_))
+# err_sk = []
+# err_log = []
+# for i in range(1, 30):
+#     model = KMeans(n_clusters = i, random_state = 42, n_init = 1, max_iter = 10, init = 'k-means++')
+#     model.fit(data_used)
+#     err_sk.append(model.inertia_)
+#     err_log.append("WCSS for k = "+ str(i) +" is " + str(model.inertia_))
 
 # err_log = pd.DataFrame(err_log)
 # err_log.to_csv(os.path.join(CurrDIR, "err_logs/kmeans_wcss_sklearn.csv"), index=False)
 
-fig = sp.make_subplots()
-fig.add_trace(go.Scatter(x = list(range(1, 30)), y = err, mode = 'lines+markers', name = 'KMeans_self'))
-fig.add_trace(go.Scatter(x = list(range(1, 30)), y = err_sk, mode = 'lines+markers', name = 'KMeans_Sklearn'))
-fig.update_xaxes(title_text = "K")
-fig.update_yaxes(title_text = "WCSS")
-fig.update_layout(title_text = "WCSS vs K for KMeans")
-fig.show()
+# fig = sp.make_subplots()
+# fig.add_trace(go.Scatter(x = list(range(1, 30)), y = err, mode = 'lines+markers', name = 'KMeans_self'))
+# fig.add_trace(go.Scatter(x = list(range(1, 30)), y = err_sk, mode = 'lines+markers', name = 'KMeans_Sklearn'))
+# fig.update_xaxes(title_text = "K")
+# fig.update_yaxes(title_text = "WCSS")
+# fig.update_layout(title_text = "WCSS vs K for KMeans")
+# fig.show()
 
 ########################## PCA ##########################
+# data = data.drop(columns=['words'])
+# data_used = data.drop('color', axis=1)
+# model = PCA(n_components = 2)
+# model.fit(data)
+# print(model.transform().columns)
+
+# #plot
+# fig = px.scatter(x = model._data_trans[0], y = model._data_trans[1])
+# fig.update_layout(title_text = "PCA")
+# fig.show()
+
+
+########################## GMM ##########################
+
+# model = GaussianMixtureModel()
