@@ -35,4 +35,7 @@ From the above plots, we find that best number of clusters for both datasets and
 The class `GaussianMixtureModel()` is present in the folder `model\gmm\gmm.py` and includes functions such as `getParams()` (returns the weights, covariance matrices and means of the gaussians), `getLikelihood()` (returns the log likelihood of the entire dataset), `getMembership()` (returns the degree to which each datapoint belongs to a particular gaussian), `InitParams()` (initialises the parameters to be used while fitting the model - more about this below), `fit()` (fits the model according to the data and returns the final set of parameters), `getClusters()` (returns the cluster that each datapoint belongs to) and `Gaussian()` (returns the multivariate gaussian pdf - however, not used).
 
 - `getMembership()` uses the following equation:
-$$ \gamma _{i, k} = \frac{\pi _{k} \N(x_i, \mu _k, \sigma _k)}{}$$
+
+$$
+\gamma _{i, k} = \frac{\pi _{k} \mathcal{N}(x_i | \mu _k, \Sigma _k)}{\sum_{j=1}^{K} \pi _{j} \mathcal{N}(x_i | \mu _j, \Sigma _j)}
+$$
