@@ -36,7 +36,7 @@ The class `GaussianMixtureModel()` is present in the folder `model\gmm\gmm.py` a
 
 - `getMembership()` uses the following equation:
 
-\$ \gamma_{i, k} = \frac{\pi_k \cdot \mathcal{N}(x_i, \mu_k, \sigma_k)}{Z} \$
+\$ \gamma_ = \frac{\pi_k \cdot \mathcal{N}(x_i, \mu_k, \sigma_k)}{Z} \$
 
 Where:
 - \$\pi_k\$ represents the weight,
