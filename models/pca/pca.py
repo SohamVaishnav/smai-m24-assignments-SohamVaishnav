@@ -70,8 +70,7 @@ class PCA():
 
     def checkPCA(self) -> bool:
         ''' 
-        This function is used to check whether the dimensions have been reduced.
+        This function is used to check whether the dimensions have been reduced to the correct eigenvectors.
         '''
-        if (self._data_trans.shape[1] == self.n_components and self._data.shape[1] >= self.n_components) :
-            return True
-        return False
+        data_reconstructed = self._data_trans.dot(self._princComps) + self._data.mean()
+        return np.allclose(data_reconstructed, self._data, atol=1e-5, rtol=1e-5)
