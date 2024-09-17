@@ -49,16 +49,17 @@ class KMeansClustering():
         This function is used to initialize the centroids of the clusters using KMeans++ method.
         '''
         centroids = pd.DataFrame()
-        centroids = pd.concat([centroids, self._data.sample(n=self._k, axis=0, random_state=42)])
+        centroids = pd.concat([centroids, self._data.sample(n=1, axis=0, random_state=42)])
         temp = self._data.drop(centroids.iloc[0].name, axis=0)
 
         for i in range(1, self._k):
             dist = np.row_stack([np.sum((temp.values[:,None] - centroids[i-1:i:].values)**2, axis = 2)])
             dist = pd.DataFrame(dist, columns=centroids[i-1:i:].index, index=temp.index)
             dist = dist/np.sum(dist)
-            next = dist.sample(n=1, axis=0, random_state=42, weights=dist.values.flatten())
+            next = dist.sample(n=1, axis=0, weights=dist.values.flatten())
             centroids = pd.concat([centroids, temp.loc[next.index]])
             temp = temp.drop(next.index, axis=0)
+
         return centroids
     
     def getCentroids(self):
@@ -85,6 +86,8 @@ class KMeansClustering():
         centroids = self.InitCentroids()
         self._centroids = centroids
         for k in range(self._epochs):
+            # print("k: ", k)
+            # print("Centroids: ", self._data.head())
             dist = np.row_stack([np.sum((self._data.values[:,None] - centroids.values)**2, axis=2)])
             dist = pd.DataFrame(dist, columns=centroids.index, index=self._data.index)
             self._data['clusters'] = np.argmin(dist, axis=1)
@@ -92,8 +95,10 @@ class KMeansClustering():
             if (k != self._epochs-1):
                 self._data = self._data.drop('clusters', axis=1)
         WCSS = self.getCost()
-        self._data = self._data.drop('clusters', axis=1)
-        return self._centroids, WCSS
+        self._clusters = self._data['clusters']
+        self._data.drop('clusters', axis=1, inplace=True)
+        self._centroids = np.array(self._centroids)
+        return self._centroids, WCSS, self._clusters
 
     def predict(self):
         ''' 
