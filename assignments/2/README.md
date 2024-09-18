@@ -174,8 +174,8 @@ The clusters and the words in them can be found in `kmeans_clusters.md` (based o
 Thus, _kmeans_ = 5.
 
 #### Task 2: GMM cluster analysis
-From the above experiments, we find the following results:
 
+From the above experiments, we find the following results:
 
 | Type | Value | Log Likelihood | epochs |
 |--|--|--|
