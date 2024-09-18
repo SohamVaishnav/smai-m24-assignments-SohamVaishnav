@@ -93,7 +93,7 @@ class GaussianMixtureModel():
             deviation = dataset - dataset.mean()
             cov = np.dot(deviation.T, deviation)
             self._sigma = np.array([np.cov(dataset.T) + np.eye(n_features)*epsilon for i in range(K)])
-            print(self._sigma.max(), self._sigma.min())
+            # print(self._sigma.max(), self._sigma.min())
             self._pi = np.ones((K, 1))/K
 
         self._likelihood = 0
