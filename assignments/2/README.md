@@ -88,7 +88,10 @@ Following are the 2D and 3D graphs of the reduced data (512 dimensional).
 
 ![3D PCA](figures/PCA_3D_512.png)
 
-The `checkPCA()` functionality returns **False** for `n_components <= 198` due to very less retension of information. This implies, that for retaining a significant amount of information for this, we need at least 199 components.
+The `checkPCA()` functionality returns **False** for `n_components <= 133` due to very less retension of information (variance < 0.95). This implies, that for retaining a significant amount of information for this, we need at least 133 components.\
+I used the concept which says that maximising variance (eigenvalues) is equivalent to reducing recontruction error. Where it shows that variance of around 0.95 is retained only when we keep at least 133 features. (ref. following plot)
+
+![Explained Var in PCA](figures/ExplainedVar_PCA.png)
 
 #### Task 3: Data Analysis
 The axes obtained from PCA are the eigenvectors with maximum eigenvalues of the covariance matrix of the dataset. What this means is that the axes represent the directions where, on projecting, the variance of the dataset is maximised. This helps in finding patters in the dataset which would otherwise have been suppressed in the original dimensions.
@@ -101,37 +104,59 @@ From the 2D and 3D plots shown above, we estimate optimal number of clusters for
 ### 6: PCA + Clustering
 
 #### Task 1: KMeans with k = _k2_
-Results after performing KMeans clustering on the dataset for k = _k2_ (obtained from the 2D plots in PCA).
+Results after performing KMeans clustering on the dataset for k = _k2_ (4) (obtained from the 2D plots in PCA):
+
+| k | WCSS | epochs |
+|--|--|--|
+| 4 | 4206 | 10 | 
 
 #### Task 2: PCA + KMeans
 Following is the **scree plot** for the dataset:
-ENTER THE PLOT
 
-The optimal number of dimensions that the dataset should be reduced to is _____ (FILL HERE). The _reduced dataset_ therefore contains _____ features.
+![Scree Plot](figures/ScreePlot.png)
+
+Following is the reduced version (for a shorter range):
+![Scree Plot Reduced](figures/ScreePlot_Reduced.png)
+
+The optimal number of dimensions that the dataset should be reduced to is 4. The _reduced dataset_ therefore contains 4 features.
 
 Elbow plot for the reduced dataset:
-ENTER THE PLOT
+![WCSS for Reduced dataset](<newplot (10).png>)
 
-From the above plot, we find that optimal number of clusters for reduced dataset, referred to as _kmeans3_ is _____ (FILL HERE).
+From the above plot, we find that optimal number of clusters for reduced dataset, referred to as _kmeans3_ is 5.
 
-After performing KMeans on the reduced dataset for k = _kmeans3_, we find that the following cluster plot:
-ENTER PLOT HERE
+After performing KMeans on the reduced dataset for k = _kmeans3_, we find following results:
+
+| k | WCSS | epochs |
+|--|--|--|
+| 5 | 377.42 | 10 | 
 
 #### Task 3: GMM with k = _k2_
-Results after performing GMM on the dataset for k = _k2_ (obtained from the 2D plots in PCA).
+Results after performing GMM on the dataset for k = _k2_ (4) (obtained from the 2D plots in PCA).
+
+| k | Log Likelihood | epochs | weights |
+|--|--|--|--|
+| 4 | 111940.93 | 4 | (0.01, 0.235, 0.505, 0.25) |  
 
 #### Task 4: PCA + GMMs
-Optimal number of clusters for the reduced dataset based on AIC or BIC, referred to as _kgmm3_ is _____ (FILL HERE).
-The associated plot is as follows:
-ENTER THE PLOT
+Optimal number of clusters for the reduced dataset based on AIC or BIC, referred to as _kgmm3_ is 5.
+For the plot, refer to earlier section dedicated to GMM.
 
 The clusters formed after applying GMM on the reduced dataset for k = _kgmm3_ is as follows:
-ENTER THE PLOT
+![Clusters from GMM for kgmm3](figures/kgmm3_GMM_red.png)
 
+The performance analysis is as follows for reduced dataset.
+
+| k | Log Likelihood | epochs |
+|--|--|--|
+| 4 | -2142.50 | 4 |
+
+Clearly, as inferred earlier in PCA section, we can see 4 groups for animate (birds (yellow) + animals(purple)) and inanimate objects (blue), and verbs (orange).
 
 ### 7: Cluster Analysis
 
 #### Task 1: KMeans cluster analysis
+
 
 
 #### Task 2: GMM cluster analysis
