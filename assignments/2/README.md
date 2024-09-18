@@ -17,7 +17,12 @@ The `class KMeansClustering()` is present in the folder `model\kmeans\kmeans.py`
 #### Task 2: kmeans1
 Here, we use the elbow method to find the most optimal number of clusters that the dataset can be divided into. Refer to the plots below for two datasets:
 - `word_embeddings.feather`
+
+![WCSS for word embeddings](<figures/WCSS_feather.png>)
+
 - `data.csv` (provided via mail)
+
+![WCSS for data.csv](figures/WCSS_data.png)
 
 From the above plots, we find that best number of clusters for both datasets and from both models (self and sklearn) are as follows:
 
@@ -223,5 +228,56 @@ NOTE: All the linkages have been computed with distance metric as Euclidean.
 
 The experiments have been stored as markdown files in the `data/interim/2` folder.
 
+Now, while testing for k = {_kmeans_, _kgmm_}, I find that the clusters are better formed for k = _kmeans_ where the animate objects are all put together, actions/verbs together and the inanimate objects have been divided into those that are consumed for daily usage v/s those that are just things.
+
 ### 9: Nearest Neighbor Search 
 
+#### Task 1: Scree plot, reduce dataset and run KNN
+![Scree plot for Spotify dataset](figures/ScreePlot_Spotify.png)
+
+We see that a very sharp drop comes when we go from 1 component to 4 components and thereafter it reduces gradually. This implies, that it will be sufficient if we reduce the features of the dataset to 4. Adding more features will obviously give us more information, but will not add significant value to the results as first four would.\
+Thus, I reduced the dataset to 4 components.
+
+![Cumulative Explained Variance](figures/ExplainedVar_PCA_Spotify.png)
+Another way to look at the problem is as shown in the figure above, where 95% of information of the dataset is retained in 15 features.
+
+#### Task 2: Performance Metrics
+
+Here is the comparison between the hyperparameters used and performance metrics of applying KNN on full dataset v/s applying it on reduced dataset:
+
+| Hyperparams | Reduced Dataset | Full Dataset |
+|--|--|--|
+| k | 15 | 15 |
+| dist_metric | l1 | l1 |
+| features | 4 | 18 |
+
+On the Validation set:
+
+| Metrics | Reduced Dataset | Full Dataset |
+|--|--|--|
+| Accuracy | 16.25 | 36.88 |
+| Precision_Macro | 0.1527 | 0.3579 |
+| Precision_Micro | 0.1625 | 0.3688 |
+| Recall_Macro | 0.1489 | 0.3366 |
+| Recall_Micro | 0.1625 | 0.3688 |
+| F1_Macro | 0.1508 | 0.3469 |
+| F1_Mirco | 0.1625 | 0.3688 |
+| inference time (seconds) | 40.04 | 96.36 |
+
+On the Test set:
+
+| Metrics | Reduced Dataset |
+|--|--|
+| Accuracy | 15.49 |
+| Precision_Macro | 0.1485 |
+| Precision_Micro | 0.1549 |
+| Recall_Macro | 0.1427 |
+| Recall_Micro | 0.1549 |
+| F1_Macro | 0.1455 |
+| F1_Mirco | 0.1549 |
+| inference time (seconds) | 38.27 |
+
+We find significance difference in the performance metrics. However, the difference is also highlighted in the inference time taken by the model - reduced to almost less than half!
+
+The reason for the dip in performance measures is that the information content present in first few components is, although a lot as compared to the content in remaining components, is not enough for the model to draw all insights about the data. For instance, if we increase the number of principle components to 9, we see that the accuracy becomes around 26.5%. From this we can deduce that the amount of rise in accuracy that the first 4 components can give is much more (16%) than the improvement that the next 4 can provide (10%). \
+This observation is in line with what we had observed in the `a1`, where, removing certain components drastically affected the model performance.
