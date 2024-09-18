@@ -56,7 +56,7 @@ class KMeansClustering():
             dist = np.row_stack([np.sum((temp.values[:,None] - centroids[i-1:i:].values)**2, axis = 2)])
             dist = pd.DataFrame(dist, columns=centroids[i-1:i:].index, index=temp.index)
             dist = dist/np.sum(dist)
-            next = dist.sample(n=1, axis=0, weights=dist.values.flatten())
+            next = dist.sample(n=1, axis=0, random_state = 42, weights=dist.values.flatten())
             centroids = pd.concat([centroids, temp.loc[next.index]])
             temp = temp.drop(next.index, axis=0)
 
