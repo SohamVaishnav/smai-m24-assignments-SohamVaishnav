@@ -141,6 +141,49 @@ def VIT_Split(data: pd.DataFrame) -> pd.DataFrame:
 # fig.update_layout(title_text = "KMeans Clustering")
 # fig.show()
 
+# k2 = 4 #got from the plot
+# model.setK(k2)
+# centroids, WCSS, _ = model.fit()
+# print("WCSS: ", WCSS)
+# print(centroids)
+# print("Clusters: ", model._clusters)
+
+
+# pca = PCA(2)
+# pca.fit(data_used)
+# print(pca._eigvals)
+# evr = pca.getExplainedVarRatio()
+
+# #plot scree plot
+# fig = px.line(x = list(range(1, 21)), y = evr[0:20], markers=True)
+# fig.update_layout(title_text = "Scree Plot")
+# fig.show()
+
+# pca = PCA(4)
+# pca.fit(data_used)
+# data_used = pca.transform()
+
+# err = []
+# err_log = []
+# model._data = data_used.copy()
+# for k in range(1, 15):
+#     print(k)
+#     model.setK(k)
+#     centroids, WCSS, _ = model.fit()
+#     err.append(WCSS)
+#     err_log.append("WCSS for k = "+ str(k) +" is " + str(WCSS))
+
+# fig = px.line(x = list(range(1, 15)), y = err, markers=True)
+# fig.update_layout(title_text = "WCSS vs K for KMeans")
+# fig.show()
+
+# kmeans3 = 5
+# model._data = data_used.copy()
+# model.setK(kmeans3)
+# centroids, WCSS, _ = model.fit()
+# print("WCSS: ", WCSS)
+# print(centroids)
+# print("Clusters: ", model._clusters)
 
 ########################## GMM ##########################
 
@@ -150,24 +193,28 @@ def VIT_Split(data: pd.DataFrame) -> pd.DataFrame:
 # data = pd.read_csv(os.path.join(RawDataDIR, "data.csv")) #test dataset from Kaggle
 # data_used = data.drop('color', axis=1)
 
-# pca = PCA(2)
+# pca = PCA(4)
 # pca.fit(data_used)
 # data_used = pca.transform()
-# print(pca.checkPCA())
 
 # ll_self = []
 # AIC_self = []
 # BIC_self = []
-# for k in range(1, 10):
+# for k in range(4, 5):
 #     print(k)
 #     model.fit(data_used, K = k, init_method = "random_from_data", epochs = 4, epsilon = 1e-2)
 #     model.getLikelihood()
 #     ll_self.append(model._likelihood)
 #     AIC_self.append(model.doAIC())
 #     BIC_self.append(model.doBIC())
-    # print(model.getMembership(epsilon=1e-2).shape, "\n\n")
-    # print(model.getCluster())
-    # print(model.getParams()[2])
+#     print(model.getMembership(epsilon=1e-2).shape, "\n\n")
+#     print(model.getCluster())
+#     print(model.getParams()[2])
+
+#plot clusters for reduced data in 3D
+# fig = px.scatter_3d(x = data_used[0], y = data_used[1], z = data_used[2], color = model.getCluster())
+# fig.update_layout(title_text = "GMM")
+# fig.show()
 
 # ll_sk = []
 # AIC_sk = []
@@ -211,22 +258,22 @@ def VIT_Split(data: pd.DataFrame) -> pd.DataFrame:
 
 
 ########################## PCA ##########################
-data = DataLoader(PreProcessDIR, "word-embeddings_v1.feather")
-data_used = data.drop(columns=['words'])
+# data = DataLoader(PreProcessDIR, "word-embeddings_v1.feather")
+# data_used = data.drop(columns=['words'])
 
-model = PCA(n_components = 2)
-model.fit(data_used)
-model.transform()
-print(model.checkPCA())
+# model = PCA(n_components = 2)
+# model.fit(data_used)
+# model.transform()
+# print(model.checkPCA())
 
-fig = px.scatter(x = model._data_trans[0], y = model._data_trans[1], color = data['words'], labels = {'x': 'PC1', 'y': 'PC2'})
-fig.update_layout(title_text = "PCA")
-fig.show()
+# fig = px.scatter(x = model._data_trans[0], y = model._data_trans[1], color = data['words'], labels = {'x': 'PC1', 'y': 'PC2'})
+# fig.update_layout(title_text = "PCA")
+# fig.show()
 
-model = PCA(n_components = 3)
-model.fit(data_used)
-model.transform()
-print(model.checkPCA())
+# model = PCA(n_components = 3)
+# model.fit(data_used)
+# model.transform()
+# print(model.checkPCA())
 
 #plot 3D data
 # fig = px.scatter_3d(x = model._data_trans[0], y = model._data_trans[1], z = model._data_trans[2], color = data['words'], labels = {'x': 'PC1', 'y': 'PC2', 'z': 'PC3'})
