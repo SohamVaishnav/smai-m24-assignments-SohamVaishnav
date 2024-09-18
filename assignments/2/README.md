@@ -23,11 +23,8 @@ From the above plots, we find that best number of clusters for both datasets and
 
 | Model : dataset | kmeans1 | WCSS |
 |--|--|--|
-| self : word | 6 | |
-| sklearn : word | 6 | |
-| self : data | 3 | |
-| sklearn : data | 3 | |
-
+| self : word | 4 | 4206.88 |
+| sklearn : word | 4 | 4049.78 |
 
 ### 4: Gaussian Mixture Models (GMMs)
 
@@ -65,8 +62,6 @@ For AIC and BIC, we find the following plots:
 
 ![BIC](figures/BIC_512.png)
 
-
-
 From the above plots, it is quite difficult to infer the optimal number of clusters due to the strictly decreasing nature of the graph. However, close observation can tell that _kgmm1_ = 5.
 
 ### 5: Dimensionality Reduction and Visualisation
@@ -96,7 +91,7 @@ I used the concept which says that maximising variance (eigenvalues) is equivale
 #### Task 3: Data Analysis
 The axes obtained from PCA are the eigenvectors with maximum eigenvalues of the covariance matrix of the dataset. What this means is that the axes represent the directions where, on projecting, the variance of the dataset is maximised. This helps in finding patters in the dataset which would otherwise have been suppressed in the original dimensions.
 
-Patterns found in the data are very subtle, but I am able to broadly see that 3 categories are present - animate and inanimate objects, and verbs/actions. Looking more deeply we can divide the animate objects into two categories - birds and animals.
+Patterns found in the data are very subtle, but I am able to broadly see that 3 categories are present - animate and inanimate objects, and verbs/actions. 
 
 From the 2D and 3D plots shown above, we estimate optimal number of clusters for the dataset, referred to as _k2_ is **4**.
 
@@ -108,7 +103,7 @@ Results after performing KMeans clustering on the dataset for k = _k2_ (4) (obta
 
 | k | WCSS | epochs |
 |--|--|--|
-| 4 | 4206 | 10 | 
+| 4 | 4206.88 | 10 | 
 
 #### Task 2: PCA + KMeans
 Following is the **scree plot** for the dataset:
@@ -116,12 +111,14 @@ Following is the **scree plot** for the dataset:
 ![Scree Plot](figures/ScreePlot.png)
 
 Following is the reduced version (for a shorter range):
+
 ![Scree Plot Reduced](figures/ScreePlot_Reduced.png)
 
 The optimal number of dimensions that the dataset should be reduced to is 4. The _reduced dataset_ therefore contains 4 features.
 
 Elbow plot for the reduced dataset:
-![WCSS for Reduced dataset](<newplot (10).png>)
+
+![WCSS for reduced dataset](figures/WCSS_red512.png)
 
 From the above plot, we find that optimal number of clusters for reduced dataset, referred to as _kmeans3_ is 5.
 
@@ -151,21 +148,80 @@ The performance analysis is as follows for reduced dataset.
 |--|--|--|
 | 4 | -2142.50 | 4 |
 
-Clearly, as inferred earlier in PCA section, we can see 4 groups for animate (birds (yellow) + animals(purple)) and inanimate objects (blue), and verbs (orange).
+Clearly, as inferred earlier in PCA section, we can see 4 groups.
 
 ### 7: Cluster Analysis
 
 #### Task 1: KMeans cluster analysis
+From the above experiments, we find the following results:
 
+| Type | Value | WCSS | epochs |
+|--|--|--|
+| kmeans1 | 4 | 4206.88 | 10 |
+| k2 | 4 | 4206.88 | 10 | 
+| kmeans3 | 5 | 377.42 | 10 |
 
+Clearly, _kmeans3_ does better where the data does get split into similar-property-based clusters which is evident from the WCSS score that the model gives.
+
+![Clustering at kmeans3 for reduced dataset](figures/kmeans3_KMEANS_red.png)
+
+The clusters and the words in them can be found in `kmeans_clusters.md` (based on this the inference has been made).\
+Thus, _kmeans_ = 5.
 
 #### Task 2: GMM cluster analysis
+From the above experiments, we find the following results:
+
+| Type | Value | Log Likelihood | epochs |
+|--|--|--|
+| kgmm1 | 5 | -2142.50 | 4 |
+| k2 | 4 | 111940.93 | 4 | 
+| kgmm3 | 4 | -2142.50 | 4 |
+
+Clearly, _kgmm3_ does better. The plot shown in one of the above sections shows how the data is split into clusters of with similar words (actions and things are getting mixed up and things are getting divided into two parts, but animals are different)
+
+The clusters and the words in them can be found in `gmm_clusters.md` (based on this the inference has been made). \
+Thus, _kgmm_ = 4.
 
 #### Task 3: Compare KMeans and GMM
+Based on the `.md` files and the plots for clusters and the words in them for kmeans and gmm, in my opinion, **KMeans** does better than **GMM**. For the following reasons:
+- The animate objects are better grouped by kmeans than by gmm
+- Some of the inanimate objects have been confused as animate by kmeans based on common properties like airplane is classified along with birds for its flight, whereas in gmm, the animate objects are captured relatively rightly but lesser in number than it should
+- gmm has had a hard time classifying inanimate objects and thus toggles them between different clusters
 
+NOTE: Even looking at the visualisation of the dataset, we can say that gmm would not do much better due to the high inter-relational properties of the data which makes it difficult for gmm to allocate those datapoints to a particular gaussian, thereby resulting in significant confusion.
 
 ### 8: Hierarchical Clustering
+Different clustering linkages used:
+- Ward: combines datapoints based on least increment in variance while adding it to and forming a cluster.
+- Single: also known as minimum linkage, where the minimum distance between two clusters is taken while grouping or creating them.
+- Complete: also known as maximum linkage, where the maximum distance between two clusters is taken while grouping or creating them.
+- Average: as the name suggests, it uses the average of distances between all the datapoints in the clusters that are being compared to group them under a common criterion.
 
+Different distance metrics used:
+- Euclidean: the most frequently and commonly used metric while computing distance between two points
+- Cosine: measures the degree of similarity between two datapoints by looking at their dot product (cosine rule)
+- Cityblock/Manhattan: a simple distance calculation metric where the absolute of the difference between features constituting two datapoints is computed
+- Correlation: measures the degree to which two datapoints _move together_
+
+Following are the dendrograms for the above linkage-metrics pairs:
+
+![Cityblock](figures/Hierarch_Cityblock.png)
+
+
+![Correlation](figures/Hierarch_Correlation.png) 
+
+
+![Cosine](figures/Hierarch_Cosine.png) 
+
+
+![Euclidean](figures/Hierarch_Euclidean.png)
+
+We see that using **ward** as linkage method and **Euclidean** as distance metric, we find better clustering (not to confuse with the output of the dendrograms). I analysed this by storing the clusters and the words in them and saw how well they are related to one-another.\
+In fact, **single** works worst!
+
+NOTE: All the linkages have been computed with distance metric as Euclidean.
+
+The experiments have been stored as markdown files in the `data/interim/2` folder.
 
 ### 9: Nearest Neighbor Search 
 
