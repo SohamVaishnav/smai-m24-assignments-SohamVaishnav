@@ -144,53 +144,94 @@ def VIT_Split(data: pd.DataFrame) -> pd.DataFrame:
 
 ########################## GMM ##########################
 
-model = GaussianMixtureModel()
-data = DataLoader(PreProcessDIR, "word-embeddings_v1.feather")
-data_used = data.drop(columns=['words'])
-# # data = pd.read_csv(os.path.join(RawDataDIR, "data.csv")) #test dataset from Kaggle
-# # data_used = data.drop('color', axis=1)
+# model = GaussianMixtureModel()
+# data = DataLoader(PreProcessDIR, "word-embeddings_v1.feather")
+# data_used = data.drop(columns=['words'])
+# data = pd.read_csv(os.path.join(RawDataDIR, "data.csv")) #test dataset from Kaggle
+# data_used = data.drop('color', axis=1)
 
 # pca = PCA(2)
 # pca.fit(data_used)
 # data_used = pca.transform()
+# print(pca.checkPCA())
 
-ll_self = []
-for k in range(1, 10):
-    print(k)
-    model.fit(data_used, K = k, epochs = 4, epsilon=1e-2)
-    model.getLikelihood(epsilon=1e-2)
-    ll_self.append(model._likelihood)
-    # print(model.getMembership(epsilon=1e-2), "\n\n")
-    # print(model.getParams()[2])
+# ll_self = []
+# AIC_self = []
+# BIC_self = []
+# for k in range(1, 10):
+#     print(k)
+#     model.fit(data_used, K = k, init_method = "random_from_data", epochs = 4, epsilon = 1e-2)
+#     model.getLikelihood()
+#     ll_self.append(model._likelihood)
+#     AIC_self.append(model.doAIC())
+#     BIC_self.append(model.doBIC())
+    # print(model.getMembership(epsilon=1e-2).shape, "\n\n")
     # print(model.getCluster())
+    # print(model.getParams()[2])
 
-ll_sk = []
-for k in range(1, 10):
-    model = GaussianMixture(n_components = k, random_state = 42, init_params='random_from_data', reg_covar=1e-2)
-    model.fit(data_used)
-    print(model.score(data_used), "\n\n")
-    ll_sk.append(model.score(data_used))
+# ll_sk = []
+# AIC_sk = []
+# BIC_sk = []
+# for k in range(1, 10):
+#     model = GaussianMixture(n_components = k, random_state = 42, init_params='random_from_data', reg_covar=1e-2)
+#     model.fit(data_used)
+#     print(model.score(data_used)*200, "\n\n")
+#     ll_sk.append(model.score(data_used)*200)
+#     AIC_sk.append(model.aic(data_used))
+#     BIC_sk.append(model.bic(data_used))
     # print(model.predict(data_used), "\n\n")
     # print(model.means_, "\n\n")
     # print(model.covariances_, "\n\n")
     # print(model.predict_proba(data_used), "\n\n")
     # print(model.weights_)
 
-fig = sp.make_subplots(rows=1, cols=2)
-fig.add_trace(go.Scatter(x = list(range(1, 10)), y = ll_self, mode = 'lines+markers', name = 'GMM_self'), row=1, col=1)
-fig.add_trace(go.Scatter(x = list(range(1, 10)), y = ll_sk, mode = 'lines+markers', name = 'GMM_Sklearn'), row=1, col=2)
-fig.update_xaxes(title_text = "K")
-fig.update_yaxes(title_text = "Log Likelihood")
-fig.update_layout(title_text = "Log Likelihood vs K for GMM")
-fig.show()
+# fig = sp.make_subplots(rows=1, cols=2)
+# fig.add_trace(go.Scatter(x = list(range(1, 10)), y = ll_self, mode = 'lines+markers', name = 'GMM_self'), row=1, col=1)
+# fig.add_trace(go.Scatter(x = list(range(1, 10)), y = ll_sk, mode = 'lines+markers', name = 'GMM_Sklearn'), row=1, col=2)
+# fig.update_xaxes(title_text = "K")
+# fig.update_yaxes(title_text = "Log Likelihood")
+# fig.update_layout(title_text = "Log Likelihood vs K for GMM")
+# fig.show()
+
+# fig = sp.make_subplots(rows=1, cols=2)
+# fig.add_trace(go.Scatter(x = list(range(1, 10)), y = AIC_self, mode = 'lines+markers', name = 'GMM_self'), row=1, col=1)
+# fig.add_trace(go.Scatter(x = list(range(1, 10)), y = AIC_sk, mode = 'lines+markers', name = 'GMM_Sklearn'), row=1, col=2)
+# fig.update_xaxes(title_text = "K")
+# fig.update_yaxes(title_text = "AIC")
+# fig.update_layout(title_text = "AIC vs K for GMM")
+# fig.show()
+
+# fig = sp.make_subplots(rows=1, cols=2)
+# fig.add_trace(go.Scatter(x = list(range(1, 10)), y = BIC_self, mode = 'lines+markers', name = 'GMM_self'), row=1, col=1)
+# fig.add_trace(go.Scatter(x = list(range(1, 10)), y = BIC_sk, mode = 'lines+markers', name = 'GMM_Sklearn'), row=1, col=2)
+# fig.update_xaxes(title_text = "K")
+# fig.update_yaxes(title_text = "BIC")
+# fig.update_layout(title_text = "BIC vs K for GMM")
+# fig.show()
 
 
 ########################## PCA ##########################
-# data = data.drop(columns=['words'])
-# data_used = data.drop('color', axis=1)
-# model = PCA(n_components = 2)
-# model.fit(data)
-# print(model.transform().columns)
+data = DataLoader(PreProcessDIR, "word-embeddings_v1.feather")
+data_used = data.drop(columns=['words'])
+
+model = PCA(n_components = 2)
+model.fit(data_used)
+model.transform()
+print(model.checkPCA())
+
+fig = px.scatter(x = model._data_trans[0], y = model._data_trans[1], color = data['words'], labels = {'x': 'PC1', 'y': 'PC2'})
+fig.update_layout(title_text = "PCA")
+fig.show()
+
+model = PCA(n_components = 3)
+model.fit(data_used)
+model.transform()
+print(model.checkPCA())
+
+#plot 3D data
+# fig = px.scatter_3d(x = model._data_trans[0], y = model._data_trans[1], z = model._data_trans[2], color = data['words'], labels = {'x': 'PC1', 'y': 'PC2', 'z': 'PC3'})
+# fig.update_layout(title_text = "PCA")
+# fig.show()
 
 # #plot
 # fig = px.scatter(x = model._data_trans[0], y = model._data_trans[1])
