@@ -45,27 +45,8 @@ The class `GaussianMixtureModel()` is present in the folder `model\gmm\gmm.py` a
 #### Task 2: Analysis, AIC/BIC and kgmm1
 Here, we run the GMM over the provided 512 dimensional dataset. The GMM used here for analysis is that built by me as well as the one provided by sklearn. Following is the comparative analysis of the performance of both over some factors of the GMM:
 
-- self-built GMM:
-
-| k | Likelihood | Means | 
-|--|--|--|
-| 1 |  |  |
-| 2 |  |  |
-| 5 |  |  |
-| 7 |  |  |
-| 9 |  |  |
-| 10 |  |  |
-
-- sklearn GMM:
-
-| k | Likelihood | Means | 
-|--|--|--|
-| 1 |  |  |
-| 2 |  |  |
-| 5 |  |  |
-| 7 |  |  |
-| 9 |  |  |
-| 10 |  |  |
+![Log Likelihood for 512 dimensional data](figures/LL_512_GMM.png)
+We can observe that both are quite close in producing the log-likelihood.
 
 Inference:
 - Both the GMMs fail on the given 512 dimensional dataset - because they produce a positive log-likelihood (probability can never be > 1!). There are two reasons that I can think of:
@@ -76,10 +57,17 @@ Inference:
 
 - Both GMMs do pretty well on the `data.csv` dataset and exactly due to the reasons mentioned above. More impressive is the fact that the self-built model and the sklearn model both output nearly same parameters!
 
+![Log Likelihood for data.csv](figures/LL_data_GMM.png)
+
 For AIC and BIC, we find the following plots:
 
-From the above plots, we infer that the optimal number of clusters for the dataset provided is _kgmm1_ = ENTER THE VALUE.
+![AIC](figures/AIC_512.png)
 
+![BIC](figures/BIC_512.png)
+
+
+
+From the above plots, it is quite difficult to infer the optimal number of clusters due to the strictly decreasing nature of the graph. However, close observation can tell that _kgmm1_ = 5.
 
 ### 5: Dimensionality Reduction and Visualisation
 
@@ -95,12 +83,19 @@ The class `PCA()` is present in the folder `models\pca\pca.py` and includes func
 
 #### Task 2: Testing and Visualisation
 
+Following are the 2D and 3D graphs of the reduced data (512 dimensional).
+![2D PCA](figures/PCA_2D_512.png) 
 
+![3D PCA](figures/PCA_3D_512.png)
+
+The `checkPCA()` functionality returns **False** for `n_components <= 198` due to very less retension of information. This implies, that for retaining a significant amount of information for this, we need at least 199 components.
 
 #### Task 3: Data Analysis
 The axes obtained from PCA are the eigenvectors with maximum eigenvalues of the covariance matrix of the dataset. What this means is that the axes represent the directions where, on projecting, the variance of the dataset is maximised. This helps in finding patters in the dataset which would otherwise have been suppressed in the original dimensions.
 
-From the 2D and 3D plots shown above, we find that the optimal number of clusters for the dataset, referred to as _k2_ are _____ (FILL HERE).
+Patterns found in the data are very subtle, but I am able to broadly see that 3 categories are present - animate and inanimate objects, and verbs/actions. Looking more deeply we can divide the animate objects into two categories - birds and animals.
+
+From the 2D and 3D plots shown above, we estimate optimal number of clusters for the dataset, referred to as _k2_ is **4**.
 
 
 ### 6: PCA + Clustering
