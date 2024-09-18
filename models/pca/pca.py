@@ -1,76 +1,71 @@
 import numpy as np
-from plotly import express as px
-from plotly import subplots as sp
-from plotly import graph_objects as go
 import pandas as pd
-import sys
 import os
-
-AssignDIR = os.path.dirname(os.path.dirname(os.path.abspath('pca.py')))
-UserDIR = os.path.dirname(AssignDIR)
-
-sys.path.append(UserDIR)
+import sys
 
 class PCA():
     ''' 
     This class is used to perform PCA on the given dataset.
     '''
-    def __init__(self, n_components = 2) -> None:
+    def __init__(self, n_components=2) -> None:
         '''
-        This function is used to initialize the class.
+        Initialize the PCA class.
 
         Parameters:
             n_components (int): The number of components to keep.
         '''
         self.n_components = n_components
-        pass
-
+        self._data_trans = None
+        self._eigvals = None
+        self._eigvecs = None
+    
     def getComponents(self):
         ''' 
-        This function is used to get the number of components being considered for PCA.
+        Get the number of components being considered for PCA.
         '''
         return self.n_components
     
     def getEigenvalues(self):
         ''' 
-        This function is used to get the eigenvalues of the covariance matrix.
+        Get the eigenvalues of the covariance matrix.
         '''
         return self._eigvals
 
     def getEigenVectors(self):
         ''' 
-        This function is used to get the eigenvectors of the covariance matrix.
+        Get the eigenvectors of the covariance matrix.
         '''
         return self._eigvecs
     
     def fit(self, dataset: pd.DataFrame):
         ''' 
-        This function is used to fit the model.
+        Fit the PCA model to the dataset.
 
         Parameters:
             dataset (pd.DataFrame): The dataset on which PCA is to be performed
         '''
-        self._data = dataset
-
-        self.CovMat = dataset.cov()
+        self._mean = dataset.mean()
+        self._data = dataset - dataset.mean()
+        self.CovMat = self._data.cov()
         self._eigvals, self._eigvecs = np.linalg.eig(self.CovMat)
-        self._eigvals = np.sort(np.real(self._eigvals))[::-1]
-        self._eigvecs = np.real(self._eigvecs)[self._eigvals.argsort()[::-1]]
+        self._eigvals = np.real(self._eigvals)
+        self._eigvecs = np.real(self._eigvecs)
+        sorted_idx = np.argsort(self._eigvals)[::-1]
+        self._eigvals = self._eigvals[sorted_idx]
+        self._eigvecs = self._eigvecs[:, sorted_idx]
 
-        self._princComps = self._eigvecs[:self.n_components]
-        return None
+        self._princComps = self._eigvecs[:, :self.n_components]
 
     def transform(self):
         ''' 
-        This function is used to transform the model according to the fit.
+        Transform the dataset according to the fitted model.
         '''
-        data_trans = self._data.dot(self._princComps.T)
-        self._data_trans = data_trans
-        return data_trans
+        self._data_trans = self._data.dot(self._princComps)
+        return self._data_trans
 
     def checkPCA(self) -> bool:
         ''' 
-        This function is used to check whether the dimensions have been reduced to the correct eigenvectors.
+        Check whether the dimensions have been reduced correctly.
         '''
-        data_reconstructed = self._data_trans.dot(self._princComps) + self._data.mean()
-        return np.allclose(data_reconstructed, self._data, atol=1e-5, rtol=1e-5)
+        data_reconstructed = self._data_trans.dot(self._princComps.T)
+        return np.allclose(self._data, data_reconstructed, rtol=1e-5)
