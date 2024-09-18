@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import pyarrow.feather as feather
-from scipy.cluster.hierarchy import dendrogram, linkage
+from scipy.cluster.hierarchy import dendrogram, linkage, fcluster
 
 import os
 import sys 
@@ -88,7 +88,7 @@ def VIT_Split(data: pd.DataFrame) -> pd.DataFrame:
 # model._data = data_used.copy()
 # err = []
 # err_log = []
-# for k in range(1, 30):
+# for k in range(1, 50):
 #     print(k)
 #     model.setK(k)
 #     centroids, WCSS, _ = model.fit()
@@ -100,7 +100,7 @@ def VIT_Split(data: pd.DataFrame) -> pd.DataFrame:
 
 # err_sk = []
 # err_log = []
-# for i in range(1, 30):
+# for i in range(1, 50):
 #     model = KMeans(n_clusters = i, random_state = 42, n_init = 1, max_iter = 10, init = 'k-means++')
 #     model.fit(data_used)
 #     err_sk.append(model.inertia_)
@@ -185,6 +185,19 @@ def VIT_Split(data: pd.DataFrame) -> pd.DataFrame:
 # print(centroids)
 # print("Clusters: ", model._clusters)
 
+# fig = px.scatter_3d(x = data_used[0], y = data_used[1], z = data_used[2], color = model._clusters)
+# fig.add_trace(go.Scatter3d(x = centroids[:, 0], y = centroids[:, 1], z = centroids[:, 2], mode = 'markers', marker = dict(size = 10)))
+# fig.update_layout(title_text = "KMeans Clustering")
+# fig.show()
+
+# table = []
+# for i in range(kmeans3):
+#     temp = data['words'][model._clusters == i]
+#     table.append(temp)
+# table = pd.DataFrame(table, index=[0, 1, 2, 3, 4]).T
+# print(table)
+# table.to_markdown(os.path.join(CurrDIR, "kmeans_clusters.md"))
+
 ########################## GMM ##########################
 
 # model = GaussianMixtureModel()
@@ -202,14 +215,29 @@ def VIT_Split(data: pd.DataFrame) -> pd.DataFrame:
 # BIC_self = []
 # for k in range(4, 5):
 #     print(k)
-#     model.fit(data_used, K = k, init_method = "random_from_data", epochs = 4, epsilon = 1e-2)
+#     model.fit(data_used, K = k, init_method = "random_from_data", epochs = 4, epsilon = 1e-10)
 #     model.getLikelihood()
 #     ll_self.append(model._likelihood)
 #     AIC_self.append(model.doAIC())
 #     BIC_self.append(model.doBIC())
-#     print(model.getMembership(epsilon=1e-2).shape, "\n\n")
+#     # print(model.getMembership(epsilon=1e-2).shape, "\n\n")
 #     print(model.getCluster())
 #     print(model.getParams()[2])
+
+# #plot AIC
+# fig = px.line(x = list(range(1, )), y = AIC_self, markers=True)
+# fig.update_layout(title_text = "AIC vs K for GMM")
+# fig.show()
+
+# table = []
+# for i in range(4):
+#     temp = data['words'][model.getCluster() == i]
+#     table.append(temp)
+# table = pd.DataFrame(table, index=[0, 1, 2, 3]).T
+# print(table)
+# # store as markdown file
+# table.to_markdown(os.path.join(CurrDIR, "gmm_clusters.md"))
+
 
 #plot clusters for reduced data in 3D
 # fig = px.scatter_3d(x = data_used[0], y = data_used[1], z = data_used[2], color = model.getCluster())
@@ -220,17 +248,18 @@ def VIT_Split(data: pd.DataFrame) -> pd.DataFrame:
 # AIC_sk = []
 # BIC_sk = []
 # for k in range(1, 10):
-#     model = GaussianMixture(n_components = k, random_state = 42, init_params='random_from_data', reg_covar=1e-2)
+#     model = GaussianMixture(n_components = k, random_state = 42, init_params='random_from_data', reg_covar=1e-5)
 #     model.fit(data_used)
 #     print(model.score(data_used)*200, "\n\n")
 #     ll_sk.append(model.score(data_used)*200)
 #     AIC_sk.append(model.aic(data_used))
 #     BIC_sk.append(model.bic(data_used))
-    # print(model.predict(data_used), "\n\n")
-    # print(model.means_, "\n\n")
-    # print(model.covariances_, "\n\n")
-    # print(model.predict_proba(data_used), "\n\n")
-    # print(model.weights_)
+#     # print(model.predict(data_used), "\n\n")
+#     # print(model.means_, "\n\n")
+#     # print(model.covariances_, "\n\n")
+#     # print(model.predict_proba(data_used), "\n\n")
+#     # print(model.weights_)
+
 
 # fig = sp.make_subplots(rows=1, cols=2)
 # fig.add_trace(go.Scatter(x = list(range(1, 10)), y = ll_self, mode = 'lines+markers', name = 'GMM_self'), row=1, col=1)
@@ -288,8 +317,8 @@ def VIT_Split(data: pd.DataFrame) -> pd.DataFrame:
 
 ########################## Heirarchical Clustering ##########################
 
-# # data = DataLoader(PreProcessDIR, "word-embeddings_v1.feather")
-# # data_used = data.drop(columns=['words'])
+data = DataLoader(PreProcessDIR, "word-embeddings_v1.feather")
+data_used = data.drop(columns=['words'])
 
 # data = pd.read_csv(os.path.join(RawDataDIR, "data.csv")) #test dataset from Kaggle
 # data_used = data.drop('color', axis=1)
@@ -298,13 +327,122 @@ def VIT_Split(data: pd.DataFrame) -> pd.DataFrame:
 # # pca.fit(data_used)
 # # data_used = pca.transform()
 
-# Z = linkage(data_used, 'ward')
+Z1 = linkage(data_used, 'ward', 'euclidean')
+Z2 = linkage(data_used, 'single', 'euclidean')
+Z3 = linkage(data_used, 'complete', 'euclidean')
+Z4 = linkage(data_used, 'average', 'euclidean')
 
-# plt.figure(figsize=(25, 10))
-# plt.title('Hierarchical Clustering Dendrogram')
-# plt.xlabel('sample index')
-# plt.ylabel('distance')
-# dendrogram(Z, leaf_rotation=90., leaf_font_size=8.)
+# fig, ax = plt.subplots(2, 2, figsize=(25, 15))
+# fig.suptitle('Hierarchical Clustering Dendrogram | Euclidean Distance')
+# dendrogram(Z1, ax=ax[0, 0])
+# ax[0, 0].set_title('Ward')
+# dendrogram(Z2, ax=ax[0, 1])
+# ax[0, 1].set_title('Single')
+# dendrogram(Z3, ax=ax[1, 0])
+# ax[1, 0].set_title('Complete')
+# dendrogram(Z4, ax=ax[1, 1])
+# ax[1, 1].set_title('Average')
 # plt.show()
 
+
+# Z2 = linkage(data_used, 'single', 'cityblock')
+# Z3 = linkage(data_used, 'complete', 'cityblock')
+# Z4 = linkage(data_used, 'average', 'cityblock')
+
+# fig, ax = plt.subplots(3, 1, figsize=(15, 15))
+# fig.suptitle('Hierarchical Clustering Dendrogram | Cityblock Distance')
+# dendrogram(Z2, ax=ax[0])
+# ax[0].set_title('Single')
+# dendrogram(Z3, ax=ax[1])
+# ax[1].set_title('Complete')
+# dendrogram(Z4, ax=ax[2])
+# ax[2].set_title('Average')
+# plt.show()
+
+
+# Z2 = linkage(data_used, 'single', 'cosine')
+# Z3 = linkage(data_used, 'complete', 'cosine')
+# Z4 = linkage(data_used, 'average', 'cosine')
+
+# fig, ax = plt.subplots(3, 1, figsize=(15, 15))
+# fig.suptitle('Hierarchical Clustering Dendrogram | Cosine Distance')
+# dendrogram(Z2, ax=ax[0])
+# ax[0].set_title('Single')
+# dendrogram(Z3, ax=ax[1])
+# ax[1].set_title('Complete')
+# dendrogram(Z4, ax=ax[2])
+# ax[2].set_title('Average')
+# plt.show()
+
+
+# Z2 = linkage(data_used, 'single', 'correlation')
+# Z3 = linkage(data_used, 'complete', 'correlation')
+# Z4 = linkage(data_used, 'average', 'correlation')
+
+# fig, ax = plt.subplots(3, 1, figsize=(15, 15))
+# fig.suptitle('Hierarchical Clustering Dendrogram | Correlation Distance')
+# dendrogram(Z2, ax=ax[0])
+# ax[0].set_title('Single')
+# dendrogram(Z3, ax=ax[1])
+# ax[1].set_title('Complete')
+# dendrogram(Z4, ax=ax[2])
+# ax[2].set_title('Average')
+# plt.show()
+
+
+# k = 5 #(kmeans)
+# clusters = fcluster(Z1, k, criterion='maxclust')
+# data['clusters'] = clusters
+# #convert into a markdown table with clusters number as columns
+# table = []
+# for i in range(k):
+#     temp = data['words'][data['clusters'] == i+1]
+#     table.append(temp)
+# table = pd.DataFrame(table, index=[0, 1, 2, 3, 4]).T
+# table.to_markdown(os.path.join(CurrDIR, "hierarchical_clusters_kmeans.md"))
+
+# k = 4 #(gmm)
+# clusters = fcluster(Z1, k, criterion='maxclust')
+# data['clusters'] = clusters
+# #convert into a markdown table with clusters number as columns
+# table = []
+# for i in range(k):
+#     temp = data['words'][data['clusters'] == i+1]
+#     table.append(temp)
+# table = pd.DataFrame(table, index=[0, 1, 2, 3]).T
+# table.to_markdown(os.path.join(CurrDIR, "hierarchical_clusters_gmm.md"))
+
+
+# k = 5 #(kmeans)
+# clusters = fcluster(Z2, k, criterion='maxclust')
+# data['clusters'] = clusters
+# #convert into a markdown table with clusters number as columns
+# table = []
+# for i in range(k):
+#     temp = data['words'][data['clusters'] == i+1]
+#     table.append(temp)
+# table = pd.DataFrame(table, index=[0, 1, 2, 3, 4]).T
+# table.to_markdown(os.path.join(CurrDIR, "hierarchical_clusters_single.md"))
+
+# k = 5 #(kmeans)
+# clusters = fcluster(Z3, k, criterion='maxclust')
+# data['clusters'] = clusters
+# #convert into a markdown table with clusters number as columns
+# table = []
+# for i in range(k):
+#     temp = data['words'][data['clusters'] == i+1]
+#     table.append(temp)
+# table = pd.DataFrame(table, index=[0, 1, 2, 3, 4]).T
+# table.to_markdown(os.path.join(CurrDIR, "hierarchical_clusters_collective.md"))
+
+# k = 5 #(kmeans)
+# clusters = fcluster(Z4, k, criterion='maxclust')
+# data['clusters'] = clusters
+# #convert into a markdown table with clusters number as columns
+# table = []
+# for i in range(k):
+#     temp = data['words'][data['clusters'] == i+1]
+#     table.append(temp)
+# table = pd.DataFrame(table, index=[0, 1, 2, 3, 4]).T
+# table.to_markdown(os.path.join(CurrDIR, "hierarchical_clusters_average.md"))
 
