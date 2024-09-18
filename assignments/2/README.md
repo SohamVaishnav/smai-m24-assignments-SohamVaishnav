@@ -161,7 +161,7 @@ Clearly, as inferred earlier in PCA section, we can see 4 groups.
 From the above experiments, we find the following results:
 
 | Type | Value | WCSS | epochs |
-|--|--|--|
+|--|--|--|--|
 | kmeans1 | 4 | 4206.88 | 10 |
 | k2 | 4 | 4206.88 | 10 | 
 | kmeans3 | 5 | 377.42 | 10 |
@@ -174,11 +174,10 @@ The clusters and the words in them can be found in `kmeans_clusters.md` (based o
 Thus, _kmeans_ = 5.
 
 #### Task 2: GMM cluster analysis
-
 From the above experiments, we find the following results:
 
 | Type | Value | Log Likelihood | epochs |
-|--|--|--|
+|--|--|--|--|
 | kgmm1 | 5 | -2142.50 | 4 |
 | k2 | 4 | 111940.93 | 4 | 
 | kgmm3 | 4 | -2142.50 | 4 |
