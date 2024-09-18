@@ -73,49 +73,76 @@ def VIT_Split(data: pd.DataFrame) -> pd.DataFrame:
     data.drop('vit', axis=1, inplace=True)
     return data
 
+def DataLoader_KNN(DataDIR: str, datafilename: str, model: str):
+    ''' 
+    Loads the data from the directory. \n
+    Note: Currently this function only deals with reading .csv files.
+
+    Arguments:
+    DataDIR = string denoting the path to the directory containing data.
+    datafilename = string denoting the name of the data file that needs to be read from DataDIR
+    model = the model that the data is being loaded for.
+    '''
+    assert os.path.exists(DataDIR), f"{DataDIR} path is invalid!"
+    data_path = os.path.join(DataDIR, datafilename)
+    assert os.path.exists(data_path), f"{data_path} path is invalid!"
+
+    if datafilename.endswith('.csv'):
+        if (model == 'KNN'):
+            data = pd.read_csv(data_path, sep = ',', index_col = 0)
+            print("Data has been read.")
+            print("Data size: (rows, cols)", data.shape)
+            return data
+        elif (model == 'LinReg'):
+            x, y = np.loadtxt(data_path, delimiter = ',', dtype = np.float64, unpack = True, skiprows = 1)
+            print("Data has been unpacked and loaded.")
+            print("X: ", x.shape)
+            print("Y: ", y.shape)
+            return x, y
+
 ########################## KMeans Clustering ##########################
 # data = DataLoader(RawDataDIR, "word-embeddings.feather")
 # print(data.head())
 
-# data = DataLoader(PreProcessDIR, "word-embeddings_v1.feather")
+data = DataLoader(PreProcessDIR, "word-embeddings_v1.feather")
 # print(data.head())
 
 # data = pd.read_csv(os.path.join(RawDataDIR, "data.csv")) #test dataset from Kaggle
 
-# model = KMeansClustering(epochs = 10)
+model = KMeansClustering(epochs = 10)
 # data_used = data.drop('color', axis=1)
-# data_used = data.drop(columns=['words'])
-# model._data = data_used.copy()
-# err = []
-# err_log = []
-# for k in range(1, 50):
-#     print(k)
-#     model.setK(k)
-#     centroids, WCSS, _ = model.fit()
-#     err.append(WCSS)
-#     err_log.append("WCSS for k = "+ str(k) +" is " + str(WCSS))
+data_used = data.drop(columns=['words'])
+model._data = data_used.copy()
+err = []
+err_log = []
+for k in range(1, 50):
+    print(k)
+    model.setK(k)
+    centroids, WCSS, _ = model.fit()
+    err.append(WCSS)
+    err_log.append("WCSS for k = "+ str(k) +" is " + str(WCSS))
 
 # # err_log = pd.DataFrame(err_log)
 # # err_log.to_csv(os.path.join(CurrDIR, "err_logs/kmeans_wcss.csv"), index=False)
 
-# err_sk = []
-# err_log = []
-# for i in range(1, 50):
-#     model = KMeans(n_clusters = i, random_state = 42, n_init = 1, max_iter = 10, init = 'k-means++')
-#     model.fit(data_used)
-#     err_sk.append(model.inertia_)
-#     err_log.append("WCSS for k = "+ str(i) +" is " + str(model.inertia_))
+err_sk = []
+err_log = []
+for i in range(1, 50):
+    model = KMeans(n_clusters = i, random_state = 42, n_init = 1, max_iter = 10, init = 'k-means++')
+    model.fit(data_used)
+    err_sk.append(model.inertia_)
+    err_log.append("WCSS for k = "+ str(i) +" is " + str(model.inertia_))
 
 # # err_log = pd.DataFrame(err_log)
 # # err_log.to_csv(os.path.join(CurrDIR, "err_logs/kmeans_wcss_sklearn.csv"), index=False)
 
-# fig = sp.make_subplots()
-# fig.add_trace(go.Scatter(x = list(range(1, 100)), y = err, mode = 'lines+markers', name = 'KMeans_self'))
-# fig.add_trace(go.Scatter(x = list(range(1, 100)), y = err_sk, mode = 'lines+markers', name = 'KMeans_Sklearn'))
-# fig.update_xaxes(title_text = "K")
-# fig.update_yaxes(title_text = "WCSS")
-# fig.update_layout(title_text = "WCSS vs K for KMeans")
-# fig.show()
+fig = sp.make_subplots()
+fig.add_trace(go.Scatter(x = list(range(1, 100)), y = err, mode = 'lines+markers', name = 'KMeans_self'))
+fig.add_trace(go.Scatter(x = list(range(1, 100)), y = err_sk, mode = 'lines+markers', name = 'KMeans_Sklearn'))
+fig.update_xaxes(title_text = "K")
+fig.update_yaxes(title_text = "WCSS")
+fig.update_layout(title_text = "WCSS vs K for KMeans")
+fig.show()
 
 # kmeans1 = 6 #got from the plot
 # model.setK(kmeans1)
@@ -154,7 +181,6 @@ def VIT_Split(data: pd.DataFrame) -> pd.DataFrame:
 # print(pca._eigvals)
 # evr = pca.getExplainedVarRatio()
 
-# #plot scree plot
 # fig = px.line(x = list(range(1, 21)), y = evr[0:20], markers=True)
 # fig.update_layout(title_text = "Scree Plot")
 # fig.show()
@@ -317,8 +343,8 @@ def VIT_Split(data: pd.DataFrame) -> pd.DataFrame:
 
 ########################## Heirarchical Clustering ##########################
 
-data = DataLoader(PreProcessDIR, "word-embeddings_v1.feather")
-data_used = data.drop(columns=['words'])
+# data = DataLoader(PreProcessDIR, "word-embeddings_v1.feather")
+# data_used = data.drop(columns=['words'])
 
 # data = pd.read_csv(os.path.join(RawDataDIR, "data.csv")) #test dataset from Kaggle
 # data_used = data.drop('color', axis=1)
@@ -327,10 +353,10 @@ data_used = data.drop(columns=['words'])
 # # pca.fit(data_used)
 # # data_used = pca.transform()
 
-Z1 = linkage(data_used, 'ward', 'euclidean')
-Z2 = linkage(data_used, 'single', 'euclidean')
-Z3 = linkage(data_used, 'complete', 'euclidean')
-Z4 = linkage(data_used, 'average', 'euclidean')
+# Z1 = linkage(data_used, 'ward', 'euclidean')
+# Z2 = linkage(data_used, 'single', 'euclidean')
+# Z3 = linkage(data_used, 'complete', 'euclidean')
+# Z4 = linkage(data_used, 'average', 'euclidean')
 
 # fig, ax = plt.subplots(2, 2, figsize=(25, 15))
 # fig.suptitle('Hierarchical Clustering Dendrogram | Euclidean Distance')
@@ -445,4 +471,58 @@ Z4 = linkage(data_used, 'average', 'euclidean')
 #     table.append(temp)
 # table = pd.DataFrame(table, index=[0, 1, 2, 3, 4]).T
 # table.to_markdown(os.path.join(CurrDIR, "hierarchical_clusters_average.md"))
+
+
+########################## KNN ##########################
+# from models.knn.knn import KNN
+
+# PreProcessDIR = os.path.join(UserDIR, "./data/interim/1/spotify_KNN/")
+
+# model = KNN()
+# isValid = True
+# data = DataLoader_KNN(PreProcessDIR, 'spotify_word2num.csv', 'KNN')
+# data = model.DataRefiner(data)
+# string_features = ['track_id', 'artists', 'album_name', 'track_name', 'explicit']
+# data = Word2Num(data, string_features, 'KNN')
+# data = model.DataNormaliser(data)
+# data_test = data.drop(columns = ['track_genre'])
+
+# pca = PCA(4)
+# pca.fit(data_test)
+# evr = pca.getExplainedVarRatio()
+# data_used = pca.transform()
+
+# fig = px.line(x = list(range(1, len(evr)+1)), y = evr, markers=True)
+# fig.update_layout(title_text = "Scree Plot for Spotify")
+# fig.show()
+
+# data_used['track_genre'] = data['track_genre']
+
+# train_set, valid_set, test_set = model.DataSplitter(0.8, isValid, 0.1, data_used, 'track_genre')
+# print("Training set: ", train_set.shape)
+# print("Testing set: ", test_set.shape)
+# print("Validation set: ", valid_set.shape)
+
+# y_train = train_set['track_genre']
+# X_train = train_set.drop(columns = ['track_genre'], axis = 1)
+
+# y_test = test_set['track_genre']
+# X_test = test_set.drop(columns = ['track_genre'], axis = 1)
+
+# y_valid = valid_set['track_genre']
+# X_valid = valid_set.drop(columns = ['track_genre'], axis = 1)
+
+# time_start = time.time()
+# model.fit(X_train, y_train)
+# model.SetDistMetric('l1')
+# model.SetNumNeighbors(15)
+# model.FindDistances(X_test, 'optimised')
+# y_pred, acc, prec, recall, f1 = model.predict(X_test, y_test)
+# time_end = time.time()
+# print("Accuracy: ", acc)
+# print("Precision: ", prec)
+# print("Recall: ", recall)
+# print("F1 Score: ", f1)
+# print("Time taken: ", time_end - time_start)
+
 
