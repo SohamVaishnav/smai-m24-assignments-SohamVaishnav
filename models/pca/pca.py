@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import os
 import sys
+import matplotlib.pyplot as plt
 
 class PCA():
     ''' 
@@ -63,9 +64,29 @@ class PCA():
         self._data_trans = self._data.dot(self._princComps)
         return self._data_trans
 
+    def getExplainedVarRatio(self):
+        ''' 
+        Get the explained variance ratio of each principal component.
+        '''
+        return self._eigvals / np.sum(self._eigvals)
+
     def checkPCA(self) -> bool:
         ''' 
-        Check whether the dimensions have been reduced correctly.
+        Check whether the dimensions have been reduced correctly using the concept that maximising variance is 
+        equivalent to minimising reconstruction error.
         '''
-        data_reconstructed = self._data_trans.dot(self._princComps.T)
-        return np.allclose(self._data, data_reconstructed, rtol=1e-5)
+        cumsum = np.cumsum(self._eigvals)
+        cumsum = cumsum/cumsum[-1]
+
+        fig = plt.figure()
+        plt.plot(range(1, len(cumsum)+1), cumsum, marker='o', linestyle='--')
+        plt.axhline(y=0.95, color='r', linestyle='--')
+        plt.xlabel('Number of Components')
+        plt.ylabel('Cumulative Explained Variance')
+        plt.title('Explained Variance vs Number of Components')
+        plt.grid()
+        plt.show()
+
+        return cumsum[self.n_components-1] >= 0.95
+        # data_reconstructed = self._data_trans.dot(self._princComps.T)
+        # return np.allclose(self._data, data_reconstructed, rtol=1e-5)
