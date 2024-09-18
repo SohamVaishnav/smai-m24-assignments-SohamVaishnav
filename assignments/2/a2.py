@@ -104,45 +104,45 @@ def DataLoader_KNN(DataDIR: str, datafilename: str, model: str):
 # data = DataLoader(RawDataDIR, "word-embeddings.feather")
 # print(data.head())
 
-data = DataLoader(PreProcessDIR, "word-embeddings_v1.feather")
+# data = DataLoader(PreProcessDIR, "word-embeddings_v1.feather")
 # print(data.head())
 
 # data = pd.read_csv(os.path.join(RawDataDIR, "data.csv")) #test dataset from Kaggle
 
-model = KMeansClustering(epochs = 10)
-# data_used = data.drop('color', axis=1)
-data_used = data.drop(columns=['words'])
-model._data = data_used.copy()
-err = []
-err_log = []
-for k in range(1, 50):
-    print(k)
-    model.setK(k)
-    centroids, WCSS, _ = model.fit()
-    err.append(WCSS)
-    err_log.append("WCSS for k = "+ str(k) +" is " + str(WCSS))
+# model = KMeansClustering(epochs = 10)
+# # data_used = data.drop('color', axis=1)
+# data_used = data.drop(columns=['words'])
+# model._data = data_used.copy()
+# err = []
+# err_log = []
+# for k in range(1, 50):
+#     print(k)
+#     model.setK(k)
+#     centroids, WCSS, _ = model.fit()
+#     err.append(WCSS)
+#     err_log.append("WCSS for k = "+ str(k) +" is " + str(WCSS))
 
 # # err_log = pd.DataFrame(err_log)
 # # err_log.to_csv(os.path.join(CurrDIR, "err_logs/kmeans_wcss.csv"), index=False)
 
-err_sk = []
-err_log = []
-for i in range(1, 50):
-    model = KMeans(n_clusters = i, random_state = 42, n_init = 1, max_iter = 10, init = 'k-means++')
-    model.fit(data_used)
-    err_sk.append(model.inertia_)
-    err_log.append("WCSS for k = "+ str(i) +" is " + str(model.inertia_))
+# err_sk = []
+# err_log = []
+# for i in range(1, 50):
+#     model = KMeans(n_clusters = i, random_state = 42, n_init = 1, max_iter = 10, init = 'k-means++')
+#     model.fit(data_used)
+#     err_sk.append(model.inertia_)
+#     err_log.append("WCSS for k = "+ str(i) +" is " + str(model.inertia_))
 
 # # err_log = pd.DataFrame(err_log)
 # # err_log.to_csv(os.path.join(CurrDIR, "err_logs/kmeans_wcss_sklearn.csv"), index=False)
 
-fig = sp.make_subplots()
-fig.add_trace(go.Scatter(x = list(range(1, 100)), y = err, mode = 'lines+markers', name = 'KMeans_self'))
-fig.add_trace(go.Scatter(x = list(range(1, 100)), y = err_sk, mode = 'lines+markers', name = 'KMeans_Sklearn'))
-fig.update_xaxes(title_text = "K")
-fig.update_yaxes(title_text = "WCSS")
-fig.update_layout(title_text = "WCSS vs K for KMeans")
-fig.show()
+# fig = sp.make_subplots()
+# fig.add_trace(go.Scatter(x = list(range(1, 100)), y = err, mode = 'lines+markers', name = 'KMeans_self'))
+# fig.add_trace(go.Scatter(x = list(range(1, 100)), y = err_sk, mode = 'lines+markers', name = 'KMeans_Sklearn'))
+# fig.update_xaxes(title_text = "K")
+# fig.update_yaxes(title_text = "WCSS")
+# fig.update_layout(title_text = "WCSS vs K for KMeans")
+# fig.show()
 
 # kmeans1 = 6 #got from the plot
 # model.setK(kmeans1)
@@ -226,32 +226,32 @@ fig.show()
 
 ########################## GMM ##########################
 
-# model = GaussianMixtureModel()
-# data = DataLoader(PreProcessDIR, "word-embeddings_v1.feather")
-# data_used = data.drop(columns=['words'])
+model = GaussianMixtureModel()
+data = DataLoader(PreProcessDIR, "word-embeddings_v1.feather")
+data_used = data.drop(columns=['words'])
 # data = pd.read_csv(os.path.join(RawDataDIR, "data.csv")) #test dataset from Kaggle
 # data_used = data.drop('color', axis=1)
 
-# pca = PCA(4)
-# pca.fit(data_used)
-# data_used = pca.transform()
+pca = PCA(4)
+pca.fit(data_used)
+data_used = pca.transform()
 
 # ll_self = []
 # AIC_self = []
 # BIC_self = []
-# for k in range(4, 5):
+# for k in range(1, 10):
 #     print(k)
-#     model.fit(data_used, K = k, init_method = "random_from_data", epochs = 4, epsilon = 1e-10)
+#     model.fit(data_used, K = k, init_method = "random_from_data", epochs = 4, epsilon = 1e-6)
 #     model.getLikelihood()
 #     ll_self.append(model._likelihood)
 #     AIC_self.append(model.doAIC())
 #     BIC_self.append(model.doBIC())
-#     # print(model.getMembership(epsilon=1e-2).shape, "\n\n")
-#     print(model.getCluster())
-#     print(model.getParams()[2])
+    # print(model.getMembership(epsilon=1e-2).shape, "\n\n")
+    # print(model.getCluster())
+    # print(model.getParams()[2])
 
 # #plot AIC
-# fig = px.line(x = list(range(1, )), y = AIC_self, markers=True)
+# fig = px.line(x = list(range(1, 10)), y = AIC_self, markers=True)
 # fig.update_layout(title_text = "AIC vs K for GMM")
 # fig.show()
 
@@ -270,22 +270,25 @@ fig.show()
 # fig.update_layout(title_text = "GMM")
 # fig.show()
 
-# ll_sk = []
-# AIC_sk = []
-# BIC_sk = []
-# for k in range(1, 10):
-#     model = GaussianMixture(n_components = k, random_state = 42, init_params='random_from_data', reg_covar=1e-5)
-#     model.fit(data_used)
-#     print(model.score(data_used)*200, "\n\n")
-#     ll_sk.append(model.score(data_used)*200)
-#     AIC_sk.append(model.aic(data_used))
-#     BIC_sk.append(model.bic(data_used))
-#     # print(model.predict(data_used), "\n\n")
-#     # print(model.means_, "\n\n")
-#     # print(model.covariances_, "\n\n")
-#     # print(model.predict_proba(data_used), "\n\n")
-#     # print(model.weights_)
+ll_sk = []
+AIC_sk = []
+BIC_sk = []
+for k in range(1, 10):
+    model = GaussianMixture(n_components = k, random_state = 42, init_params='random_from_data', reg_covar=1e-5)
+    model.fit(data_used)
+    print(model.score(data_used)*200, "\n\n")
+    ll_sk.append(model.score(data_used)*200)
+    AIC_sk.append(model.aic(data_used))
+    BIC_sk.append(model.bic(data_used))
+    # print(model.predict(data_used), "\n\n")
+    # print(model.means_, "\n\n")
+    # print(model.covariances_, "\n\n")
+    # print(model.predict_proba(data_used), "\n\n")
+    # print(model.weights_)
 
+fig = px.line(x = list(range(1, 10)), y = AIC_sk, markers=True)
+fig.update_layout(title_text = "AIC vs K for GMM")
+fig.show()
 
 # fig = sp.make_subplots(rows=1, cols=2)
 # fig.add_trace(go.Scatter(x = list(range(1, 10)), y = ll_self, mode = 'lines+markers', name = 'GMM_self'), row=1, col=1)

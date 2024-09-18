@@ -141,8 +141,9 @@ Results after performing GMM on the dataset for k = _k2_ (4) (obtained from the 
 | 4 | 111940.93 | 4 | (0.01, 0.235, 0.505, 0.25) |  
 
 #### Task 4: PCA + GMMs
-Optimal number of clusters for the reduced dataset based on AIC or BIC, referred to as _kgmm3_ is 5.
-For the plot, refer to earlier section dedicated to GMM.
+Optimal number of clusters for the reduced dataset based on AIC or BIC, referred to as _kgmm3_ is 4.
+
+![AIC reduced dataset](figures/AIC_512_red.png)
 
 The clusters formed after applying GMM on the reduced dataset for k = _kgmm3_ is as follows:
 ![Clusters from GMM for kgmm3](figures/kgmm3_GMM_red.png)
