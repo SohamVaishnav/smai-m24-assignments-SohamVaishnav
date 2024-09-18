@@ -176,6 +176,7 @@ Thus, _kmeans_ = 5.
 #### Task 2: GMM cluster analysis
 From the above experiments, we find the following results:
 
+
 | Type | Value | Log Likelihood | epochs |
 |--|--|--|
 | kgmm1 | 5 | -2142.50 | 4 |
