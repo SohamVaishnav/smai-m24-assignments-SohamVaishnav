@@ -19,8 +19,9 @@ UserDIR = os.path.dirname(AssignDIR)
 sys.path.append(UserDIR)
 
 from models.MLP.mlp import *
+from performance_measures.metricsMLP import *
 
-from sklearn.preprocessing import StandardScaler
+# from sklearn.preprocessing import StandardScaler
 
 RawDataDIR = os.path.join(UserDIR, "./data/external/")
 PreProcessDIR = os.path.join(UserDIR, "./data/interim/3/")
@@ -83,6 +84,45 @@ def DataPreprocess(data: pd.DataFrame) -> pd.DataFrame:
     return data
 
 ################################### MLP ###################################
+def createMLP(layers: list, activations: list, hyperparams: dict, isSingleClass: bool = True) -> MultiLayerPerceptron_SingleClass:
+    ''' 
+        Creates a MLP model.
+
+        Parameters:
+            layers = list containing the number of neurons (as integers) in each layer.
+            activations = list containing the activation functions (as strings) for each layer.
+            hyperparams = dictionary containing the hyperparameters for the model. The keys are:
+                learning_rate = float denoting the learning rate for the model.
+                epochs = integer denoting the number of epochs for the model.
+                batch_size = integer denoting the batch size for the model.
+                optimizer = string denoting the optimizer for the model ('sgd', 'bgd', mini_bgd').
+            isSingleClass = boolean denoting whether the model is for single class classification or not.
+    '''
+    if (isSingleClass):
+        model = MultiLayerPerceptron_SingleClass()
+        for i in range(len(layers)):
+            layer = Layer(layers[i], activations[i])
+            model.add(layer)
+        model.setHyperParams(hyperparams)
+    else:
+         model = MultiLayerPerceptron_MultiClass() 
+    return model
+
+def runMLP(model: MultiLayerPerceptron_SingleClass, data: pd.DataFrame, grad_verify: bool = False):
+    ''' 
+        Runs the MLP model.
+
+        Parameters:
+            model = MultiLayerPerceptron_SingleClass object.
+            data = pandas dataframe containing the data.
+            grad_verify = boolean denoting whether to verify the gradients or not
+    '''
+    X = data.drop(columns = ['quality'])
+    y = data['quality']
+    model.fit(X, y, grad_verify)
+
+    return None
+
 data = DataLoader(RawDataDIR, "WineQT.csv")
 print(data.shape)
 print(data.describe())
@@ -106,3 +146,4 @@ print(data.describe())
 # fig.show()
 
 
+         
