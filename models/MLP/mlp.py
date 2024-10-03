@@ -68,15 +68,17 @@ class Layer(object):
     ''' 
     Layer class for creating a layer in the neural network model.
     '''
-    def __init__(self, units) -> None:
+    def __init__(self, units, activation_func) -> None:
         '''
         Initializes the Layer class.
 
         Parameters:
             units = integer denoting the number of units in the layer.
+            activation_func = string denoting the activation function.
         '''
         self._units = units
         self._z = None #the inputs to the layer
+        self._activation = activation_func
 
     def sigmoid(self, x, derivative=False, verification=False):
         ''' 
@@ -92,7 +94,7 @@ class Layer(object):
         h = 1 / (1 + np.exp(-x))
         if derivative:
             return h * (1 - h)
-        self._activation = 'sigmoid'
+        # self._activation = 'sigmoid'
         return h
     
     def relu(self, x, derivative=False, verification=False):
@@ -108,7 +110,7 @@ class Layer(object):
             self._z = x
         if derivative:
             return np.where(x > 0, 1, 0)
-        self._activation = 'relu'
+        # self._activation = 'relu'
         return np.maximum(0, x)
     
     def tanh(self, x, derivative=False, verification=False):
@@ -124,7 +126,7 @@ class Layer(object):
             self._z = x
         if derivative:
             return 1 - np.tanh(x) ** 2
-        self._activation = 'tanh'
+        # self._activation = 'tanh'
         return np.tanh(x)
 
 class MultiLayerPerceptron_SingleClass(object):
@@ -151,6 +153,8 @@ class MultiLayerPerceptron_SingleClass(object):
         self._learning_rate = None
         self._labels = None
         self._a = []
+        self._y_pred = None
+        self._grad_verify = False
 
     def add(self, layer: Layer):
         '''
@@ -161,22 +165,20 @@ class MultiLayerPerceptron_SingleClass(object):
         '''
         self._layers.append(layer)
         
-    def setHyperParams(self, loss, optimizer, metrics, lr):
+    def setHyperParams(self, hyperparams: dict):
         '''
         Compiles the model with the loss, optimizer and metrics.
 
         Parameters:
-            loss = function denoting the loss function.
-            optimizer = function denoting the optimizer.
-            metrics = list of functions denoting the metrics.
-            lr = float denoting the learning rate.
+            hyperparams = dictionary containing the hyperparameters for the model.
         '''
-        self._loss = loss
-        self._optimizer = optimizer
-        self._metrics = metrics
-        self._learning_rate = lr
+        # self._loss = hyperparams['loss']
+        self._optimizer = hyperparams['optimizer']
+        self._batch_size = hyperparams['batch_size']
+        self._learning_rate = hyperparams['learning_rate']
+        self._epochs = hyperparams['epochs']
 
-    def fit(self, X, y, batch_size, epochs):
+    def fit(self, X, y, grad_verify=False):
         '''
         Fits the model to the data.
 
@@ -189,8 +191,9 @@ class MultiLayerPerceptron_SingleClass(object):
 
         self._input_shape = X.shape[1]
         self._output_shape = y.shape[1]
-        self._batch_size = batch_size
-        self._epochs = epochs
+
+        if (grad_verify):
+            self._grad_verify = True
 
         for i in range(len(self._layers)):
             if i == 0:
@@ -202,7 +205,7 @@ class MultiLayerPerceptron_SingleClass(object):
 
             self._activations.append(self._layers[i]._activation)
 
-        self._history = self._train(X, y)
+        self._y_pred = self._train(X, y)
 
     def predict(self, X):
         ''' 
@@ -313,52 +316,51 @@ class MultiLayerPerceptron_SingleClass(object):
         for i in range(len(self._layers)):
             z = np.dot(self._a, self._weights[i]) + self._biases[i]
             if (self._activations[i] == 'sigmoid'):
-                self._a.append(self._layers[i].sigmoid(z))
+                self._a.append(self._layers[i].sigmoid(x = z))
             elif (self._activations[i] == 'relu'):
-                self._a.append(self._layers[i].relu(z))
+                self._a.append(self._layers[i].relu(x = z))
             elif (self._activations[i] == 'tanh'):
-                self._a.append(self._layers[i].tanh(z))
+                self._a.append(self._layers[i].tanh(x = z))
 
-        if (weights_if_verify is not None):
+        if (weights_if_verify is not None and self._grad_verify):
             a = X
             for i in range(len(self._layers)):
                 z = np.dot(a, weights_if_verify[i]) + self._biases[i]
                 if (self._activations[i] == 'sigmoid'):
-                    self._a.append(self._layers[i].sigmoid(z))
+                    self._a.append(self._layers[i].sigmoid(x = z, verification=self._grad_verify))
                 elif (self._activations[i] == 'relu'):
-                    self._a.append(self._layers[i].relu(z))
+                    self._a.append(self._layers[i].relu(x = z, verification=self._grad_verify))
                 elif (self._activations[i] == 'tanh'):
-                    self._a.append(self._layers[i].tanh(z))
+                    self._a.append(self._layers[i].tanh(x = z, verification=self._grad_verify))
             return self._a[-1]
         return self._a[-1]
     
-    def backprop(self, y, y_pred, verify: bool = False):
+    def backprop(self, y, y_pred):
         '''
         Backward propagation of the model.
 
         Parameters:
             y = numpy array containing the output data.
             y_pred = numpy array containing the predicted output data.
-            verify = boolean denoting whether to test the gradient process or not
         '''
         gradients = []
         for i in range(len(self._layers)-1, -1, -1):
             if i == len(self._layers)-1:
                 z = self._layers[i]._z
                 if (self._activations[i] == 'sigmoid'):
-                    error = self.loss(y, y_pred, derivative=True) * self._layers[i].sigmoid(z, derivative=True)
+                    error = self.loss(y, y_pred, derivative=True) * self._layers[i].sigmoid(x = z, derivative=True)
                 elif (self._activations[i] == 'relu'):
-                    error = self.loss(y, y_pred, derivative=True) * self._layers[i].relu(z, derivative=True)
+                    error = self.loss(y, y_pred, derivative=True) * self._layers[i].relu(x = z, derivative=True)
                 elif (self._activations[i] == 'tanh'):
-                    error = self.loss(y, y_pred, derivative=True) * self._layers[i].tanh(z, derivative=True)
+                    error = self.loss(y, y_pred, derivative=True) * self._layers[i].tanh(x = z, derivative=True)
             else:
                 z = self._layers[i]._z
                 if (self._activations[i] == 'sigmoid'):
-                    error = np.dot(error, self._weights[i+1].T) * self._layers[i].sigmoid(z, derivative=True)
+                    error = np.dot(error, self._weights[i+1].T) * self._layers[i].sigmoid(x = z, derivative=True)
                 elif (self._activations[i] == 'relu'):
-                    error = np.dot(error, self._weights[i+1].T) * self._layers[i].relu(z, derivative=True)
+                    error = np.dot(error, self._weights[i+1].T) * self._layers[i].relu(x = z, derivative=True)
                 elif (self._activations[i] == 'tanh'):
-                    error = np.dot(error, self._weights[i+1].T) * self._layers[i].tanh(z, derivative=True)
+                    error = np.dot(error, self._weights[i+1].T) * self._layers[i].tanh(x = z, derivative=True)
 
             # if (self._activations[i-1] == 'sigmoid'):
             #     gradients.append(np.dot(self._layers[i-1].sigmoid(y_pred, derivative=True).T, error))
@@ -369,7 +371,7 @@ class MultiLayerPerceptron_SingleClass(object):
             if i > 0:
                 gradients.append(np.dot(self._a[i-1].T, error))
             
-            if (verify):
+            if (self._grad_verify):
                 gradients_verify = []
                 epsilon = 1e-5
                 weights = self._weights[i]
@@ -434,3 +436,16 @@ class MultiLayerPerceptron_SingleClass(object):
         fig.update_layout(title='Model History')
         fig.show()
         return None
+    
+
+class MultiLayerPerceptron_MultiClass(object):
+    ''' 
+    MultiLayerPerceptron_MultiClass class for creating a neural network model for multi class 
+    classification.
+    '''
+    def __init__(self) -> None:
+        ''' 
+        Initializes the MultiLayerPerceptron_MultiClass class.
+        '''
+        return None
+    
