@@ -78,44 +78,50 @@ class Layer(object):
         self._units = units
         self._z = None #the inputs to the layer
 
-    def sigmoid(self, x, derivative=False):
+    def sigmoid(self, x, derivative=False, verification=False):
         ''' 
         Sigmoid activation function.
 
         Parameters:
             x = numpy array containing the input data.
             derivative = boolean denoting whether to return the derivative of the function.
+            verification = boolean denoting whether to test the gradient process or not
         '''
-        self._z = x
+        if (not verification):
+            self._z = x
         h = 1 / (1 + np.exp(-x))
         if derivative:
             return h * (1 - h)
         self._activation = 'sigmoid'
         return h
     
-    def relu(self, x, derivative=False):
+    def relu(self, x, derivative=False, verification=False):
         ''' 
         ReLU activation function.
 
         Parameters:
             x = numpy array containing the input data.
             derivative = boolean denoting whether to return the derivative of the function.
+            verification = boolean denoting whether to test the gradient process or not
         '''
-        self._z = x
+        if (not verification):
+            self._z = x
         if derivative:
             return np.where(x > 0, 1, 0)
         self._activation = 'relu'
         return np.maximum(0, x)
     
-    def tanh(self, x, derivative=False):
+    def tanh(self, x, derivative=False, verification=False):
         ''' 
         Tanh activation function.
 
         Parameters:
             x = numpy array containing the input data.
             derivative = boolean denoting whether to return the derivative of the function.
+            verification = boolean denoting whether to test the gradient process or not
         '''
-        self._z = x
+        if (not verification):
+            self._z = x
         if derivative:
             return 1 - np.tanh(x) ** 2
         self._activation = 'tanh'
@@ -295,12 +301,13 @@ class MultiLayerPerceptron_SingleClass(object):
         self._history = history
         return y_pred
     
-    def forward(self, X):
+    def forward(self, X, weights_if_verify=None):
         ''' 
         Forward pass of the model.
 
         Parameters:
             X = numpy array containing the input data.
+            weights_if_verify = numpy array containing the weights for gradient verification.
         '''
         self._a.append(X)
         for i in range(len(self._layers)):
@@ -311,6 +318,18 @@ class MultiLayerPerceptron_SingleClass(object):
                 self._a.append(self._layers[i].relu(z))
             elif (self._activations[i] == 'tanh'):
                 self._a.append(self._layers[i].tanh(z))
+
+        if (weights_if_verify is not None):
+            a = X
+            for i in range(len(self._layers)):
+                z = np.dot(a, weights_if_verify[i]) + self._biases[i]
+                if (self._activations[i] == 'sigmoid'):
+                    self._a.append(self._layers[i].sigmoid(z))
+                elif (self._activations[i] == 'relu'):
+                    self._a.append(self._layers[i].relu(z))
+                elif (self._activations[i] == 'tanh'):
+                    self._a.append(self._layers[i].tanh(z))
+            return self._a[-1]
         return self._a[-1]
     
     def backprop(self, y, y_pred, verify: bool = False):
@@ -357,10 +376,10 @@ class MultiLayerPerceptron_SingleClass(object):
                 for j in range(weights.shape[0]):
                     for k in range(weights.shape[1]):
                         weights[j, k] += epsilon
-                        y_pred = self.forward(self._a[i-1])
+                        y_pred = self.forward(self._a[i-1], weights)
                         loss1 = self.loss(y, y_pred)
-                        weights[j, k] -= 2 * epsilon
-                        y_pred = self.forward(self._a[i-1])
+                        weights[j, k] -= epsilon
+                        y_pred = self.forward(self._a[i-1], weights)
                         loss2 = self.loss(y, y_pred)
                         gradients_verify.append((loss1 - loss2) / (2 * epsilon))
             
@@ -380,3 +399,38 @@ class MultiLayerPerceptron_SingleClass(object):
         if derivative:
             return y_pred - y_true
         return np.mean((y_pred - y_true) ** 2)
+    
+    def summary(self):
+        ''' 
+        Prints the summary of the model.
+        '''
+        print("Model: MultiLayerPerceptron_SingleClass")
+        print("_________________________________________________________________")
+        print("Layer (type)                 Output Shape              Param #")
+        print("=================================================================")
+        for i in range(len(self._layers)):
+            if i == 0:
+                print("Input Layer                   "+str(self._input_shape)+"                       0")
+            else:
+                print("Hidden Layer                  "+str(self._layers[i].units)+"                       "+str(self._weights[i-1].size + self._biases[i-1].size))
+        print("Output Layer                  "+str(self._output_shape)+"                       "+str(self._weights[-1].size + self._biases[-1].size))
+        print("=================================================================")
+        print("Total params: "+str(sum([self._weights[i].size + self._biases[i].size for i in range(len(self._weights))])))
+        print("Trainable params: "+str(sum([self._weights[i].size + self._biases[i].size for i in range(len(self._weights))])))
+        print("Non-trainable params: 0")
+        print("_________________________________________________________________")
+        return None
+    
+    def plot(self):
+        ''' 
+        Plots the history of the model.
+        '''
+        fig = sp.make_subplots(rows=2, cols=1, subplot_titles=('Loss', 'Metrics'))
+        fig.add_trace(go.Scatter(x=self._history['epoch'], y=self._history['loss'], mode='lines', name='loss'), row=1, col=1)
+        fig.add_trace(go.Scatter(x=self._history['epoch'], y=self._history['accuracy'], mode='lines', name='accuracy'), row=2, col=1)
+        fig.add_trace(go.Scatter(x=self._history['epoch'], y=self._history['f1_score'], mode='lines', name='f1_score'), row=2, col=1)
+        fig.add_trace(go.Scatter(x=self._history['epoch'], y=self._history['precision'], mode='lines', name='precision'), row=2, col=1)
+        fig.add_trace(go.Scatter(x=self._history['epoch'], y=self._history['recall'], mode='lines', name='recall'), row=2, col=1)
+        fig.update_layout(title='Model History')
+        fig.show()
+        return None
