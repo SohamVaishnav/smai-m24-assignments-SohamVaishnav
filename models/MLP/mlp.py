@@ -29,8 +29,8 @@ class Optimizer(object):
             biases = list of numpy arrays containing the biases.
         '''
         for i in range(len(weights)):
-            weights[i] -= self.lr * gradients[i]
-            biases[i] -= self.lr * gradients[i].mean()
+            weights[i] -= self._lr * gradients[len(weights)-1-i]
+            biases[i] -= self._lr * gradients[len(weights)-1-i].mean()
         return weights, biases
 
     def bgd(self, gradients, weights, bias):
@@ -44,8 +44,8 @@ class Optimizer(object):
         '''
         grad = np.mean(gradients, axis=0)
         for i in range(len(weights)):
-            weights[i] -= self.lr * grad
-            bias[i] -= self.lr * grad.mean()
+            weights[i] -= self._lr * grad
+            bias[i] -= self._lr * grad.mean()
         return weights, bias
         
     def mini_bgd(self, gradients, weights, biases, batch_size):
@@ -60,8 +60,8 @@ class Optimizer(object):
         '''
         grad = np.mean(gradients, axis=0)
         for i in range(len(weights)):
-            weights[i] -= self.lr * grad            
-            biases[i] -= self.lr * grad.mean()
+            weights[i] -= self._lr * grad            
+            biases[i] -= self._lr * grad.mean()
         return weights, biases
 
 class Layer(object):
@@ -190,22 +190,22 @@ class MultiLayerPerceptron_SingleClass(object):
         '''
 
         self._input_shape = X.shape[1]
-        self._output_shape = y.shape[1]
+        self._output_shape = 1
 
         if (grad_verify):
             self._grad_verify = True
 
         for i in range(len(self._layers)):
             if i == 0:
-                self._weights.append(np.random.randn(self._input_shape, self._layers[i].units))
-                self._biases.append(np.random.randn(self._layers[i].units))
+                self._weights.append(np.random.randn(self._input_shape, self._layers[i]._units))
+                self._biases.append(np.random.randn(self._layers[i]._units))
             else:
-                self._weights.append(np.random.randn(self._layers[i-1].units, self._layers[i].units))
-                self._biases.append(np.random.randn(self._layers[i].units))
+                self._weights.append(np.random.randn(self._layers[i-1]._units, self._layers[i]._units))
+                self._biases.append(np.random.randn(self._layers[i]._units))
 
             self._activations.append(self._layers[i]._activation)
 
-        self._y_pred = self._train(X, y)
+        self._y_pred = self.train(X, y, np.unique(y))
 
     def predict(self, X):
         ''' 
@@ -240,6 +240,7 @@ class MultiLayerPerceptron_SingleClass(object):
         if (self._optimizer == 'sgd'):
             optimizer = Optimizer(self._learning_rate)
             for epoch in range(self._epochs):
+                print("Epoch: ", epoch)
                 history['epoch'].append(epoch)
                 y_pred = []
                 for i in range(0, X.shape[0]):
@@ -249,11 +250,12 @@ class MultiLayerPerceptron_SingleClass(object):
                     
                     gradients = self.backprop(y[i], y_pred[i])
                     self._weights, self._biases = optimizer.sgd(gradients, self._weights, self._biases)
-                metrics = Measures(y_pred, y, labels)
+                metrics = Measures(y_pred, y, labels, True)
                 history['accuracy'].append(metrics.accuracy())
-                history['f1_score'].append(metrics.f1_score()[0])
                 history['precision'].append(metrics.precision()[0])
                 history['recall'].append(metrics.recall()[0])
+                history['f1_score'].append(metrics.f1_score()[0])
+                print(history)
                 self._metrics.append(metrics)
 
 
@@ -304,35 +306,39 @@ class MultiLayerPerceptron_SingleClass(object):
         self._history = history
         return y_pred
     
-    def forward(self, X, weights_if_verify=None):
+    def forward(self, X, ver_index = 0, weights_if_verify=None):
         ''' 
         Forward pass of the model.
 
         Parameters:
             X = numpy array containing the input data.
+            ver_index = integer denoting the index of the layer for verification.
             weights_if_verify = numpy array containing the weights for gradient verification.
         '''
-        self._a.append(X)
-        for i in range(len(self._layers)):
-            z = np.dot(self._a, self._weights[i]) + self._biases[i]
-            if (self._activations[i] == 'sigmoid'):
-                self._a.append(self._layers[i].sigmoid(x = z))
-            elif (self._activations[i] == 'relu'):
-                self._a.append(self._layers[i].relu(x = z))
-            elif (self._activations[i] == 'tanh'):
-                self._a.append(self._layers[i].tanh(x = z))
-
-        if (weights_if_verify is not None and self._grad_verify):
-            a = X
+        if (weights_if_verify is None):
+            self._a = []
+            self._a.append(X)
             for i in range(len(self._layers)):
-                z = np.dot(a, weights_if_verify[i]) + self._biases[i]
+                z = np.dot(self._a[i], self._weights[i]) + self._biases[i]
                 if (self._activations[i] == 'sigmoid'):
-                    self._a.append(self._layers[i].sigmoid(x = z, verification=self._grad_verify))
+                    self._a.append(self._layers[i].sigmoid(x = z))
                 elif (self._activations[i] == 'relu'):
-                    self._a.append(self._layers[i].relu(x = z, verification=self._grad_verify))
+                    self._a.append(self._layers[i].relu(x = z))
                 elif (self._activations[i] == 'tanh'):
-                    self._a.append(self._layers[i].tanh(x = z, verification=self._grad_verify))
-            return self._a[-1]
+                    self._a.append(self._layers[i].tanh(x = z))
+
+        elif (weights_if_verify is not None and self._grad_verify):
+            a = X
+            for i in range(ver_index, len(self._layers)):
+                z = np.dot(a.T, weights_if_verify[i]) + self._biases[i]
+                if (self._activations[i] == 'sigmoid'):
+                    a = self._layers[i].sigmoid(x = z, verification=self._grad_verify).T
+                elif (self._activations[i] == 'relu'):
+                    a = self._layers[i].relu(x = z, verification=self._grad_verify).T
+                elif (self._activations[i] == 'tanh'):
+                    a = self._layers[i].tanh(x = z, verification=self._grad_verify).T
+            return a
+
         return self._a[-1]
     
     def backprop(self, y, y_pred):
@@ -368,24 +374,32 @@ class MultiLayerPerceptron_SingleClass(object):
             #     gradients.append(np.dot(self._layers[i-1].relu(y_pred, derivative=True).T, error))
             # elif (self._activations[i-1] == 'tanh'):
             #     gradients.append(np.dot(self._layers[i-1].tanh(y_pred, derivative=True).T, error))
-            if i > 0:
-                gradients.append(np.dot(self._a[i-1].T, error))
+            if i >= 0:
+                a = self._a[i].reshape(-1, 1)
+                error = error.reshape(1, -1)
+                gradients.append(np.dot(a, error))
+                # print(gradients[len(self._layers)-1-i])
             
-            if (self._grad_verify):
+            if (self._grad_verify and i >= 0):
                 gradients_verify = []
-                epsilon = 1e-5
+                epsilon = 1e-10
                 weights = self._weights[i]
+                temp = self._weights[i]
                 for j in range(weights.shape[0]):
                     for k in range(weights.shape[1]):
                         weights[j, k] += epsilon
-                        y_pred = self.forward(self._a[i-1], weights)
+                        self._weights[i] = weights
+                        y_pred = self.forward(a, i, self._weights)
                         loss1 = self.loss(y, y_pred)
                         weights[j, k] -= epsilon
-                        y_pred = self.forward(self._a[i-1], weights)
+                        self._weights[i] = weights
+                        y_pred = self.forward(a, i, self._weights)
                         loss2 = self.loss(y, y_pred)
                         gradients_verify.append((loss1 - loss2) / (2 * epsilon))
-            
-                print(np.allclose(gradients[i], gradients_verify))
+                # print(gradients_verify, "\n\n")
+                self._weights[i] = temp
+                # if (i > 0):
+                #     print(np.allclose(gradients[len(self._layers)-1-i], gradients_verify))
 
         return gradients
 
@@ -399,7 +413,7 @@ class MultiLayerPerceptron_SingleClass(object):
             derivative = boolean denoting whether to return the derivative of the function.
         '''
         if derivative:
-            return y_pred - y_true
+            return (y_pred - y_true)*2
         return np.mean((y_pred - y_true) ** 2)
     
     def summary(self):
