@@ -313,13 +313,14 @@ class MultiLayerPerceptron_SingleClass(object):
                 self._a.append(self._layers[i].tanh(z))
         return self._a[-1]
     
-    def backprop(self, y, y_pred):
+    def backprop(self, y, y_pred, verify: bool = False):
         '''
         Backward propagation of the model.
 
         Parameters:
             y = numpy array containing the output data.
             y_pred = numpy array containing the predicted output data.
+            verify = boolean denoting whether to test the gradient process or not
         '''
         gradients = []
         for i in range(len(self._layers)-1, -1, -1):
@@ -348,6 +349,22 @@ class MultiLayerPerceptron_SingleClass(object):
             #     gradients.append(np.dot(self._layers[i-1].tanh(y_pred, derivative=True).T, error))
             if i > 0:
                 gradients.append(np.dot(self._a[i-1].T, error))
+            
+            if (verify):
+                gradients_verify = []
+                epsilon = 1e-5
+                weights = self._weights[i]
+                for j in range(weights.shape[0]):
+                    for k in range(weights.shape[1]):
+                        weights[j, k] += epsilon
+                        y_pred = self.forward(self._a[i-1])
+                        loss1 = self.loss(y, y_pred)
+                        weights[j, k] -= 2 * epsilon
+                        y_pred = self.forward(self._a[i-1])
+                        loss2 = self.loss(y, y_pred)
+                        gradients_verify.append((loss1 - loss2) / (2 * epsilon))
+            
+                print(np.allclose(gradients[i], gradients_verify))
 
         return gradients
 
