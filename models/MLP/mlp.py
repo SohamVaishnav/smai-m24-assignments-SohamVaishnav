@@ -74,9 +74,9 @@ class Layer(object):
 
         Parameters:
             units = integer denoting the number of units in the layer.
-            activation = function denoting the activation function.
         '''
         self._units = units
+        self._z = None #the inputs to the layer
 
     def sigmoid(self, x, derivative=False):
         ''' 
@@ -86,6 +86,7 @@ class Layer(object):
             x = numpy array containing the input data.
             derivative = boolean denoting whether to return the derivative of the function.
         '''
+        self._z = x
         h = 1 / (1 + np.exp(-x))
         if derivative:
             return h * (1 - h)
@@ -100,6 +101,7 @@ class Layer(object):
             x = numpy array containing the input data.
             derivative = boolean denoting whether to return the derivative of the function.
         '''
+        self._z = x
         if derivative:
             return np.where(x > 0, 1, 0)
         self._activation = 'relu'
@@ -113,6 +115,7 @@ class Layer(object):
             x = numpy array containing the input data.
             derivative = boolean denoting whether to return the derivative of the function.
         '''
+        self._z = x
         if derivative:
             return 1 - np.tanh(x) ** 2
         self._activation = 'tanh'
@@ -141,6 +144,7 @@ class MultiLayerPerceptron_SingleClass(object):
         self._epochs = None
         self._learning_rate = None
         self._labels = None
+        self._a = []
 
     def add(self, layer: Layer):
         '''
@@ -190,7 +194,7 @@ class MultiLayerPerceptron_SingleClass(object):
                 self._weights.append(np.random.randn(self._layers[i-1].units, self._layers[i].units))
                 self._biases.append(np.random.randn(self._layers[i].units))
 
-            self._activations.append(self._layers[i].activation)
+            self._activations.append(self._layers[i]._activation)
 
         self._history = self._train(X, y)
 
@@ -269,7 +273,6 @@ class MultiLayerPerceptron_SingleClass(object):
             optimizer = Optimizer(self._learning_rate)
             for epoch in range(self._epochs):
                 history['epoch'].append(epoch)
-                y_pred = []
                 j = 1
                 for i in range(0, X.shape[0], self._batch_size):
                     X_batch = X[i:i+self._batch_size]
@@ -289,8 +292,8 @@ class MultiLayerPerceptron_SingleClass(object):
                     history['batch'].append(j)
                     self._metrics.append(metrics)
                     j += 1
-
-        return history
+        self._history = history
+        return y_pred
     
     def forward(self, X):
         ''' 
@@ -299,17 +302,16 @@ class MultiLayerPerceptron_SingleClass(object):
         Parameters:
             X = numpy array containing the input data.
         '''
-        a = X
+        self._a.append(X)
         for i in range(len(self._layers)):
-            z = np.dot(a, self._weights[i]) + self._biases[i]
+            z = np.dot(self._a, self._weights[i]) + self._biases[i]
             if (self._activations[i] == 'sigmoid'):
-                a = self._layers[i].sigmoid(z)
+                self._a.append(self._layers[i].sigmoid(z))
             elif (self._activations[i] == 'relu'):
-                a = self._layers[i].relu(z)
+                self._a.append(self._layers[i].relu(z))
             elif (self._activations[i] == 'tanh'):
-                a = self._layers[i].tanh(z)
-
-        return a
+                self._a.append(self._layers[i].tanh(z))
+        return self._a[-1]
     
     def backprop(self, y, y_pred):
         '''
@@ -322,24 +324,32 @@ class MultiLayerPerceptron_SingleClass(object):
         gradients = []
         for i in range(len(self._layers)-1, -1, -1):
             if i == len(self._layers)-1:
-                error = self.loss(y, y_pred, derivative=True) * self._activations[i](y_pred, derivative=True)
+                z = self._layers[i]._z
+                if (self._activations[i] == 'sigmoid'):
+                    error = self.loss(y, y_pred, derivative=True) * self._layers[i].sigmoid(z, derivative=True)
+                elif (self._activations[i] == 'relu'):
+                    error = self.loss(y, y_pred, derivative=True) * self._layers[i].relu(z, derivative=True)
+                elif (self._activations[i] == 'tanh'):
+                    error = self.loss(y, y_pred, derivative=True) * self._layers[i].tanh(z, derivative=True)
             else:
-                error = np.dot(error, self._weights[i+1].T) * self._activations[i](y_pred, derivative=True)
+                z = self._layers[i]._z
+                if (self._activations[i] == 'sigmoid'):
+                    error = np.dot(error, self._weights[i+1].T) * self._layers[i].sigmoid(z, derivative=True)
+                elif (self._activations[i] == 'relu'):
+                    error = np.dot(error, self._weights[i+1].T) * self._layers[i].relu(z, derivative=True)
+                elif (self._activations[i] == 'tanh'):
+                    error = np.dot(error, self._weights[i+1].T) * self._layers[i].tanh(z, derivative=True)
 
-            gradients.append(np.dot(self._activations[i-1](y_pred, derivative=True).T, error))
+            # if (self._activations[i-1] == 'sigmoid'):
+            #     gradients.append(np.dot(self._layers[i-1].sigmoid(y_pred, derivative=True).T, error))
+            # elif (self._activations[i-1] == 'relu'):
+            #     gradients.append(np.dot(self._layers[i-1].relu(y_pred, derivative=True).T, error))
+            # elif (self._activations[i-1] == 'tanh'):
+            #     gradients.append(np.dot(self._layers[i-1].tanh(y_pred, derivative=True).T, error))
+            if i > 0:
+                gradients.append(np.dot(self._a[i-1].T, error))
 
         return gradients
-    
-    # def update(self, gradients):
-    #     ''' 
-    #     Updates the weights and biases of the model.
-
-    #     Parameters:
-    #         gradients = list of numpy arrays containing the gradients.
-    #     '''
-    #     for i in range(len(self._weights)):
-    #         self._weights[i] -= gradients[i]
-    #         self._biases[i] -= gradients[i].mean()
 
     def loss(self, y_true, y_pred, derivative=False):
         ''' 
