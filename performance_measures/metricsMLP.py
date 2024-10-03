@@ -47,8 +47,8 @@ class Confusion_Matrix:
         else:
             ConfMat = np.zeros((max(labels)+1, max(labels)+1))
 
-        for i in true_vals.shape[0]:
-            ConfMat.loc[pred_vals[i], true_vals[i]] += 1
+        for i in range(true_vals.shape[0]):
+            ConfMat[int(pred_vals[i]), true_vals[i]] += 1
 
         self._ConfMat = ConfMat
         return None
@@ -79,7 +79,7 @@ class Confusion_Matrix:
         Finds the false negatives by comparing the predicted and true values. 
         '''
         labelwise_FN = {}
-        for i in self._ConfMat.columns:
+        for i in range(self._ConfMat.shape[1]):
             sum = self._ConfMat[:,i].sum() - self._ConfMat[i, i]
             labelwise_FN.update({i:sum})
 
@@ -103,9 +103,9 @@ class Measures():
     Computes and returns the performance measures for the model based on the predicted and ground-
     truth values.
     '''
-    def __init__(self, pred_values, true_values, labels) -> None:
+    def __init__(self, pred_values, true_values, labels, labels_isnum: False) -> None:
         self._CM = Confusion_Matrix()
-        self._CM.CreateMatrix(pred_values, true_values, labels)
+        self._CM.CreateMatrix(pred_values, true_values, labels, labels_isnum)
         self._CM.FindFN()
         self._CM.FindFP()
         self._CM.FindTN()
@@ -173,6 +173,6 @@ class Measures():
         ''' 
         Computes model accuracy.
         '''
-        Acc = sum(self._CM._TP.values())/(self._CM._ConfMat.to_numpy().sum())
+        Acc = sum(self._CM._TP.values())/(self._CM._ConfMat.sum())
         self._acc = Acc
         return Acc
