@@ -1,0 +1,17 @@
+Epoch:  0
+Epoch:  1
+Epoch:  2
+Epoch:  3
+Epoch:  4
+Epoch:  5
+Epoch:  6
+Epoch:  7
+Epoch:  8
+Epoch:  9
+Traceback (most recent call last):
+  File "c:\Users\Admin\smai-m24-assignments-SohamVaishnav\assignments\3\a3.py", line 158, in <module>
+    runMLP(model, data, grad_verify = False)
+  File "c:\Users\Admin\smai-m24-assignments-SohamVaishnav\assignments\3\a3.py", line 133, in runMLP
+    wandb.log({'final_accuracy': model._metrics['accuracy']})
+                                 ~~~~~~~~~~~~~~^^^^^^^^^^^^
+TypeError: list indices must be integers or slices, not str

@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "c:\Users\Admin\smai-m24-assignments-SohamVaishnav\assignments\3\a3.py", line 157, in <module>
+    model = createMLP(layers, activations, hyperparams)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Admin\smai-m24-assignments-SohamVaishnav\assignments\3\a3.py", line 111, in createMLP
+    wandb.watch(model)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python311\Lib\site-packages\wandb\sdk\wandb_watch.py", line 87, in watch
+    raise ValueError(
+ValueError: Expected a pytorch model (torch.nn.Module). Received <class 'models.MLP.mlp.MultiLayerPerceptron_SingleClass'>
