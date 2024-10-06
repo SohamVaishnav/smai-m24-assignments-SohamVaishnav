@@ -7,7 +7,14 @@ class Confusion_Matrix:
     ''' 
     Creates and returns the confusion matrix by selecting True and False positives and negatives.
     '''
-    def __init__(self) -> None:
+    def __init__(self, isMulti = False) -> None:
+        '''
+        Initialises the class for the model that is being used.
+
+        Arguments:
+        isMulti = boolean denoting whether the model is a multi-class model or not
+        '''
+        self._isMulti = isMulti
         pass
 
     def SetModel(self, model: str) -> None:
@@ -37,6 +44,8 @@ class Confusion_Matrix:
         labels_isnum = boolean denoting whether the labels are numerical or not
         '''
         self._labels = labels
+        self._pred_vals = pred_vals
+        self._true_vals = true_vals
         if (not labels_isnum):
             ConfMat = np.zeros((len(labels), len(labels)))
             labels = {labels[i]:i for i in range(len(labels))}
@@ -60,6 +69,10 @@ class Confusion_Matrix:
         ''' 
         Finds the true positives by comparing the predicted and true values. 
         '''
+        if (self._isMulti):
+            self._TP = np.sum(self._pred_vals & self._true_vals, axis = 0)
+            return self._TP
+
         labelwise_TP = {i:self._ConfMat[i, i] for i in range(self._ConfMat.shape[0])}
         self._TP = labelwise_TP
         return labelwise_TP
@@ -68,6 +81,10 @@ class Confusion_Matrix:
         '''
         Finds the true negatives by comparing the predicted and true values.
         '''
+        if (self._isMulti):
+            self._TN = np.sum((~self._pred_vals) & (~self._true_vals), axis = 0)
+            return self._TN
+        
         labelwise_TN = {}
         for i in range(self._ConfMat.shape[0]):
             sum = self._ConfMat[:i].sum() + self._ConfMat[i+1:].sum()
@@ -80,6 +97,10 @@ class Confusion_Matrix:
         ''' 
         Finds the false negatives by comparing the predicted and true values. 
         '''
+        if (self._isMulti):
+            self._FN = np.sum((~self._pred_vals) & self._true_vals, axis = 0)
+            return self._FN
+        
         labelwise_FN = {}
         for i in range(self._ConfMat.shape[1]):
             sum = self._ConfMat[:,i].sum() - self._ConfMat[i, i]
@@ -92,6 +113,10 @@ class Confusion_Matrix:
         ''' 
         Finds the false positives by comparing the predicted and true values. 
         '''
+        if (self._isMulti):
+            self._FP = np.sum(self._pred_vals & (~self._true_vals), axis = 0)
+            return self._FP
+        
         labelwise_FP = {}
         for i in range(self._ConfMat.shape[0]):
             sum = self._ConfMat[i].sum() - self._ConfMat[i, i]
@@ -106,19 +131,39 @@ class Measures():
     Computes and returns the performance measures for the model based on the predicted and ground-
     truth values.
     '''
-    def __init__(self, pred_values, true_values, labels, labels_isnum = False) -> None:
-        self._CM = Confusion_Matrix()
+    def __init__(self, pred_values, true_values, labels, labels_isnum = False, isMulti = False) -> None:
+        '''
+        Initialises the class for the model that is being used.
+
+        Arguments:
+        pred_values = the array containing predicted values
+        true_values = the array containing true values
+        labels = the labels for the classes
+        labels_isnum = boolean denoting whether the labels are numerical or not
+        isMulti = boolean denoting whether the model is a multi-class model or not
+        '''
+        self._isMulti = isMulti
+        self._pred_vals = pred_values
+        self._true_vals = true_values
+        self._labels = labels
+
+        self._CM = Confusion_Matrix(isMulti)
         self._CM.CreateMatrix(pred_values, true_values, labels, labels_isnum)
-        self._CM.FindFN()
-        self._CM.FindFP()
-        self._CM.FindTN()
         self._CM.FindTP()
+        self._CM.FindTN()   
+        self._CM.FindFP()
+        self._CM.FindFN()
         pass 
 
     def precision(self) -> float:
         ''' 
         Computes precision scores - mirco and macro - for the model.
         '''
+        if (self._isMulti):
+            self._precision_macro = np.mean(self._CM._TP/(self._CM._TP + self._CM._FP))
+            self._precision_micro = np.sum(self._CM._TP)/(np.sum(self._CM._TP + self._CM._FP))
+            return self._precision_macro, self._precision_micro
+        
         temp = [self._CM._TP,  
                 self._CM._FP]
         denom = Counter()
@@ -142,6 +187,11 @@ class Measures():
         ''' 
         Computes recall scores - micro and macro - for the model.
         '''
+        if (self._isMulti):
+            self._recall_macro = np.mean(self._CM._TP/(self._CM._TP + self._CM._FN))
+            self._recall_micro = np.sum(self._CM._TP)/(np.sum(self._CM._TP) + np.sum(self._CM._FN))
+            return self._recall_macro, self._recall_micro
+        
         temp = [self._CM._TP,  
                 self._CM._FN]
         denom = Counter()
@@ -165,6 +215,11 @@ class Measures():
         ''' 
         Computes f1 scores - micro and macro - for the model.
         '''
+        if (self._isMulti):
+            self._f1_macro = 2*self._precision_macro*self._recall_macro/(self._precision_macro+self._recall_macro)
+            self._f1_micro = 2*self._precision_micro*self._recall_micro/(self._precision_micro+self._recall_micro)
+            return self._f1_macro, self._f1_micro
+        
         f1_macro = 2*self._pred_macro*self._recall_macro/(self._pred_macro+self._recall_macro)
         f1_micro = 2*self._pred_micro*self._recall_micro/(self._pred_micro+self._recall_micro)
 
@@ -176,6 +231,11 @@ class Measures():
         ''' 
         Computes model accuracy.
         '''
+        if (self._isMulti):
+            self._acc = np.all(self._pred_vals == self._true_vals, axis = 1)
+            self._acc = np.mean(self._acc)
+            return self._acc
+        
         Acc = sum(self._CM._TP.values())/(self._CM._ConfMat.sum())
         self._acc = Acc
         return Acc
