@@ -30,10 +30,10 @@ class Optimizer(object):
         '''
         for i in range(len(weights)):
             weights[i] -= self._lr * gradients[len(weights)-1-i]
-            biases[i] -= self._lr * gradients[len(weights)-1-i].mean()
+            biases[i] -= self._lr * np.mean(gradients[len(weights)-1-i], axis=0)
         return weights, biases
 
-    def bgd(self, gradients, weights, bias):
+    def bgd(self, gradients, weights, biases):
         ''' 
         Batch Gradient Descent optimizer.
 
@@ -45,8 +45,8 @@ class Optimizer(object):
         grad = np.mean(gradients, axis=0)
         for i in range(len(weights)):
             weights[i] -= self._lr * grad
-            bias[i] -= self._lr * grad.mean()
-        return weights, bias
+            biases[i] -= self._lr * grad.mean()
+        return weights, biases
         
     def mini_bgd(self, gradients, weights, biases, batch_size):
         ''' 
@@ -58,10 +58,9 @@ class Optimizer(object):
             biases = list of numpy arrays containing the biases.
             batch_size = integer denoting the batch size.
         '''
-        grad = np.mean(gradients, axis=0)
         for i in range(len(weights)):
-            weights[i] -= self._lr * grad            
-            biases[i] -= self._lr * grad.mean()
+            weights[i] -= self._lr * gradients[len(weights)-1-i]            
+            biases[i] -= self._lr * np.mean(gradients[len(weights)-1-i], axis=0)
         return weights, biases
 
 class Layer(object):
@@ -128,6 +127,27 @@ class Layer(object):
             return 1 - np.tanh(x) ** 2
         # self._activation = 'tanh'
         return np.tanh(x)
+    
+    def softmax(self, x, derivative=False, verification=False):
+        """
+        Compute the softmax activation or its derivative.
+
+        Parameters:
+            x = numpy array containing the input data.
+            derivative = boolean denoting whether to return the derivative of the function.
+            verification = boolean denoting whether to test the gradient process or not
+        """
+        if (not verification):
+            self._z = x
+        exp_Z = np.exp(x - np.max(x, axis=1, keepdims=True))
+        softmax_output = exp_Z / np.sum(exp_Z, axis=1, keepdims=True)
+
+        if not derivative:
+            return softmax_output
+        else:
+            s = softmax_output
+            # print((np.diag(s[0]) - np.outer(s[0], s[0])).shape)
+            return np.diagflat(s) - np.dot(s, s.T)
 
 class MultiLayerPerceptron_SingleClass(object):
     ''' 
@@ -178,7 +198,7 @@ class MultiLayerPerceptron_SingleClass(object):
         self._learning_rate = hyperparams['learning_rate']
         self._epochs = hyperparams['epochs']
 
-    def fit(self, X, y, grad_verify=False):
+    def fit(self, X, y, labels, grad_verify=False):
         '''
         Fits the model to the data.
 
@@ -190,7 +210,8 @@ class MultiLayerPerceptron_SingleClass(object):
         '''
 
         self._input_shape = X.shape[1]
-        self._output_shape = 1
+        self._output_shape = y.shape[1]
+        self._data_points = X.shape[0]
 
         if (grad_verify):
             self._grad_verify = True
@@ -205,7 +226,7 @@ class MultiLayerPerceptron_SingleClass(object):
 
             self._activations.append(self._layers[i]._activation)
 
-        self._y_pred = self.train(X, y, np.unique(y))
+        self._y_pred = self.train(X, y, labels)
 
     def predict(self, X):
         ''' 
@@ -242,26 +263,29 @@ class MultiLayerPerceptron_SingleClass(object):
             for epoch in range(self._epochs):
                 print("Epoch: ", epoch)
                 history['epoch'].append(epoch)
-                y_pred = []
+                y_pred = np.zeros((X.shape[0], self._output_shape))
+                indices = np.arange(0, X.shape[0])
+                np.random.shuffle(indices)
+                X_shuffled = X[indices]
+                y_shuffled = y[indices]
                 for i in range(0, X.shape[0]):
-                    y_pred.append(self.predict(X[i]))
-                    loss = self.loss(y[i], y_pred[i])
+                    y_pred[i] = self.predict(X_shuffled[i:i+1])
+                    loss = self.loss(y_shuffled[i], y_pred[i])
                     history['loss'].append(loss)
-                    
-                    gradients = self.backprop(y[i], y_pred[i])
+
+                    gradients = self.backprop(y_shuffled[i], y_pred[i])
                     self._weights, self._biases = optimizer.sgd(gradients, self._weights, self._biases)
-                metrics = Measures(y_pred, y, labels, True)
+                metrics = Measures(y_pred, y_shuffled, labels, True)
                 history['accuracy'].append(metrics.accuracy())
                 history['precision'].append(metrics.precision()[0])
                 history['recall'].append(metrics.recall()[0])
                 history['f1_score'].append(metrics.f1_score()[0])
-                print(history)
                 self._metrics.append(metrics)
-
 
         elif (self._optimizer == 'bgd'):
             optimizer = Optimizer(self._learning_rate)
             for epoch in range(self._epochs):
+                print("Epoch: ", epoch)
                 history['epoch'].append(epoch)
                 y_pred = []
                 for i in range(0, X.shape[0]):
@@ -271,11 +295,11 @@ class MultiLayerPerceptron_SingleClass(object):
 
                 gradients = self.backprop(y, y_pred)
                 self._weights, self._biases = optimizer.bgd(gradients, self._weights, self._biases)
-                metrics = Measures(y_pred, y, labels)
+                metrics = Measures(y_pred, y, labels, True)
                 history['accuracy'].append(metrics.accuracy())
-                history['f1_score'].append(metrics.f1_score()[0])
                 history['precision'].append(metrics.precision()[0])
                 history['recall'].append(metrics.recall()[0])
+                history['f1_score'].append(metrics.f1_score()[0])
                 self._metrics.append(metrics)
         
         elif (self._optimizer == 'mini_bgd'):
@@ -283,11 +307,13 @@ class MultiLayerPerceptron_SingleClass(object):
             history['batch'] = []
             optimizer = Optimizer(self._learning_rate)
             for epoch in range(self._epochs):
+                print("Epoch: ", epoch)
                 history['epoch'].append(epoch)
-                j = 1
+                j = 0
                 for i in range(0, X.shape[0], self._batch_size):
                     X_batch = X[i:i+self._batch_size]
                     y_batch = y[i:i+self._batch_size]
+                    # y_batch = y_batch.reshape(-1, 1)
 
                     y_pred = self.predict(X_batch)
                     loss = self.loss(y_batch, y_pred)
@@ -295,14 +321,15 @@ class MultiLayerPerceptron_SingleClass(object):
 
                     gradients = self.backprop(y_batch, y_pred)
                     self._weights, self._biases = optimizer.mini_bgd(gradients, self._weights, self._biases, self._batch_size)
-                    metrics = Measures(y_pred, y_batch, labels)
+                    self._weights, self._biases = optimizer.mini_bgd(gradients, self._weights, self._biases, self._batch_size)
+                    metrics = Measures(y_pred, y_batch, labels, True)
                     history['accuracy'].append(metrics.accuracy())
-                    history['f1_score'].append(metrics.f1_score()[0])
                     history['precision'].append(metrics.precision()[0])
                     history['recall'].append(metrics.recall()[0])
+                    history['f1_score'].append(metrics.f1_score()[0])
                     history['batch'].append(j)
-                    self._metrics.append(metrics)
                     j += 1
+                    self._metrics.append(metrics)
         self._history = history
         return y_pred
     
@@ -326,6 +353,8 @@ class MultiLayerPerceptron_SingleClass(object):
                     self._a.append(self._layers[i].relu(x = z))
                 elif (self._activations[i] == 'tanh'):
                     self._a.append(self._layers[i].tanh(x = z))
+                elif (self._activations[i] == 'softmax'):
+                    self._a.append(self._layers[i].softmax(x = z))
 
         elif (weights_if_verify is not None and self._grad_verify):
             a = X
@@ -337,6 +366,8 @@ class MultiLayerPerceptron_SingleClass(object):
                     a = self._layers[i].relu(x = z, verification=self._grad_verify).T
                 elif (self._activations[i] == 'tanh'):
                     a = self._layers[i].tanh(x = z, verification=self._grad_verify).T
+                elif (self._activations[i] == 'softmax'):
+                    a = self._layers[i].softmax(x = z, verification=self._grad_verify).T
             return a
 
         return self._a[-1]
@@ -359,6 +390,8 @@ class MultiLayerPerceptron_SingleClass(object):
                     error = self.loss(y, y_pred, derivative=True) * self._layers[i].relu(x = z, derivative=True)
                 elif (self._activations[i] == 'tanh'):
                     error = self.loss(y, y_pred, derivative=True) * self._layers[i].tanh(x = z, derivative=True)
+                elif (self._activations[i] == 'softmax'):
+                    error = self.loss(y, y_pred, derivative=True)
             else:
                 z = self._layers[i]._z
                 if (self._activations[i] == 'sigmoid'):
@@ -367,18 +400,15 @@ class MultiLayerPerceptron_SingleClass(object):
                     error = np.dot(error, self._weights[i+1].T) * self._layers[i].relu(x = z, derivative=True)
                 elif (self._activations[i] == 'tanh'):
                     error = np.dot(error, self._weights[i+1].T) * self._layers[i].tanh(x = z, derivative=True)
+                elif (self._activations[i] == 'softmax'):
+                    error = np.dot(error, self._weights[i+1].T) * self._layers[i].softmax(x = z, derivative=True)
 
-            # if (self._activations[i-1] == 'sigmoid'):
-            #     gradients.append(np.dot(self._layers[i-1].sigmoid(y_pred, derivative=True).T, error))
-            # elif (self._activations[i-1] == 'relu'):
-            #     gradients.append(np.dot(self._layers[i-1].relu(y_pred, derivative=True).T, error))
-            # elif (self._activations[i-1] == 'tanh'):
-            #     gradients.append(np.dot(self._layers[i-1].tanh(y_pred, derivative=True).T, error))
             if i >= 0:
-                a = self._a[i].reshape(-1, 1)
-                error = error.reshape(1, -1)
-                gradients.append(np.dot(a, error))
-                # print(gradients[len(self._layers)-1-i])
+                if (self._a[i].shape[0]%self._batch_size == 0):
+                    a = self._a[i].reshape(-1, self._batch_size)
+                else:
+                    a = self._a[i].T
+                gradients.append(a.dot(error))
             
             if (self._grad_verify and i >= 0):
                 gradients_verify = []
@@ -412,9 +442,17 @@ class MultiLayerPerceptron_SingleClass(object):
             y_pred = numpy array containing the predicted output data.
             derivative = boolean denoting whether to return the derivative of the function.
         '''
-        if derivative:
-            return (y_pred - y_true)*2
-        return np.mean((y_pred - y_true) ** 2)
+        # if derivative:
+        #     return (y_pred - y_true)*2
+        # return np.mean((y_pred - y_true) ** 2)
+        y_pred = y_pred.clip(1e-10, 1-1e-10)
+        if (self._optimizer == 'mini_bgd'):
+            y_true = y_true
+        else:
+            y_true = y_true.reshape(1, -1)
+        if (derivative):
+            return y_pred - y_true
+        return np.sum(y_true * np.log(y_pred))/y_pred.shape[0]
     
     def summary(self):
         ''' 
@@ -428,7 +466,7 @@ class MultiLayerPerceptron_SingleClass(object):
             if i == 0:
                 print("Input Layer                   "+str(self._input_shape)+"                       0")
             else:
-                print("Hidden Layer                  "+str(self._layers[i].units)+"                       "+str(self._weights[i-1].size + self._biases[i-1].size))
+                print("Hidden Layer                  "+str(self._layers[i]._units)+"                       "+str(self._weights[i-1].size + self._biases[i-1].size))
         print("Output Layer                  "+str(self._output_shape)+"                       "+str(self._weights[-1].size + self._biases[-1].size))
         print("=================================================================")
         print("Total params: "+str(sum([self._weights[i].size + self._biases[i].size for i in range(len(self._weights))])))
