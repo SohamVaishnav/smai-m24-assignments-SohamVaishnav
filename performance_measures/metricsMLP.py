@@ -45,10 +45,12 @@ class Confusion_Matrix:
             true_vals = [labels[true_vals[i]] for i in range(len(true_vals))]
 
         else:
+            pred_vals = np.argmax(pred_vals, axis = 1)
+            true_vals = np.argmax(true_vals, axis = 1)
             ConfMat = np.zeros((max(labels)+1, max(labels)+1))
 
         for i in range(true_vals.shape[0]):
-            ConfMat[int(pred_vals[i]), true_vals[i]] += 1
+            ConfMat[pred_vals[i], true_vals[i]] += 1
 
         self._ConfMat = ConfMat
         return None
@@ -98,12 +100,13 @@ class Confusion_Matrix:
         self._FP = labelwise_FP
         return labelwise_FP
     
+    
 class Measures():
     ''' 
     Computes and returns the performance measures for the model based on the predicted and ground-
     truth values.
     '''
-    def __init__(self, pred_values, true_values, labels, labels_isnum: False) -> None:
+    def __init__(self, pred_values, true_values, labels, labels_isnum = False) -> None:
         self._CM = Confusion_Matrix()
         self._CM.CreateMatrix(pred_values, true_values, labels, labels_isnum)
         self._CM.FindFN()
