@@ -6,6 +6,7 @@ from matplotlib import pyplot as plt
 import pandas as pd
 import sys
 import os
+import wandb
 
 AssignDIR = os.path.dirname(os.path.dirname(os.path.abspath('mlp.py')))
 UserDIR = os.path.dirname(AssignDIR)
@@ -42,10 +43,9 @@ class Optimizer(object):
             weights = list of numpy arrays containing the weights.
             biases = list of numpy arrays containing the biases.
         '''
-        grad = np.mean(gradients, axis=0)
         for i in range(len(weights)):
-            weights[i] -= self._lr * grad
-            biases[i] -= self._lr * grad.mean()
+            weights[i] -= self._lr * gradients[len(weights)-1-i]
+            biases[i] -= self._lr * np.mean(gradients[len(weights)-1-i], axis=0)
         return weights, biases
         
     def mini_bgd(self, gradients, weights, biases, batch_size):
@@ -59,8 +59,8 @@ class Optimizer(object):
             batch_size = integer denoting the batch size.
         '''
         for i in range(len(weights)):
-            weights[i] -= self._lr * gradients[len(weights)-1-i]            
-            biases[i] -= self._lr * np.mean(gradients[len(weights)-1-i], axis=0)
+            weights[i] -= self._lr * gradients[len(weights)-1-i]/batch_size            
+            biases[i] -= self._lr * np.mean(gradients[len(weights)-1-i], axis=0)/batch_size
         return weights, biases
 
 class Layer(object):
@@ -281,19 +281,25 @@ class MultiLayerPerceptron_SingleClass(object):
                 history['recall'].append(metrics.recall()[0])
                 history['f1_score'].append(metrics.f1_score()[0])
                 self._metrics.append(metrics)
+                
+                wandb.log({'loss': loss})
+                wandb.log({'accuracy': metrics.accuracy()})
+                wandb.log({'precision': metrics.precision()[0]})
+                wandb.log({'recall': metrics.recall()[0]})
+                wandb.log({'f1_score': metrics.f1_score()[0]})
+                wandb.log({'epoch': epoch})
 
         elif (self._optimizer == 'bgd'):
             optimizer = Optimizer(self._learning_rate)
             for epoch in range(self._epochs):
                 print("Epoch: ", epoch)
                 history['epoch'].append(epoch)
-                y_pred = []
+                y_pred = np.zeros((X.shape[0], self._output_shape))
                 for i in range(0, X.shape[0]):
-                    y_pred.append(self.predict(X[i]))
-                    loss = self.loss(y[i], y_pred)
+                    y_pred[i] = self.predict(X[i:i+1])
+                    loss = self.loss(y[i], y_pred[i])
                     history['loss'].append(loss)
-
-                gradients = self.backprop(y, y_pred)
+                    gradients = self.backprop(y[i], y_pred[i])
                 self._weights, self._biases = optimizer.bgd(gradients, self._weights, self._biases)
                 metrics = Measures(y_pred, y, labels, True)
                 history['accuracy'].append(metrics.accuracy())
@@ -301,6 +307,13 @@ class MultiLayerPerceptron_SingleClass(object):
                 history['recall'].append(metrics.recall()[0])
                 history['f1_score'].append(metrics.f1_score()[0])
                 self._metrics.append(metrics)
+
+                wandb.log({'loss': loss})
+                wandb.log({'accuracy': metrics.accuracy()})
+                wandb.log({'precision': metrics.precision()[0]})
+                wandb.log({'recall': metrics.recall()[0]})
+                wandb.log({'f1_score': metrics.f1_score()[0]})
+                wandb.log({'epoch': epoch})
         
         elif (self._optimizer == 'mini_bgd'):
             history.update({'batch_size': self._batch_size})
@@ -330,6 +343,14 @@ class MultiLayerPerceptron_SingleClass(object):
                     history['batch'].append(j)
                     j += 1
                     self._metrics.append(metrics)
+
+                    wandb.log({'loss': loss})
+                    wandb.log({'accuracy': metrics.accuracy()})
+                    wandb.log({'precision': metrics.precision()[0]})
+                    wandb.log({'recall': metrics.recall()[0]})
+                    wandb.log({'f1_score': metrics.f1_score()[0]})
+                    wandb.log({'epoch': epoch})
+                    wandb.log({'batch': j})
         self._history = history
         return y_pred
     
@@ -402,7 +423,7 @@ class MultiLayerPerceptron_SingleClass(object):
                     error = np.dot(error, self._weights[i+1].T) * self._layers[i].tanh(x = z, derivative=True)
 
             if i >= 0:
-                if (self._a[i].shape[0]%self._batch_size == 0):
+                if (self._optimizer == 'mini_bgd' and self._a[i].shape[0]%self._batch_size == 0):
                     a = self._a[i].reshape(-1, self._batch_size)
                 else:
                     a = self._a[i].T
@@ -440,9 +461,6 @@ class MultiLayerPerceptron_SingleClass(object):
             y_pred = numpy array containing the predicted output data.
             derivative = boolean denoting whether to return the derivative of the function.
         '''
-        # if derivative:
-        #     return (y_pred - y_true)*2
-        # return np.mean((y_pred - y_true) ** 2)
         y_pred = y_pred.clip(1e-10, 1-1e-10)
         if (self._optimizer == 'mini_bgd'):
             y_true = y_true
@@ -486,16 +504,5 @@ class MultiLayerPerceptron_SingleClass(object):
         fig.update_layout(title='Model History')
         fig.show()
         return None
-    
 
-class MultiLayerPerceptron_MultiClass(object):
-    ''' 
-    MultiLayerPerceptron_MultiClass class for creating a neural network model for multi class 
-    classification.
-    '''
-    def __init__(self) -> None:
-        ''' 
-        Initializes the MultiLayerPerceptron_MultiClass class.
-        '''
-        return None
     

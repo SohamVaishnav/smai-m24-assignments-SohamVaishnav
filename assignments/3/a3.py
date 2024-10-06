@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import wandb
 
 import os
 import sys 
@@ -19,6 +20,7 @@ UserDIR = os.path.dirname(AssignDIR)
 sys.path.append(UserDIR)
 
 from models.MLP.mlp import *
+from models.MLP.mlp_multi import *
 from performance_measures.metricsMLP import *
 
 # from sklearn.preprocessing import StandardScaler
@@ -104,6 +106,9 @@ def createMLP(layers: list, activations: list, hyperparams: dict, isSingleClass:
             layer = Layer(layers[i], activations[i])
             model.add(layer)
         model.setHyperParams(hyperparams)
+        wandb.init(project = "wine_quality_MLP", config = {'layers': layers, 'activations': activations, 
+        'learning_rate': hyperparams['learning_rate'], 'epochs': hyperparams['epochs'], 
+        'batch_size': hyperparams['batch_size'], 'optimizer': hyperparams['optimizer']})
     else:
          model = MultiLayerPerceptron_MultiClass() 
     return model
@@ -144,8 +149,9 @@ print(data.describe())
 data = DataPreprocess(data)
 print(data.describe())
 
-layers = [11, 10, 9, 7, 6]
-activations = ['relu', 'relu', 'relu', 'relu', 'softmax']
-hyperparams = {'learning_rate': 0.01, 'epochs': 10, 'batch_size': 10, 'optimizer': 'sgd'}
-model = createMLP(layers, activations, hyperparams)
-runMLP(model, data, grad_verify = False)
+# layers = [11, 7, 6]
+# activations = ['tanh', 'tanh', 'softmax']
+# hyperparams = {'learning_rate': 0.01, 'epochs': 10, 'batch_size': 10, 'optimizer': 'sgd'}
+# model = createMLP(layers, activations, hyperparams)
+# runMLP(model, data, grad_verify = False)
+# wandb.finish()
