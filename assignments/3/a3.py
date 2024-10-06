@@ -117,9 +117,16 @@ def runMLP(model: MultiLayerPerceptron_SingleClass, data: pd.DataFrame, grad_ver
             data = pandas dataframe containing the data.
             grad_verify = boolean denoting whether to verify the gradients or not
     '''
-    X = data.drop(columns = ['E'])
-    y = data['E']
-    model.fit(X.to_numpy(), y.to_numpy(), grad_verify)
+    X = data.drop(columns = ['quality'])
+    y = data['quality']
+    num_classes = len(np.unique(y))
+    labels = np.unique(y)-3
+    Y = np.zeros((y.shape[0], num_classes))
+    for i in range(y.shape[0]):
+        Y[i, y.iloc[i]-3] = 1
+    model.fit(X.to_numpy(), Y, labels, grad_verify)
+    # model.summary()
+    # model.plot()
 
     return None
 
@@ -134,25 +141,11 @@ print(data.describe())
 # fig.update_layout(height = 1700, width = 1700, title_text="Pair Plot of Wine Features by Quality")
 # fig.show()
 
-
 data = DataPreprocess(data)
 print(data.describe())
 
-# temp = data.drop(columns = ['quality'])
-# labels = [temp.columns[i] for i in range(0, 11)]
-# fig = px.scatter_matrix(data, dimensions = labels, color = 'quality', labels = {label: label for label in labels})
-# fig.update_traces(diagonal_visible = True, showupperhalf = False)
-# fig.update_layout(height = 1700, width = 1700, title_text="Pair Plot of Wine Features by Quality")
-# fig.show()
-
-# toy_data = np.array([[1, 2, 3, 4, 1], [2, 3, 4, 5, 1], [3, 4, 5, 6, 2], [4, 5, 6, 7, 3], [5, 6, 7, 8, 4]])
-# toy_data = pd.DataFrame(toy_data, columns = ['A', 'B', 'C', 'D', 'E'])
-# print(toy_data)
-# X = toy_data.drop(columns = ['E'])
-# y = toy_data['E']
-
-# layers = [4, 10, 3, 2, 1]
-# activations = ['relu', 'relu', 'relu', 'relu', 'sigmoid']
-# hyperparams = {'learning_rate': 0.01, 'epochs': 5, 'batch_size': 1, 'optimizer': 'sgd'}
-# model = createMLP(layers, activations, hyperparams)
-# runMLP(model, toy_data, grad_verify = True)
+layers = [11, 10, 9, 7, 6]
+activations = ['relu', 'relu', 'relu', 'relu', 'softmax']
+hyperparams = {'learning_rate': 0.01, 'epochs': 10, 'batch_size': 10, 'optimizer': 'sgd'}
+model = createMLP(layers, activations, hyperparams)
+runMLP(model, data, grad_verify = False)
