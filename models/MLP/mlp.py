@@ -400,8 +400,6 @@ class MultiLayerPerceptron_SingleClass(object):
                     error = np.dot(error, self._weights[i+1].T) * self._layers[i].relu(x = z, derivative=True)
                 elif (self._activations[i] == 'tanh'):
                     error = np.dot(error, self._weights[i+1].T) * self._layers[i].tanh(x = z, derivative=True)
-                elif (self._activations[i] == 'softmax'):
-                    error = np.dot(error, self._weights[i+1].T) * self._layers[i].softmax(x = z, derivative=True)
 
             if i >= 0:
                 if (self._a[i].shape[0]%self._batch_size == 0):
