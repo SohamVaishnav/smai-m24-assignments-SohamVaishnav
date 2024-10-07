@@ -43,6 +43,21 @@ def DataLoader(DataDIR: str, datafilename: str):
     print("Data has been loaded into a dataframe successfully!")
     return data
 
+def Word2Num(dataset: pd.DataFrame, string_features) -> pd.DataFrame:
+    ''' 
+    Converts the string entries into some number which can then be used for classification. 
+    
+    Arguments:
+    dataset = the original data that the model is dealing with
+    string_features = the columns from the dataset that contain string entries
+    '''
+    for i in string_features:
+        words, count = np.unique(dataset[i], return_counts = True)
+        nums = count/np.max(count)
+        encodings = {value: nums[i] for i, value in enumerate(words)}
+        dataset[i] = dataset[i].replace(encodings)
+    return dataset
+
 def DataWriter(Data: pd.DataFrame, DataDIR: str, datafilename: str):
     ''' 
     Writes the data to the directory. \n
@@ -59,34 +74,42 @@ def DataWriter(Data: pd.DataFrame, DataDIR: str, datafilename: str):
     print("Data has been written to "+data_path+" successfully!")
     return data_path
 
-def DataPreprocess(data: pd.DataFrame) -> pd.DataFrame:
+def DataPreprocess(data: pd.DataFrame, isMulti: bool = False) -> pd.DataFrame:
     ''' 
     Preprocesses the data.
 
     Parameters:
         data = pandas dataframe containing the data.
+        isMulti = boolean denoting whether the data is for multi class classification or not.
     '''
     data = data.dropna()
-    data = data.drop_duplicates(subset = ['Id'], keep = 'first')
-    data = data.drop(columns = ['Id'])
+    temp = None
+    if (not isMulti):
+        data = data.drop_duplicates(subset = ['Id'], keep = 'first')
+        data = data.drop(columns = ['Id'])
 
-    if ('quality' in data.columns):
-         temp = data['quality']
-         data = data.drop(columns = ['quality'])
+        if ('quality' in data.columns):
+            temp = data['quality']
+            data = data.drop(columns = ['quality'])
+    
+    else:
+        if ('label' in data.columns):
+            temp = data['label']
+            data = data.drop(columns = ['label'])
 
     for i in data.columns:
-            if (type(data[i].iloc[0]) == str or data[i].iloc[0].dtype == bool):
-                continue
-            means = np.mean(data[i], axis = 0)
-            vars = np.var(data[i], axis = 0)
-            data[i] = (data[i] - means)/np.sqrt(vars)
+        if (type(data[i].iloc[0]) == str or data[i].iloc[0].dtype == bool):
+            continue
+        means = np.mean(data[i], axis = 0)
+        vars = np.var(data[i], axis = 0)
+        data[i] = (data[i] - means)/np.sqrt(vars)
     
     print("Data has been preprocessed successfully!")
     data = pd.concat([data, temp], axis = 1)
     return data
 
 ################################### MLP ###################################
-def createMLP(layers: list, activations: list, hyperparams: dict, isSingleClass: bool = True) -> MultiLayerPerceptron_SingleClass:
+def createMLP(layers: list, activations: list, hyperparams: dict, isSingleClass: bool = True):
     ''' 
         Creates a MLP model.
 
@@ -109,35 +132,62 @@ def createMLP(layers: list, activations: list, hyperparams: dict, isSingleClass:
         wandb.init(project = "wine_quality_MLP", config = {'layers': layers, 'activations': activations, 
         'learning_rate': hyperparams['learning_rate'], 'epochs': hyperparams['epochs'], 
         'batch_size': hyperparams['batch_size'], 'optimizer': hyperparams['optimizer']})
+
     else:
-         model = MultiLayerPerceptron_MultiClass() 
+        model = MultiLayerPerceptron_MultiClass()
+        for i in range(len(layers)):
+            layer = Layer(layers[i], activations[i])
+            model.add(layer)
+        model.setHyperParams(hyperparams)
+        # wandb.init(project = "wine_quality_MLP", config = {'layers': layers, 'activations': activations, 
+        # 'learning_rate': hyperparams['learning_rate'], 'epochs': hyperparams['epochs'], 
+        # 'batch_size': hyperparams['batch_size'], 'optimizer': hyperparams['optimizer']})
+
     return model
 
-def runMLP(model: MultiLayerPerceptron_SingleClass, data: pd.DataFrame, grad_verify: bool = False):
+def runMLP(model, data: pd.DataFrame, grad_verify: bool = False, isMulti: bool = False):
     ''' 
         Runs the MLP model.
 
         Parameters:
-            model = MultiLayerPerceptron_SingleClass object.
+            model = MultiLayerPerceptron class object.
             data = pandas dataframe containing the data.
             grad_verify = boolean denoting whether to verify the gradients or not
+            isMulti = boolean denoting whether the model is for multi class classification or not.
     '''
-    X = data.drop(columns = ['quality'])
-    y = data['quality']
-    num_classes = len(np.unique(y))
-    labels = np.unique(y)-3
-    Y = np.zeros((y.shape[0], num_classes))
-    for i in range(y.shape[0]):
-        Y[i, y.iloc[i]-3] = 1
-    model.fit(X.to_numpy(), Y, labels, grad_verify)
-    # model.summary()
-    # model.plot()
+    if (not isMulti):
+        X = data.drop(columns = ['quality'])
+        y = data['quality']
+        num_classes = len(np.unique(y))
+        labels = np.unique(y)-3
+        Y = np.zeros((y.shape[0], num_classes))
+        for i in range(y.shape[0]):
+            Y[i, y.iloc[i]-3] = 1
+        model.fit(X.to_numpy(), Y, labels, grad_verify)
+    else:
+        X = data.drop(columns = ['labels'])
+        y = data['labels']
+        labels = []
+        for i in y:
+            temp = i.split(' ')
+            for j in temp:
+                labels.append(j)
+        labels = np.unique(labels)
+        num_classes = len(labels)
+        Y = np.zeros((y.shape[0], num_classes))
+        for i in range(y.shape[0]):
+            temp = y.iloc[i].split(' ')
+            for j in temp:
+                Y[i, np.where(labels == j)] = 1
+        model.fit(X.to_numpy(), Y, labels)
+        model.plot()
 
     return None
 
-data = DataLoader(RawDataDIR, "WineQT.csv")
-print(data.shape)
-print(data.describe())
+################################### Single label classification ###################################
+# data = DataLoader(RawDataDIR, "WineQT.csv")
+# print(data.shape)
+# print(data.describe())
 
 # temp = data.drop(columns = ['quality'])
 # labels = [temp.columns[i] for i in range(0, 12)]
@@ -146,8 +196,8 @@ print(data.describe())
 # fig.update_layout(height = 1700, width = 1700, title_text="Pair Plot of Wine Features by Quality")
 # fig.show()
 
-data = DataPreprocess(data)
-print(data.describe())
+# data = DataPreprocess(data, isMulti = False)
+# print(data.describe())
 
 # layers = [11, 7, 6]
 # activations = ['tanh', 'tanh', 'softmax']
@@ -155,3 +205,32 @@ print(data.describe())
 # model = createMLP(layers, activations, hyperparams)
 # runMLP(model, data, grad_verify = False)
 # wandb.finish()
+
+################################### Multi label classification ###################################
+data = DataLoader(RawDataDIR, "advertisement.csv")
+print(data.shape)
+print(data.describe())
+
+encodings_gender = {'Male': 0, 'Female': 1}
+data['gender'] = data['gender'].replace(encodings_gender)
+data['married'] = data['married'].astype(int)
+
+print(data.describe())
+
+string_features = ['education', 'city', 'occupation', 'most bought item']
+data = Word2Num(data, string_features)
+DataWriter(data, PreProcessDIR, "advertisement_w2n.csv")
+
+print(data.describe())
+
+data = DataPreprocess(data, isMulti = True)
+print(data.describe())
+
+layers = [11,  8]
+activations = ['tanh', 'sigmoid']
+hyperparams = {'learning_rate': 0.01, 'epochs': 50, 'batch_size': 10, 'optimizer': 'mini_bgd', 'num_classes': 8}
+model = createMLP(layers, activations, hyperparams, False)
+runMLP(model, data, grad_verify = False, isMulti = True)
+# wandb.finish()
+
+
