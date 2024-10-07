@@ -44,24 +44,26 @@ class Confusion_Matrix:
         labels_isnum = boolean denoting whether the labels are numerical or not
         '''
         self._labels = labels
-        self._pred_vals = pred_vals
-        self._true_vals = true_vals
-        if (not labels_isnum):
-            ConfMat = np.zeros((len(labels), len(labels)))
-            labels = {labels[i]:i for i in range(len(labels))}
+        self._pred_vals = pred_vals.astype(int)
+        self._true_vals = true_vals.astype(int)
 
-            pred_vals = [labels[pred_vals[i]] for i in range(len(pred_vals))]
-            true_vals = [labels[true_vals[i]] for i in range(len(true_vals))]
+        if (not self._isMulti):
+            if (not labels_isnum):
+                ConfMat = np.zeros((len(labels), len(labels)))
+                labels = {labels[i]:i for i in range(len(labels))}
 
-        else:
-            pred_vals = np.argmax(pred_vals, axis = 1)
-            true_vals = np.argmax(true_vals, axis = 1)
-            ConfMat = np.zeros((max(labels)+1, max(labels)+1))
+                pred_vals = [labels[pred_vals[i]] for i in range(len(pred_vals))]
+                true_vals = [labels[true_vals[i]] for i in range(len(true_vals))]
 
-        for i in range(true_vals.shape[0]):
-            ConfMat[pred_vals[i], true_vals[i]] += 1
+            else:
+                pred_vals = np.argmax(pred_vals, axis = 1)
+                true_vals = np.argmax(true_vals, axis = 1)
+                ConfMat = np.zeros((max(labels)+1, max(labels)+1))
 
-        self._ConfMat = ConfMat
+            for i in range(true_vals.shape[0]):
+                ConfMat[pred_vals[i], true_vals[i]] += 1
+
+            self._ConfMat = ConfMat
         return None
 
 
@@ -146,7 +148,6 @@ class Measures():
         self._pred_vals = pred_values
         self._true_vals = true_values
         self._labels = labels
-
         self._CM = Confusion_Matrix(isMulti)
         self._CM.CreateMatrix(pred_values, true_values, labels, labels_isnum)
         self._CM.FindTP()
@@ -232,9 +233,10 @@ class Measures():
         Computes model accuracy.
         '''
         if (self._isMulti):
-            self._acc = np.all(self._pred_vals == self._true_vals, axis = 1)
-            self._acc = np.mean(self._acc)
-            return self._acc
+            self._hard_acc = np.all(self._pred_vals == self._true_vals, axis = 1)
+            self._hard_acc = np.mean(self._hard_acc)
+            self._soft_acc = sum(self._CM._TP)/(np.sum(self._true_vals))
+            return self._soft_acc, self._hard_acc
         
         Acc = sum(self._CM._TP.values())/(self._CM._ConfMat.sum())
         self._acc = Acc
