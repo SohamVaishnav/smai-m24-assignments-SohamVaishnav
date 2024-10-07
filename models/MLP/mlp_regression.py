@@ -253,7 +253,7 @@ class MultiLayerPerceptron_Regression(object):
             y = numpy array containing the output data.
             labels = list containing the unique labels.
         '''
-        history = {'epoch': [], 'loss': [], 'accuracy': [], 'f1_score': [], 'precision': [], 'recall': []}
+        history = {'epoch': [], 'loss': [], 'mse': [], 'rmse': [], 'r2': []}
         if (self._optimizer == 'sgd'):
             optimizer = Optimizer(self._learning_rate)
             for epoch in range(self._epochs):
@@ -271,11 +271,10 @@ class MultiLayerPerceptron_Regression(object):
 
                     gradients = self.backprop(y_shuffled[i], y_pred[i])
                     self._weights, self._biases = optimizer.sgd(gradients, self._weights, self._biases)
-                metrics = Measures(y_pred, y_shuffled, labels, True)
-                history['accuracy'].append(metrics.accuracy())
-                history['precision'].append(metrics.precision()[0])
-                history['recall'].append(metrics.recall()[0])
-                history['f1_score'].append(metrics.f1_score()[0])
+                metrics = metrics_regression(y_pred, y_shuffled)
+                history['mse'].append(metrics.mse())
+                history['rmse'].append(metrics.rmse())
+                history['r2'].append(metrics.r2())
                 self._metrics.append(metrics)
                 
                 # wandb.log({'loss': loss})
@@ -297,11 +296,10 @@ class MultiLayerPerceptron_Regression(object):
                     history['loss'].append(loss)
                     gradients = self.backprop(y[i], y_pred[i])
                 self._weights, self._biases = optimizer.bgd(gradients, self._weights, self._biases)
-                metrics = Measures(y_pred, y, labels, True)
-                history['accuracy'].append(metrics.accuracy())
-                history['precision'].append(metrics.precision()[0])
-                history['recall'].append(metrics.recall()[0])
-                history['f1_score'].append(metrics.f1_score()[0])
+                metrics = metrics_regression(y_pred, y)
+                history['mse'].append(metrics.mse())
+                history['rmse'].append(metrics.rmse())
+                history['r2'].append(metrics.r2())
                 self._metrics.append(metrics)
 
                 # wandb.log({'loss': loss})
@@ -330,11 +328,10 @@ class MultiLayerPerceptron_Regression(object):
                     gradients = self.backprop(y_batch, y_pred)
                     self._weights, self._biases = optimizer.mini_bgd(gradients, self._weights, self._biases, self._batch_size)
                     self._weights, self._biases = optimizer.mini_bgd(gradients, self._weights, self._biases, self._batch_size)
-                    metrics = Measures(y_pred, y_batch, labels, True)
-                    history['accuracy'].append(metrics.accuracy())
-                    history['precision'].append(metrics.precision()[0])
-                    history['recall'].append(metrics.recall()[0])
-                    history['f1_score'].append(metrics.f1_score()[0])
+                    metrics = metrics_regression(y_pred, y_batch)
+                    history['mse'].append(metrics.mse())
+                    history['rmse'].append(metrics.rmse())
+                    history['r2'].append(metrics.r2())
                     history['batch'].append(j)
                     j += 1
                     self._metrics.append(metrics)
@@ -504,3 +501,33 @@ class MultiLayerPerceptron_Regression(object):
         fig.update_layout(title='Model History')
         fig.show()
         return None
+    
+class metrics_regression(object):
+    ''' 
+    Metrics for regression tasks.
+    ''' 
+    def __init__(self, y_pred, y_true) -> None:
+        ''' 
+        Initializes the metrics_regression class.
+        '''
+        self._y_pred = y_pred
+        self._y_true = y_true
+        pass
+
+    def mse(self):
+        ''' 
+        Mean Squared Error.
+        '''
+        return np.mean((self._y_true - self._y_pred) ** 2)
+    
+    def rmse(self):
+        ''' 
+        Root Mean Squared Error.
+        '''
+        return np.sqrt(np.mean((self._y_true - self._y_pred) ** 2))
+    
+    def r2(self):
+        ''' 
+        R2 Score.
+        '''
+        return 1 - np.sum((self._y_true - self._y_pred) ** 2) / np.sum((self._y_true - np.mean(self._y_true)) ** 2)
