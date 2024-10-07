@@ -70,21 +70,22 @@ def DataWriter(Data: pd.DataFrame, DataDIR: str, datafilename: str):
     assert os.path.exists(DataDIR), f"{DataDIR} path is invalid!"
     data_path = os.path.join(DataDIR, datafilename)
 
-    Data.to_feather(data_path)
+    Data.to_csv(data_path, index = False)
     print("Data has been written to "+data_path+" successfully!")
     return data_path
 
-def DataPreprocess(data: pd.DataFrame, isMulti: bool = False) -> pd.DataFrame:
+def DataPreprocess(data: pd.DataFrame, isMulti: bool = False, isReg: bool = False) -> pd.DataFrame:
     ''' 
     Preprocesses the data.
 
     Parameters:
         data = pandas dataframe containing the data.
         isMulti = boolean denoting whether the data is for multi class classification or not.
+        isReg = boolean denoting whether the data is for regression or not.
     '''
     data = data.dropna()
     temp = None
-    if (not isMulti):
+    if (not isMulti and not isReg):
         data = data.drop_duplicates(subset = ['Id'], keep = 'first')
         data = data.drop(columns = ['Id'])
 
@@ -92,7 +93,7 @@ def DataPreprocess(data: pd.DataFrame, isMulti: bool = False) -> pd.DataFrame:
             temp = data['quality']
             data = data.drop(columns = ['quality'])
     
-    else:
+    elif (isMulti and not isReg):
         if ('label' in data.columns):
             temp = data['label']
             data = data.drop(columns = ['label'])
@@ -105,7 +106,8 @@ def DataPreprocess(data: pd.DataFrame, isMulti: bool = False) -> pd.DataFrame:
         data[i] = (data[i] - means)/np.sqrt(vars)
     
     print("Data has been preprocessed successfully!")
-    data = pd.concat([data, temp], axis = 1)
+    if (temp is not None):
+        data = pd.concat([data, temp], axis = 1)
     return data
 
 ################################### MLP ###################################
@@ -207,30 +209,39 @@ def runMLP(model, data: pd.DataFrame, grad_verify: bool = False, isMulti: bool =
 # wandb.finish()
 
 ################################### Multi label classification ###################################
-data = DataLoader(RawDataDIR, "advertisement.csv")
-print(data.shape)
-print(data.describe())
+# data = DataLoader(RawDataDIR, "advertisement.csv")
+# print(data.shape)
+# print(data.describe())
 
-encodings_gender = {'Male': 0, 'Female': 1}
-data['gender'] = data['gender'].replace(encodings_gender)
-data['married'] = data['married'].astype(int)
+# encodings_gender = {'Male': 0, 'Female': 1}
+# data['gender'] = data['gender'].replace(encodings_gender)
+# data['married'] = data['married'].astype(int)
 
-print(data.describe())
+# print(data.describe())
 
-string_features = ['education', 'city', 'occupation', 'most bought item']
-data = Word2Num(data, string_features)
-DataWriter(data, PreProcessDIR, "advertisement_w2n.csv")
+# string_features = ['education', 'city', 'occupation', 'most bought item']
+# data = Word2Num(data, string_features)
+# DataWriter(data, PreProcessDIR, "advertisement_w2n.csv")
 
-print(data.describe())
+# print(data.describe())
 
-data = DataPreprocess(data, isMulti = True)
-print(data.describe())
+# data = DataPreprocess(data, isMulti = True)
+# print(data.describe())
 
-layers = [11,  8]
-activations = ['tanh', 'sigmoid']
-hyperparams = {'learning_rate': 0.01, 'epochs': 50, 'batch_size': 10, 'optimizer': 'mini_bgd', 'num_classes': 8}
-model = createMLP(layers, activations, hyperparams, False)
-runMLP(model, data, grad_verify = False, isMulti = True)
+# layers = [11,  8]
+# activations = ['tanh', 'sigmoid']
+# hyperparams = {'learning_rate': 0.01, 'epochs': 50, 'batch_size': 10, 'optimizer': 'mini_bgd', 'num_classes': 8}
+# model = createMLP(layers, activations, hyperparams, False)
+# runMLP(model, data, grad_verify = False, isMulti = True)
 # wandb.finish()
 
+################################### Regression ###################################
+data = DataLoader(RawDataDIR, "HousingData.csv")
+print(data.shape)
+print(data.describe())
+print(data.isna().sum())
+
+data = DataPreprocess(data, isMulti = False, isReg = True)
+# DataWriter(data, PreProcessDIR, "HousingData_preprocessed_v1.csv")
+print(data.describe())
 
