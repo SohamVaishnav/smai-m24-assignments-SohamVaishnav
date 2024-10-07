@@ -322,7 +322,7 @@ class MultiLayerPerceptron_MultiClass(object):
             y = numpy array containing the output data.
             labels = list containing the unique labels.
         '''
-        history = {'epoch': [], 'loss': [], 'accuracy': [], 'f1_score': [], 'precision': [], 'recall': []}
+        history = {'epoch': [], 'loss': [], 'soft accuracy': [], 'hard accuracy': [], 'f1_score': [], 'precision': [], 'recall': []}
         if (self._optimizer == 'sgd'):
             optimizer = Optimizer(self._learning_rate)
             for epoch in range(self._epochs):
@@ -341,18 +341,19 @@ class MultiLayerPerceptron_MultiClass(object):
                     gradients = self.backprop(y_shuffled[i], y_pred[i])
                     self._weights, self._biases = optimizer.sgd(gradients, self._weights, self._biases)
                 metrics = Measures(y_pred, y_shuffled, labels, True, self._isMulti)
-                history['accuracy'].append(metrics.accuracy())
+                history['soft accuracy'].append(metrics.accuracy()[0])
+                history['hard accuracy'].append(metrics.accuracy()[1])
                 history['precision'].append(metrics.precision()[0])
                 history['recall'].append(metrics.recall()[0])
                 history['f1_score'].append(metrics.f1_score()[0])
                 self._metrics.append(metrics)
                 
-                wandb.log({'loss': loss})
-                wandb.log({'accuracy': metrics.accuracy()})
-                wandb.log({'precision': metrics.precision()[0]})
-                wandb.log({'recall': metrics.recall()[0]})
-                wandb.log({'f1_score': metrics.f1_score()[0]})
-                wandb.log({'epoch': epoch})
+                # wandb.log({'loss': loss})
+                # wandb.log({'accuracy': metrics.accuracy()})
+                # wandb.log({'precision': metrics.precision()[0]})
+                # wandb.log({'recall': metrics.recall()[0]})
+                # wandb.log({'f1_score': metrics.f1_score()[0]})
+                # wandb.log({'epoch': epoch})
 
         elif (self._optimizer == 'bgd'):
             optimizer = Optimizer(self._learning_rate)
@@ -367,18 +368,19 @@ class MultiLayerPerceptron_MultiClass(object):
                     gradients = self.backprop(y[i], y_pred[i])
                 self._weights, self._biases = optimizer.bgd(gradients, self._weights, self._biases)
                 metrics = Measures(y_pred, y, labels, True, self._isMulti)
-                history['accuracy'].append(metrics.accuracy())
+                history['soft accuracy'].append(metrics.accuracy()[0])
+                history['hard accuracy'].append(metrics.accuracy()[1])
                 history['precision'].append(metrics.precision()[0])
                 history['recall'].append(metrics.recall()[0])
                 history['f1_score'].append(metrics.f1_score()[0])
                 self._metrics.append(metrics)
 
-                wandb.log({'loss': loss})
-                wandb.log({'accuracy': metrics.accuracy()})
-                wandb.log({'precision': metrics.precision()[0]})
-                wandb.log({'recall': metrics.recall()[0]})
-                wandb.log({'f1_score': metrics.f1_score()[0]})
-                wandb.log({'epoch': epoch})
+                # wandb.log({'loss': loss})
+                # wandb.log({'accuracy': metrics.accuracy()})
+                # wandb.log({'precision': metrics.precision()[0]})
+                # wandb.log({'recall': metrics.recall()[0]})
+                # wandb.log({'f1_score': metrics.f1_score()[0]})
+                # wandb.log({'epoch': epoch})
         
         elif (self._optimizer == 'mini_bgd'):
             history.update({'batch_size': self._batch_size})
@@ -401,7 +403,8 @@ class MultiLayerPerceptron_MultiClass(object):
                     self._weights, self._biases = optimizer.mini_bgd(gradients, self._weights, self._biases, self._batch_size)
                     self._weights, self._biases = optimizer.mini_bgd(gradients, self._weights, self._biases, self._batch_size)
                     metrics = Measures(y_pred, y_batch, labels, True, self._isMulti)
-                    history['accuracy'].append(metrics.accuracy())
+                    history['soft accuracy'].append(metrics.accuracy()[0])
+                    history['hard accuracy'].append(metrics.accuracy()[1])
                     history['precision'].append(metrics.precision()[0])
                     history['recall'].append(metrics.recall()[0])
                     history['f1_score'].append(metrics.f1_score()[0])
@@ -409,13 +412,13 @@ class MultiLayerPerceptron_MultiClass(object):
                     j += 1
                     self._metrics.append(metrics)
 
-                    wandb.log({'loss': loss})
-                    wandb.log({'accuracy': metrics.accuracy()})
-                    wandb.log({'precision': metrics.precision()[0]})
-                    wandb.log({'recall': metrics.recall()[0]})
-                    wandb.log({'f1_score': metrics.f1_score()[0]})
-                    wandb.log({'epoch': epoch})
-                    wandb.log({'batch': j})
+                    # wandb.log({'loss': loss})
+                    # wandb.log({'accuracy': metrics.accuracy()})
+                    # wandb.log({'precision': metrics.precision()[0]})
+                    # wandb.log({'recall': metrics.recall()[0]})
+                    # wandb.log({'f1_score': metrics.f1_score()[0]})
+                    # wandb.log({'epoch': epoch})
+                    # wandb.log({'batch': j})
         self._history = history
         return y_pred
         
@@ -446,7 +449,8 @@ class MultiLayerPerceptron_MultiClass(object):
         '''
         fig = sp.make_subplots(rows=2, cols=1, subplot_titles=('Loss', 'Metrics'))
         fig.add_trace(go.Scatter(x=self._history['epoch'], y=self._history['loss'], mode='lines', name='loss'), row=1, col=1)
-        fig.add_trace(go.Scatter(x=self._history['epoch'], y=self._history['accuracy'], mode='lines', name='accuracy'), row=2, col=1)
+        fig.add_trace(go.Scatter(x=self._history['epoch'], y=self._history['soft accuracy'], mode='lines', name='soft accuracy'), row=2, col=1)
+        fig.add_trace(go.Scatter(x=self._history['epoch'], y=self._history['hard accuracy'], mode='lines', name='hard accuracy'), row=2, col=1)
         fig.add_trace(go.Scatter(x=self._history['epoch'], y=self._history['f1_score'], mode='lines', name='f1_score'), row=2, col=1)
         fig.add_trace(go.Scatter(x=self._history['epoch'], y=self._history['precision'], mode='lines', name='precision'), row=2, col=1)
         fig.add_trace(go.Scatter(x=self._history['epoch'], y=self._history['recall'], mode='lines', name='recall'), row=2, col=1)
