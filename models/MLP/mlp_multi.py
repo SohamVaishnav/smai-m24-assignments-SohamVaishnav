@@ -8,12 +8,12 @@ import sys
 import os
 import wandb
 
-AssignDIR = os.path.dirname(os.path.dirname(os.path.abspath('mlp.py')))
+AssignDIR = os.path.dirname(os.path.dirname(os.path.abspath('mlp_multi.py')))
 UserDIR = os.path.dirname(AssignDIR)
 
 sys.path.append(UserDIR)
 
-from models.MLP.mlp import *
+from models.MLP.mlp_multi import *
 from performance_measures.metricsMLP import *
 
 class Optimizer(object):
