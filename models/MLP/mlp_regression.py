@@ -32,6 +32,7 @@ class Optimizer(object):
         for i in range(len(weights)):
             weights[i] -= self._lr * gradients[len(weights)-1-i]
             biases[i] -= self._lr * np.mean(gradients[len(weights)-1-i], axis=0)
+        # print(weights[0], biases[0])
         return weights, biases
 
     def bgd(self, gradients, weights, biases):
@@ -60,7 +61,7 @@ class Optimizer(object):
         '''
         for i in range(len(weights)):
             weights[i] -= self._lr * gradients[len(weights)-1-i]/batch_size            
-            biases[i] -= self._lr * np.mean(gradients[len(weights)-1-i], axis=0)/batch_size
+            biases[i] -= self._lr * np.mean(gradients[len(weights)-1-i], axis=0)
         return weights, biases
 
 class Layer(object):
@@ -79,6 +80,21 @@ class Layer(object):
         self._z = None #the inputs to the layer
         self._activation = activation_func
 
+    def linear(self, x, derivative=False, verification=False):
+        ''' 
+        Linear activation function.
+
+        Parameters:
+            x = numpy array containing the input data.
+            derivative = boolean denoting whether to return the derivative of the function.
+            verification = boolean denoting whether to test the gradient process or not
+        '''
+        if (not verification and not derivative):
+            self._z = x
+        if derivative:
+            return 1
+        return x
+
     def sigmoid(self, x, derivative=False, verification=False):
         ''' 
         Sigmoid activation function.
@@ -88,7 +104,7 @@ class Layer(object):
             derivative = boolean denoting whether to return the derivative of the function.
             verification = boolean denoting whether to test the gradient process or not
         '''
-        if (not verification):
+        if (not verification and not derivative):
             self._z = x
         h = 1 / (1 + np.exp(-x))
         if derivative:
@@ -104,7 +120,7 @@ class Layer(object):
             derivative = boolean denoting whether to return the derivative of the function.
             verification = boolean denoting whether to test the gradient process or not
         '''
-        if (not verification):
+        if (not verification and not derivative):
             self._z = x
         if derivative:
             return np.where(x > 0, 1, 0)
@@ -119,7 +135,7 @@ class Layer(object):
             derivative = boolean denoting whether to return the derivative of the function.
             verification = boolean denoting whether to test the gradient process or not
         '''
-        if (not verification):
+        if (not verification and not derivative):
             self._z = x
         if derivative:
             return 1 - np.tanh(x) ** 2
@@ -134,7 +150,7 @@ class Layer(object):
             derivative = boolean denoting whether to return the derivative of the function.
             verification = boolean denoting whether to test the gradient process or not
         """
-        if (not verification):
+        if (not verification and not derivative):
             self._z = x
         exp_Z = np.exp(x - np.max(x, axis=1, keepdims=True))
         softmax_output = exp_Z / np.sum(exp_Z, axis=1, keepdims=True)
@@ -150,7 +166,7 @@ class MultiLayerPerceptron_Regression(object):
     MultiLayerPerceptron_Regression is a class that implements a multi-layer perceptron for regression tasks.
     It is a subclass of MLP and uses the same architecture as MLP but with a different loss function.
     '''
-    def __init__(self) -> None:
+    def __init__(self, l2_reg = 0) -> None:
         ''' 
         Initializes the MultiLayerPerceptron_Regression class.
         '''
@@ -171,7 +187,7 @@ class MultiLayerPerceptron_Regression(object):
         self._a = []
         self._y_pred = None
         self._grad_verify = False
-
+        
     def add(self, layer: Layer):
         '''
         Adds a layer to the model.
@@ -194,7 +210,7 @@ class MultiLayerPerceptron_Regression(object):
         self._epochs = hyperparams['epochs']
         self._loss = hyperparams['loss']
 
-    def fit(self, X, y, labels, grad_verify=False):
+    def fit(self, X, y, grad_verify=False):
         '''
         Fits the model to the data.
 
@@ -214,15 +230,15 @@ class MultiLayerPerceptron_Regression(object):
 
         for i in range(len(self._layers)):
             if i == 0:
-                self._weights.append(np.random.randn(self._input_shape, self._layers[i]._units))
-                self._biases.append(np.random.randn(self._layers[i]._units))
+                self._weights.append(np.random.randn(self._input_shape, self._layers[i]._units)*np.sqrt(2/(self._input_shape+self._layers[i]._units)))
+                self._biases.append(np.zeros((1, self._layers[i]._units)))
             else:
-                self._weights.append(np.random.randn(self._layers[i-1]._units, self._layers[i]._units))
-                self._biases.append(np.random.randn(self._layers[i]._units))
+                self._weights.append(np.random.randn(self._layers[i-1]._units, self._layers[i]._units)*np.sqrt(2/(self._layers[i-1]._units+self._layers[i]._units)))
+                self._biases.append(np.zeros((1, self._layers[i]._units)))
 
             self._activations.append(self._layers[i]._activation)
 
-        self._y_pred = self.train(X, y, labels)
+        self._y_pred = self.train(X, y)
 
     def predict(self, X):
         ''' 
@@ -244,7 +260,7 @@ class MultiLayerPerceptron_Regression(object):
         y_pred = self.predict(X)
         return self.loss(y, y_pred)
     
-    def train(self, X, y, labels):
+    def train(self, X, y):
         ''' 
         Trains the model on the input data.
 
@@ -257,6 +273,7 @@ class MultiLayerPerceptron_Regression(object):
         if (self._optimizer == 'sgd'):
             optimizer = Optimizer(self._learning_rate)
             for epoch in range(self._epochs):
+                self._istraining = True
                 print("Epoch: ", epoch)
                 history['epoch'].append(epoch)
                 y_pred = np.zeros((X.shape[0], self._output_shape))
@@ -264,17 +281,21 @@ class MultiLayerPerceptron_Regression(object):
                 np.random.shuffle(indices)
                 X_shuffled = X[indices]
                 y_shuffled = y[indices]
+                loss = 0
                 for i in range(0, X.shape[0]):
                     y_pred[i] = self.predict(X_shuffled[i:i+1])
-                    loss = self.loss(y_shuffled[i], y_pred[i])
-                    history['loss'].append(loss)
+                    loss += self.loss(y_shuffled[i], y_pred[i])
 
                     gradients = self.backprop(y_shuffled[i], y_pred[i])
                     self._weights, self._biases = optimizer.sgd(gradients, self._weights, self._biases)
+
+                self._istraining = False
+                y_pred = self.predict(X_shuffled)
                 metrics = metrics_regression(y_pred, y_shuffled)
                 history['mse'].append(metrics.mse())
                 history['rmse'].append(metrics.rmse())
                 history['r2'].append(metrics.r2())
+                history['loss'].append(self.loss(y_shuffled, y_pred))
                 self._metrics.append(metrics)
                 
                 # wandb.log({'loss': loss})
@@ -287,19 +308,27 @@ class MultiLayerPerceptron_Regression(object):
         elif (self._optimizer == 'bgd'):
             optimizer = Optimizer(self._learning_rate)
             for epoch in range(self._epochs):
+                self._istraining = True
                 print("Epoch: ", epoch)
                 history['epoch'].append(epoch)
                 y_pred = np.zeros((X.shape[0], self._output_shape))
+                loss = 0
+                gradients = [np.zeros((self._weights[i].shape)) for i in range(len(self._layers))][::-1]
                 for i in range(0, X.shape[0]):
                     y_pred[i] = self.predict(X[i:i+1])
-                    loss = self.loss(y[i], y_pred[i])
-                    history['loss'].append(loss)
-                    gradients = self.backprop(y[i], y_pred[i])
+                    loss += self.loss(y[i], y_pred[i])
+
+                    gradients = [x+y for x, y in zip(gradients, self.backprop(y[i], y_pred[i]))]
+                gradients = [gradients[i]/X.shape[0] for i in range(len(self._layers))]
                 self._weights, self._biases = optimizer.bgd(gradients, self._weights, self._biases)
+
+                self._istraining = False
+                y_pred = self.predict(X)
                 metrics = metrics_regression(y_pred, y)
                 history['mse'].append(metrics.mse())
                 history['rmse'].append(metrics.rmse())
                 history['r2'].append(metrics.r2())
+                history['loss'].append(self.loss(y, y_pred))
                 self._metrics.append(metrics)
 
                 # wandb.log({'loss': loss})
@@ -314,6 +343,7 @@ class MultiLayerPerceptron_Regression(object):
             history['batch'] = []
             optimizer = Optimizer(self._learning_rate)
             for epoch in range(self._epochs):
+                self._istraining = True
                 print("Epoch: ", epoch)
                 history['epoch'].append(epoch)
                 j = 0
@@ -323,18 +353,18 @@ class MultiLayerPerceptron_Regression(object):
 
                     y_pred = self.predict(X_batch)
                     loss = self.loss(y_batch, y_pred)
-                    history['loss'].append(loss)
 
                     gradients = self.backprop(y_batch, y_pred)
                     self._weights, self._biases = optimizer.mini_bgd(gradients, self._weights, self._biases, self._batch_size)
-                    self._weights, self._biases = optimizer.mini_bgd(gradients, self._weights, self._biases, self._batch_size)
-                    metrics = metrics_regression(y_pred, y_batch)
-                    history['mse'].append(metrics.mse())
-                    history['rmse'].append(metrics.rmse())
-                    history['r2'].append(metrics.r2())
-                    history['batch'].append(j)
                     j += 1
-                    self._metrics.append(metrics)
+                self._istraining = False
+                y_pred = self.predict(X)
+                metrics = metrics_regression(y_pred, y)
+                history['mse'].append(metrics.mse())
+                history['rmse'].append(metrics.rmse())
+                history['r2'].append(metrics.r2())
+                history['loss'].append(self.loss(y, y_pred))
+                self._metrics.append(metrics)
 
                     # wandb.log({'loss': loss})
                     # wandb.log({'accuracy': metrics.accuracy()})
@@ -368,6 +398,9 @@ class MultiLayerPerceptron_Regression(object):
                     self._a.append(self._layers[i].tanh(x = z))
                 elif (self._activations[i] == 'softmax'):
                     self._a.append(self._layers[i].softmax(x = z))
+                elif (self._activations[i] == 'linear'):
+                    self._a.append(self._layers[i].linear(x = z))
+                    
 
         elif (weights_if_verify is not None and self._grad_verify):
             a = X
@@ -381,6 +414,8 @@ class MultiLayerPerceptron_Regression(object):
                     a = self._layers[i].tanh(x = z, verification=self._grad_verify).T
                 elif (self._activations[i] == 'softmax'):
                     a = self._layers[i].softmax(x = z, verification=self._grad_verify).T
+                elif (self._activations[i] == 'linear'):
+                    a = self._layers[i].linear(x = z, verification=self._grad_verify).T
             return a
 
         return self._a[-1]
@@ -405,7 +440,10 @@ class MultiLayerPerceptron_Regression(object):
                     error = self.loss(y, y_pred, derivative=True) * self._layers[i].tanh(x = z, derivative=True)
                 elif (self._activations[i] == 'softmax'):
                     error = self.loss(y, y_pred, derivative=True)
+                elif (self._activations[i] == 'linear'):
+                    error = self.loss(y, y_pred, derivative=True)
             else:
+                # print(self._layers[i]._units)
                 z = self._layers[i]._z
                 if (self._activations[i] == 'sigmoid'):
                     error = np.dot(error, self._weights[i+1].T) * self._layers[i].sigmoid(x = z, derivative=True)
@@ -420,7 +458,11 @@ class MultiLayerPerceptron_Regression(object):
                 else:
                     a = self._a[i].T
                 gradients.append(a.dot(error))
-            
+                # gradient = a.dot(error)
+                # # Add L2 regularization gradient
+                # gradient += self._l2_reg * self._weights[i]  # Add this line
+                # gradients.append(gradient)
+
             if (self._grad_verify and i >= 0):
                 gradients_verify = []
                 epsilon = 1e-10
@@ -432,16 +474,18 @@ class MultiLayerPerceptron_Regression(object):
                         self._weights[i] = weights
                         y_pred = self.forward(a, i, self._weights)
                         loss1 = self.loss(y, y_pred)
-                        weights[j, k] -= epsilon
+                        weights[j, k] -= 2*epsilon
                         self._weights[i] = weights
                         y_pred = self.forward(a, i, self._weights)
                         loss2 = self.loss(y, y_pred)
                         gradients_verify.append((loss1 - loss2) / (2 * epsilon))
+                        weights[j, k] += epsilon
                 # print(gradients_verify, "\n\n")
+                # print(np.linalg.norm(gradients_verify - gradients[len(self._layers)-1-i].flatten())/np.linalg.norm(gradients_verify+gradients[len(self._layers)-1-i].flatten()))
                 self._weights[i] = temp
                 # if (i > 0):
                 #     print(np.allclose(gradients[len(self._layers)-1-i], gradients_verify))
-
+        # gradients[0] = gradients[0].reshape(self._weights[len(self._layers)-1].shape)
         return gradients
 
     def loss(self, y_true, y_pred, derivative=False):
@@ -453,7 +497,13 @@ class MultiLayerPerceptron_Regression(object):
             y_pred = numpy array containing the predicted output data.
             derivative = boolean denoting whether to return the derivative of the function.
         '''
-        y_pred = y_pred.clip(1e-10, 1-1e-10)
+        if ((self._optimizer == 'sgd' or self._optimizer == 'bgd') and self._istraining):
+            y_pred = y_pred.reshape(1, 1)
+            y_true = y_true.reshape(1, 1)
+        if (self._loss == 'mae'):
+            if (derivative):
+                return np.sign(y_pred - y_true)
+            return np.mean(np.abs(y_true - y_pred))
         if (self._loss == 'mse'):
             if (derivative):
                 return 2 * (y_pred - y_true)
@@ -466,12 +516,43 @@ class MultiLayerPerceptron_Regression(object):
             if (derivative):
                 return 2 * (y_pred - y_true) / y_true.size
             return 1 - np.sum((y_true - y_pred) ** 2) / np.sum((y_true - np.mean(y_true)) ** 2)
+
+    # def loss(self, y_true, y_pred, derivative=False):
+    #     y_pred = y_pred.clip(1e-10, 1-1e-10)
+    #     if (self._optimizer == 'bgd' or self._optimizer == 'sgd'):
+    #         y_pred = y_pred.reshape(1, 1)
+    #         y_true = y_true.reshape(1, 1)
+        
+    #     # Calculate the base loss
+    #     if (self._loss == 'mae'):
+    #         if (derivative):
+    #             return np.sign(y_pred - y_true)
+    #         base_loss = np.mean(np.abs(y_true - y_pred))
+    #     elif (self._loss == 'mse'):
+    #         if (derivative):
+    #             return 2*(y_pred - y_true)
+    #         base_loss = np.mean((y_true - y_pred) ** 2)
+    #     elif (self._loss == 'rmse'):
+    #         if (derivative):
+    #             return 2 * (y_pred - y_true) / y_true.size
+    #         base_loss = np.sqrt(np.mean((y_true - y_pred) ** 2))
+    #     elif (self._loss == 'R2'):
+    #         if (derivative):
+    #             return 2 * (y_pred - y_true) / y_true.size
+    #         base_loss = 1 - np.sum((y_true - y_pred) ** 2) / np.sum((y_true - np.mean(y_true)) ** 2)
+        
+    #     # Add L2 regularization term
+    #     if not derivative:
+    #         l2_loss = 0.5 * self._l2_reg * sum(np.sum(w**2) for w in self._weights)
+    #         return base_loss + l2_loss
+    #     else:
+    #         return base_loss
             
     def summary(self):
         ''' 
         Prints the summary of the model.
         '''
-        print("Model: MultiLayerPerceptron_SingleClass")
+        print("Model: MultiLayerPerceptron_Regression")
         print("_________________________________________________________________")
         print("Layer (type)                 Output Shape              Param #")
         print("=================================================================")
@@ -494,10 +575,9 @@ class MultiLayerPerceptron_Regression(object):
         '''
         fig = sp.make_subplots(rows=2, cols=1, subplot_titles=('Loss', 'Metrics'))
         fig.add_trace(go.Scatter(x=self._history['epoch'], y=self._history['loss'], mode='lines', name='loss'), row=1, col=1)
-        fig.add_trace(go.Scatter(x=self._history['epoch'], y=self._history['accuracy'], mode='lines', name='accuracy'), row=2, col=1)
-        fig.add_trace(go.Scatter(x=self._history['epoch'], y=self._history['f1_score'], mode='lines', name='f1_score'), row=2, col=1)
-        fig.add_trace(go.Scatter(x=self._history['epoch'], y=self._history['precision'], mode='lines', name='precision'), row=2, col=1)
-        fig.add_trace(go.Scatter(x=self._history['epoch'], y=self._history['recall'], mode='lines', name='recall'), row=2, col=1)
+        fig.add_trace(go.Scatter(x=self._history['epoch'], y=self._history['mse'], mode='lines', name='mse'), row=2, col=1)
+        fig.add_trace(go.Scatter(x=self._history['epoch'], y=self._history['rmse'], mode='lines', name='rmse'), row=2, col=1)
+        fig.add_trace(go.Scatter(x=self._history['epoch'], y=self._history['r2'], mode='lines', name='r2'), row=2, col=1)
         fig.update_layout(title='Model History')
         fig.show()
         return None
@@ -518,6 +598,7 @@ class metrics_regression(object):
         ''' 
         Mean Squared Error.
         '''
+        # print(self._y_true.flatten(), "\n\n")
         return np.mean((self._y_true - self._y_pred) ** 2)
     
     def rmse(self):
@@ -531,3 +612,5 @@ class metrics_regression(object):
         R2 Score.
         '''
         return 1 - np.sum((self._y_true - self._y_pred) ** 2) / np.sum((self._y_true - np.mean(self._y_true)) ** 2)
+
+    
