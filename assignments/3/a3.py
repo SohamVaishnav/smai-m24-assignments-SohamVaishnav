@@ -21,9 +21,11 @@ sys.path.append(UserDIR)
 
 from models.MLP.mlp import *
 from models.MLP.mlp_multi import *
+from models.MLP.mlp_regression import *
+# from models.MLP.mlp_reg2 import *
 from performance_measures.metricsMLP import *
 
-# from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler
 
 RawDataDIR = os.path.join(UserDIR, "./data/external/")
 PreProcessDIR = os.path.join(UserDIR, "./data/interim/3/")
@@ -97,6 +99,11 @@ def DataPreprocess(data: pd.DataFrame, isMulti: bool = False, isReg: bool = Fals
         if ('label' in data.columns):
             temp = data['label']
             data = data.drop(columns = ['label'])
+    
+    elif (isReg):
+        if ('MEDV' in data.columns):
+            temp = data['MEDV']
+            data = data.drop(columns = ['MEDV'])
 
     for i in data.columns:
         if (type(data[i].iloc[0]) == str or data[i].iloc[0].dtype == bool):
@@ -239,9 +246,39 @@ def runMLP(model, data: pd.DataFrame, grad_verify: bool = False, isMulti: bool =
 data = DataLoader(RawDataDIR, "HousingData.csv")
 print(data.shape)
 print(data.describe())
-print(data.isna().sum())
 
-data = DataPreprocess(data, isMulti = False, isReg = True)
-# DataWriter(data, PreProcessDIR, "HousingData_preprocessed_v1.csv")
+data = data.fillna(data.median())
+
+scaler = StandardScaler()
+data = pd.DataFrame(scaler.fit_transform(data), columns = data.columns)
 print(data.describe())
 
+# toy_data = np.array([[1, 2, 3, 4, 5], [2, 3, 4, 5, 6], [3, 4, 5, 6, 7], [4, 5, 6, 7, 8], [5, 6, 7, 8, 9]])
+# toy_data = pd.DataFrame(toy_data, columns = ['A', 'B', 'C', 'D', 'E'])
+# print(toy_data.describe())
+
+# toy_data = toy_data - np.mean(toy_data, axis = 0)
+# toy_data = toy_data / np.std(toy_data, axis = 0)
+# # print(toy_data)
+# X = toy_data.drop(columns = ['E']).to_numpy()
+# y = toy_data['E'].to_numpy().reshape(-1, 1)
+
+X = data.drop(columns = ['MEDV']).to_numpy()
+y = data['MEDV'].to_numpy().reshape(-1, 1)
+layers = [64, 32, 1]
+activations = ['relu', 'relu', 'linear']
+hyperparams = {'learning_rate': 0.01, 'epochs': 500, 'batch_size': 16, 'optimizer': 'sgd', 'loss': 'mse'}
+model = MultiLayerPerceptron_Regression()
+for i in range(len(layers)):
+    layer = Layer(layers[i], activations[i])
+    model.add(layer)
+model.setHyperParams(hyperparams)
+model.fit(X, y, grad_verify = False)
+#plot predicted and true values
+plt.scatter(y, model._y_pred.flatten())
+plt.xlabel('True Values')
+plt.ylabel('Predicted Values')
+plt.title('True vs Predicted Values')
+plt.show()
+model.plot()
+# # wandb.finish()
