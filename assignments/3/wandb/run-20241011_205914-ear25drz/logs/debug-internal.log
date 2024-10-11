@@ -1,0 +1,18 @@
+{"time":"2024-10-11T20:59:14.0470877+05:30","level":"INFO","msg":"using version","core version":"0.18.3"}
+{"time":"2024-10-11T20:59:14.0470877+05:30","level":"INFO","msg":"created symlink","path":"C:\\Users\\Admin\\smai-m24-assignments-SohamVaishnav\\assignments\\3\\wandb\\run-20241011_205914-ear25drz\\logs\\debug-core.log"}
+{"time":"2024-10-11T20:59:14.0481304+05:30","level":"ERROR","msg":"dialing: google: could not find default credentials. See https://cloud.google.com/docs/authentication/external/set-up-adc for more information"}
+{"time":"2024-10-11T20:59:14.0678341+05:30","level":"INFO","msg":"created new stream","id":"ear25drz"}
+{"time":"2024-10-11T20:59:14.0695401+05:30","level":"INFO","msg":"stream: started","id":"ear25drz"}
+{"time":"2024-10-11T20:59:14.0695401+05:30","level":"INFO","msg":"handler: started","stream_id":{"value":"ear25drz"}}
+{"time":"2024-10-11T20:59:14.0695401+05:30","level":"INFO","msg":"sender: started","stream_id":{"value":"ear25drz"}}
+{"time":"2024-10-11T20:59:14.0695401+05:30","level":"INFO","msg":"writer: Do: started","stream_id":{"value":"ear25drz"}}
+{"time":"2024-10-11T20:59:14.4728173+05:30","level":"INFO","msg":"wandb-core","!BADKEY":null}
+{"time":"2024-10-11T20:59:14.4758545+05:30","level":"INFO","msg":"Starting system monitor"}
+{"time":"2024-10-11T21:00:10.292545+05:30","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2024-10-11T21:00:10.292545+05:30","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2024-10-11T21:00:15.3654295+05:30","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2024-10-11T21:00:17.0330031+05:30","level":"INFO","msg":"stream: closing","id":"ear25drz"}
+{"time":"2024-10-11T21:00:17.0330031+05:30","level":"INFO","msg":"handler: closed","stream_id":{"value":"ear25drz"}}
+{"time":"2024-10-11T21:00:17.0330031+05:30","level":"INFO","msg":"writer: Close: closed","stream_id":{"value":"ear25drz"}}
+{"time":"2024-10-11T21:00:17.0340021+05:30","level":"INFO","msg":"sender: closed","stream_id":{"value":"ear25drz"}}
+{"time":"2024-10-11T21:00:17.0340021+05:30","level":"INFO","msg":"stream: closed","id":"ear25drz"}

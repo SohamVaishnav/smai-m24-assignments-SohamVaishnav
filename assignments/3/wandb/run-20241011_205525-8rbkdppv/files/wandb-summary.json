@@ -1,0 +1,1 @@
+{"recall":1,"_timestamp":1.7286604068624861e+09,"epoch":499,"_runtime":80.8742133,"_step":2999,"f1_score":1,"_wandb":{"runtime":80},"loss":-0.001183951720355046,"accuracy":1,"precision":1}

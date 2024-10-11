@@ -1,0 +1,16 @@
+wandb_version: 1
+
+activations:
+  value: tanh
+batch_size:
+  value: 32
+epochs:
+  value: 50
+layers:
+  value:
+  - 15
+  - 6
+lr:
+  value: 0.1
+optimizer:
+  value: bgd
