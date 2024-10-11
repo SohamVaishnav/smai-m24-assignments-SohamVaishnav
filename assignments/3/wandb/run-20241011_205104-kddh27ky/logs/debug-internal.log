@@ -1,0 +1,18 @@
+{"time":"2024-10-11T20:51:04.4976459+05:30","level":"INFO","msg":"using version","core version":"0.18.3"}
+{"time":"2024-10-11T20:51:04.4976459+05:30","level":"INFO","msg":"created symlink","path":"C:\\Users\\Admin\\smai-m24-assignments-SohamVaishnav\\assignments\\3\\wandb\\run-20241011_205104-kddh27ky\\logs\\debug-core.log"}
+{"time":"2024-10-11T20:51:04.4986849+05:30","level":"ERROR","msg":"dialing: google: could not find default credentials. See https://cloud.google.com/docs/authentication/external/set-up-adc for more information"}
+{"time":"2024-10-11T20:51:04.5164089+05:30","level":"INFO","msg":"created new stream","id":"kddh27ky"}
+{"time":"2024-10-11T20:51:04.516586+05:30","level":"INFO","msg":"stream: started","id":"kddh27ky"}
+{"time":"2024-10-11T20:51:04.516586+05:30","level":"INFO","msg":"handler: started","stream_id":{"value":"kddh27ky"}}
+{"time":"2024-10-11T20:51:04.516586+05:30","level":"INFO","msg":"sender: started","stream_id":{"value":"kddh27ky"}}
+{"time":"2024-10-11T20:51:04.516586+05:30","level":"INFO","msg":"writer: Do: started","stream_id":{"value":"kddh27ky"}}
+{"time":"2024-10-11T20:51:04.9247559+05:30","level":"INFO","msg":"wandb-core","!BADKEY":null}
+{"time":"2024-10-11T20:51:04.9257966+05:30","level":"INFO","msg":"Starting system monitor"}
+{"time":"2024-10-11T20:51:13.5782733+05:30","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2024-10-11T20:51:13.5783661+05:30","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2024-10-11T20:51:14.8072021+05:30","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2024-10-11T20:51:16.2247645+05:30","level":"INFO","msg":"stream: closing","id":"kddh27ky"}
+{"time":"2024-10-11T20:51:16.2247645+05:30","level":"INFO","msg":"handler: closed","stream_id":{"value":"kddh27ky"}}
+{"time":"2024-10-11T20:51:16.2247645+05:30","level":"INFO","msg":"writer: Close: closed","stream_id":{"value":"kddh27ky"}}
+{"time":"2024-10-11T20:51:16.2247645+05:30","level":"INFO","msg":"sender: closed","stream_id":{"value":"kddh27ky"}}
+{"time":"2024-10-11T20:51:16.2247645+05:30","level":"INFO","msg":"stream: closed","id":"kddh27ky"}

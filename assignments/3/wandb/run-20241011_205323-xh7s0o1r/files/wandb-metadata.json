@@ -1,0 +1,32 @@
+{
+  "os": "Windows-10-10.0.22631-SP0",
+  "python": "3.11.4",
+  "startedAt": "2024-10-11T15:23:23.892166Z",
+  "program": "c:\\Users\\Admin\\smai-m24-assignments-SohamVaishnav\\assignments\\3\\a3.py",
+  "codePath": "assignments\\3\\a3.py",
+  "git": {
+    "remote": "https://github.com/smai-monsoon-24/smai-m24-assignments-SohamVaishnav.git",
+    "commit": "06a5c1b34e84edef795338f07d8b68c277475072"
+  },
+  "email": "wandb.vsoham@gmail.com",
+  "root": "C:\\Users\\Admin\\smai-m24-assignments-SohamVaishnav\\assignments\\3",
+  "host": "DESKTOP-8SJDENU",
+  "username": "Admin",
+  "executable": "C:\\Users\\Admin\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+  "codePathLocal": "a3.py",
+  "cpu_count": 4,
+  "cpu_count_logical": 8,
+  "disk": {
+    "/": {
+      "total": "259437641728",
+      "used": "226697277440"
+    }
+  },
+  "memory": {
+    "total": "34048368640"
+  },
+  "cpu": {
+    "count": 4,
+    "countLogical": 8
+  }
+}
