@@ -116,4 +116,33 @@ It is therefore better to use loss functions such as MSE or MAE that are more su
 #### Task 6: Analysis 
 REMAINING....
 
-### 4: Autoencoder
+### 4: AutoEncoder
+
+#### Task 1: Autoencoder Implementation from scratch
+The autoencoder is implemented in `models/MLP/autoencoder.py` and uses the baseline model class of `MultiLayerPerceptron_Regression()`. The implementation is similar to that of the regression model but with some differences:
+- The model is used for dimensionality reduction and not for prediction.
+- The number of units in the last layer is the same as the number of features in the dataset.
+- The middle-most layer is used for encoding the data and the last layer is used for decoding the data.
+- The number of units in the middle-most layer is the same as the number of features desired in the reduced dataset.
+- The activation function used in the last layer is sigmoid (because it is a regression model).
+- The loss function used is MSE and MAE, and the same metrics are used to evaluate the model.
+- The model has functions such as `get_latent()` (returns the latent space representation of the data) and `evaluate()` (evaluates the model on the data).
+
+Rest everything is the same.
+
+#### Task 2: Training an Autoencoder
+I trained the autoencoder on the `spotify` dataset (from a1). To find out the best set of hyperparameters, I sweeped over the required hyperparameters using W&B. Following are the results of the same:
+
+![WandB_AutoEncoder](figures/WandB_AutoEncoder.png)
+
+and 
+
+![Sweep_AutoEncoder](figures/Sweep_AutoEncoder.png)
+
+From the above plots, it is evident that the best set of hyperparameters are:
+
+|Learning Rate|Epochs|Batch Size|Optimizer|Loss Function|Hidden Layers|Activation Functions|
+|:-----------:|:----:|:--------:|:-------:|:------------:|:------------:|:-------------------:|
+|0.001|100|256|sgd|MAE|3 - [17, 11, 17]|[relu, relu, relu]|
+
+
