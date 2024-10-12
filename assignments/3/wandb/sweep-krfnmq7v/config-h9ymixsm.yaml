@@ -1,0 +1,19 @@
+wandb_version: 1
+
+activations:
+  value: tanh
+batch_size:
+  value: 256
+epochs:
+  value: 1000
+layers:
+  value:
+  - 32
+  - 16
+  - 1
+loss:
+  value: mse
+lr:
+  value: 0.01
+optimizer:
+  value: bgd
