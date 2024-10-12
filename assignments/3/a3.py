@@ -196,29 +196,28 @@ def DataPreprocess(data: pd.DataFrame, isMulti: bool = False, isReg: bool = Fals
 #     return None
 
 ################################### Single label classification ###################################
-wandb.login()
+# wandb.login()
 
-config_sweep = {
-'method': 'bayes',
-'name': 'Hyperparameter tuning: Single label classification', 
-'metric': {
-    'goal': 'maximize',
-    'name': 'accuracy'
-}, 
-'parameters': {
-    'epochs': {'values': [50, 100, 500, 1000]},
-    'layers': {'values': [[6], [15, 6], [64, 32, 6], [64, 16, 6], [32, 16, 6]]},
-    'activations': {'values': ['relu', 'tanh', 'sigmoid']},
-    'lr': {'values': [0.001, 0.01, 0.1]},
-    'batch_size': {'values': [32, 64, 128]}, 
-    'optimizer': {'values': ['sgd', 'bgd', 'mini_bgd']}
-}
-}
+# config_sweep = {
+# 'method': 'bayes',
+# 'name': 'Hyperparameter tuning: Single label classification', 
+# 'metric': {
+#     'goal': 'maximize',
+#     'name': 'accuracy'
+# }, 
+# 'parameters': {
+#     'epochs': {'values': [50, 100, 500, 1000]},
+#     'layers': {'values': [[6], [15, 6], [64, 32, 6], [64, 16, 6], [32, 16, 6]]},
+#     'activations': {'values': ['relu', 'tanh', 'sigmoid']},
+#     'lr': {'values': [0.001, 0.01, 0.1]},
+#     'batch_size': {'values': [32, 64, 128]}, 
+#     'optimizer': {'values': ['sgd', 'bgd', 'mini_bgd']}
+# }
+# }
 
-
-data = DataLoader(RawDataDIR, "WineQT.csv")
-print(data.shape)
-print(data.describe())
+# data = DataLoader(RawDataDIR, "WineQT.csv")
+# print(data.shape)
+# print(data.describe())
 
 # temp = data.drop(columns = ['quality'])
 # labels = [temp.columns[i] for i in range(0, 12)]
@@ -227,34 +226,34 @@ print(data.describe())
 # fig.update_layout(height = 1700, width = 1700, title_text="Pair Plot of Wine Features by Quality")
 # fig.show()
 
-data = DataPreprocess(data, isMulti = False)
-print(data.describe())
+# data = DataPreprocess(data, isMulti = False)
+# print(data.describe())
 
-X = data.drop(columns = ['quality']).to_numpy()
-y = data['quality']
-num_classes = len(np.unique(y))
-labels = np.unique(y)-3
-Y = np.zeros((y.shape[0], num_classes))
-for i in range(y.shape[0]):
-    Y[i, y.iloc[i]-3] = 1
+# X = data.drop(columns = ['quality']).to_numpy()
+# y = data['quality']
+# num_classes = len(np.unique(y))
+# labels = np.unique(y)-3
+# Y = np.zeros((y.shape[0], num_classes))
+# for i in range(y.shape[0]):
+#     Y[i, y.iloc[i]-3] = 1
 
-indices = np.arange(0, X.shape[0])
-np.random.shuffle(indices)
-X = X[indices]
-Y = Y[indices]
+# indices = np.arange(0, X.shape[0])
+# np.random.shuffle(indices)
+# X = X[indices]
+# Y = Y[indices]
 
-X_train = X[:int(0.8*X.shape[0])]
-Y_train = Y[:int(0.8*Y.shape[0])]
-X_test = X[int(0.8*X.shape[0]):]
-Y_test = Y[int(0.8*Y.shape[0]):]
+# X_train = X[:int(0.8*X.shape[0])]
+# Y_train = Y[:int(0.8*Y.shape[0])]
+# X_test = X[int(0.8*X.shape[0]):]
+# Y_test = Y[int(0.8*Y.shape[0]):]
 
-def run_sweep():
-    sweep_agent_manager('Single_label_HPT', 'mlp_single', labels, X_train, X_test, Y_train, Y_test)
+# def run_sweep():
+#     sweep_agent_manager('Single_label_HPT', 'mlp_single', labels, X_train, X_test, Y_train, Y_test)
 
-sweep_id = wandb.sweep(sweep=config_sweep, project = 'Single_label_HPT')
-wandb.agent(sweep_id = sweep_id, 
-            function = run_sweep, 
-            count = 15)
+# sweep_id = wandb.sweep(sweep=config_sweep, project = 'Single_label_HPT')
+# wandb.agent(sweep_id = sweep_id, 
+#             function = run_sweep, 
+#             count = 15)
 
 # layers = [64, 32, 6]
 # activations = 'relu'
@@ -267,29 +266,77 @@ wandb.agent(sweep_id = sweep_id,
 # print(model.evaluate(X_test, Y_test))
 # wandb.finish()
 
+
 ################################### Multi label classification ###################################
-# data = DataLoader(RawDataDIR, "advertisement.csv")
-# print(data.shape)
-# print(data.describe())
+wandb.login()
 
-# encodings_gender = {'Male': 0, 'Female': 1}
-# data['gender'] = data['gender'].replace(encodings_gender)
-# data['married'] = data['married'].astype(int)
+config_sweep = {
+'method': 'bayes',
+'name': 'Hyperparameter tuning: Multi label classification', 
+'metric': {
+    'goal': 'maximize',
+    'name': 'soft accuracy'
+}, 
+'parameters': {
+    'epochs': {'values': [50, 100, 500, 1000]},
+    'layers': {'values': [[8], [16, 8], [64, 32, 16, 8], [20, 10, 8], [64, 32, 8], [64, 16, 8], [32, 16, 8]]},
+    'activations': {'values': ['relu', 'tanh', 'sigmoid']},
+    'lr': {'values': [0.0001, 0.001, 0.01, 0.1]},
+    'batch_size': {'values': [32, 64, 256]}, 
+    'optimizer': {'values': ['sgd', 'bgd', 'mini_bgd']},
+    'thresh': {'values': [0.3, 0.5, 0.7, 0.9]}
+}
+}
 
-# print(data.describe())
+data = DataLoader(RawDataDIR, "advertisement.csv")
+print(data.shape)
+print(data.describe())
 
-# string_features = ['education', 'city', 'occupation', 'most bought item']
-# data = Word2Num(data, string_features)
+encodings_gender = {'Male': 0, 'Female': 1}
+data['gender'] = data['gender'].replace(encodings_gender)
+data['married'] = data['married'].astype(int)
 
-# print(data.describe())
-# print(data.isnull().sum())
+string_features = ['education', 'city', 'occupation', 'most bought item']
+data = Word2Num(data, string_features)
 
-# scaler = StandardScaler()
-# temp = data['labels']
-# data = data.drop(columns = ['labels'])
-# data = pd.DataFrame(scaler.fit_transform(data), columns = data.columns)
-# data = pd.concat([data, temp], axis = 1)
-# print(data.describe())
+scaler = StandardScaler()
+temp = data['labels']
+data = data.drop(columns = ['labels'])
+data = pd.DataFrame(scaler.fit_transform(data), columns = data.columns)
+data = pd.concat([data, temp], axis = 1)
+
+X = data.drop(columns = ['labels']).to_numpy()
+y = data['labels']
+labels = []
+for i in y:
+    temp = i.split(' ')
+    for j in temp:
+        labels.append(j)
+labels = np.unique(labels)
+num_classes = len(labels)
+Y = np.zeros((y.shape[0], num_classes))
+for i in range(y.shape[0]):
+    temp = y.iloc[i].split(' ')
+    for j in temp:
+        Y[i, np.where(labels == j)] = 1
+
+indices = np.arange(0, X.shape[0])
+np.random.shuffle(indices)
+X = X[indices]
+Y = Y[indices]
+
+X_train = X[:int(0.8*X.shape[0])]
+Y_train = Y[:int(0.8*Y.shape[0])]
+X_test = X[int(0.8*X.shape[0]):]
+Y_test = Y[int(0.8*Y.shape[0]):]
+
+def run_sweep():
+    sweep_agent_manager('Multi_label_HPT_optimSA', 'mlp_multi', labels, X_train, X_test, Y_train, Y_test)
+
+sweep_id = wandb.sweep(sweep=config_sweep, project = 'Multi_label_HPT_optimSA')
+wandb.agent(sweep_id = sweep_id, 
+            function = run_sweep, 
+            count = 20)
 
 # layers = [64, 32, 16, 8]
 # activations = ['relu', 'relu', 'relu', 'sigmoid']
