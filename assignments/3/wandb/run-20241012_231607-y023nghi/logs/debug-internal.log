@@ -1,0 +1,18 @@
+{"time":"2024-10-12T23:16:07.45761+05:30","level":"INFO","msg":"using version","core version":"0.18.3"}
+{"time":"2024-10-12T23:16:07.45761+05:30","level":"INFO","msg":"created symlink","path":"C:\\Users\\Admin\\smai-m24-assignments-SohamVaishnav\\assignments\\3\\wandb\\run-20241012_231607-y023nghi\\logs\\debug-core.log"}
+{"time":"2024-10-12T23:16:07.4586863+05:30","level":"ERROR","msg":"dialing: google: could not find default credentials. See https://cloud.google.com/docs/authentication/external/set-up-adc for more information"}
+{"time":"2024-10-12T23:16:07.4743379+05:30","level":"INFO","msg":"created new stream","id":"y023nghi"}
+{"time":"2024-10-12T23:16:07.4748429+05:30","level":"INFO","msg":"stream: started","id":"y023nghi"}
+{"time":"2024-10-12T23:16:07.4748429+05:30","level":"INFO","msg":"handler: started","stream_id":{"value":"y023nghi"}}
+{"time":"2024-10-12T23:16:07.4748429+05:30","level":"INFO","msg":"writer: Do: started","stream_id":{"value":"y023nghi"}}
+{"time":"2024-10-12T23:16:07.4748429+05:30","level":"INFO","msg":"sender: started","stream_id":{"value":"y023nghi"}}
+{"time":"2024-10-12T23:16:07.8480673+05:30","level":"INFO","msg":"wandb-core","!BADKEY":null}
+{"time":"2024-10-12T23:16:07.8491235+05:30","level":"INFO","msg":"Starting system monitor"}
+{"time":"2024-10-12T23:16:12.1843507+05:30","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2024-10-12T23:16:12.1843507+05:30","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2024-10-12T23:16:16.5419499+05:30","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2024-10-12T23:16:17.982716+05:30","level":"INFO","msg":"stream: closing","id":"y023nghi"}
+{"time":"2024-10-12T23:16:17.982716+05:30","level":"INFO","msg":"handler: closed","stream_id":{"value":"y023nghi"}}
+{"time":"2024-10-12T23:16:17.982716+05:30","level":"INFO","msg":"sender: closed","stream_id":{"value":"y023nghi"}}
+{"time":"2024-10-12T23:16:17.982716+05:30","level":"INFO","msg":"writer: Close: closed","stream_id":{"value":"y023nghi"}}
+{"time":"2024-10-12T23:16:17.9833665+05:30","level":"INFO","msg":"stream: closed","id":"y023nghi"}

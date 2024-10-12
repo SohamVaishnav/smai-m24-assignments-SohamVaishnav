@@ -1,0 +1,33 @@
+2024-10-12 23:30:04,663 INFO    Thread-25 (_run_job):36088 [wandb_setup.py:_flush():79] Current SDK version is 0.18.3
+2024-10-12 23:30:04,663 INFO    Thread-25 (_run_job):36088 [wandb_setup.py:_flush():79] Configure stats pid to 36088
+2024-10-12 23:30:04,663 INFO    Thread-25 (_run_job):36088 [wandb_setup.py:_flush():79] Loading settings from C:\Users\Admin\.config\wandb\settings
+2024-10-12 23:30:04,663 INFO    Thread-25 (_run_job):36088 [wandb_setup.py:_flush():79] Loading settings from C:\Users\Admin\smai-m24-assignments-SohamVaishnav\assignments\3\wandb\settings
+2024-10-12 23:30:04,663 INFO    Thread-25 (_run_job):36088 [wandb_setup.py:_flush():79] Loading settings from environment variables: {'project': 'Single_label_HPT_2.5.3', 'entity': 'soham-iiith', 'root_dir': 'C:\\Users\\Admin\\smai-m24-assignments-SohamVaishnav\\assignments\\3', 'run_id': 'qy2sqx3f', 'sweep_param_path': 'C:\\Users\\Admin\\smai-m24-assignments-SohamVaishnav\\assignments\\3\\wandb\\sweep-9rpjwec7\\config-qy2sqx3f.yaml', 'sweep_id': '9rpjwec7'}
+2024-10-12 23:30:04,664 INFO    Thread-25 (_run_job):36088 [wandb_setup.py:_flush():79] Applying setup settings: {'mode': None, '_disable_service': None}
+2024-10-12 23:30:04,664 INFO    Thread-25 (_run_job):36088 [wandb_setup.py:_flush():79] Inferring run settings from compute environment: {'program_relpath': 'assignments\\3\\a3.py', 'program_abspath': 'c:\\Users\\Admin\\smai-m24-assignments-SohamVaishnav\\assignments\\3\\a3.py', 'program': 'c:\\Users\\Admin\\smai-m24-assignments-SohamVaishnav\\assignments\\3\\a3.py'}
+2024-10-12 23:30:04,664 INFO    Thread-25 (_run_job):36088 [wandb_setup.py:_flush():79] Applying login settings: {}
+2024-10-12 23:30:04,664 INFO    Thread-25 (_run_job):36088 [wandb_init.py:_log_setup():532] Logging user logs to C:\Users\Admin\smai-m24-assignments-SohamVaishnav\assignments\3\wandb\run-20241012_233004-qy2sqx3f\logs\debug.log
+2024-10-12 23:30:04,665 INFO    Thread-25 (_run_job):36088 [wandb_init.py:_log_setup():533] Logging internal logs to C:\Users\Admin\smai-m24-assignments-SohamVaishnav\assignments\3\wandb\run-20241012_233004-qy2sqx3f\logs\debug-internal.log
+2024-10-12 23:30:04,665 INFO    Thread-25 (_run_job):36088 [wandb_init.py:init():617] calling init triggers
+2024-10-12 23:30:04,665 INFO    Thread-25 (_run_job):36088 [wandb_init.py:init():624] wandb.init called with sweep_config: {'activations': 'relu', 'batch_size': 128, 'epochs': 50, 'layers': [32, 16, 6], 'lr': 0.01, 'optimizer': 'mini_bgd', 'thresh': 0.3}
+config: {}
+2024-10-12 23:30:04,665 INFO    Thread-25 (_run_job):36088 [wandb_init.py:init():667] starting backend
+2024-10-12 23:30:04,665 INFO    Thread-25 (_run_job):36088 [wandb_init.py:init():671] sending inform_init request
+2024-10-12 23:30:04,671 INFO    Thread-25 (_run_job):36088 [backend.py:_multiprocessing_setup():104] multiprocessing start_methods=spawn, using: spawn
+2024-10-12 23:30:04,672 INFO    Thread-25 (_run_job):36088 [wandb_init.py:init():684] backend started and connected
+2024-10-12 23:30:04,682 INFO    Thread-25 (_run_job):36088 [wandb_run.py:_config_callback():1394] config_cb None None {'activations': 'relu', 'batch_size': 128, 'epochs': 50, 'layers': [32, 16, 6], 'lr': 0.01, 'optimizer': 'mini_bgd', 'thresh': 0.3}
+2024-10-12 23:30:04,682 INFO    Thread-25 (_run_job):36088 [wandb_init.py:init():779] updated telemetry
+2024-10-12 23:30:04,718 INFO    Thread-25 (_run_job):36088 [wandb_init.py:init():812] communicating run to backend with 90.0 second timeout
+2024-10-12 23:30:05,222 INFO    Thread-25 (_run_job):36088 [wandb_init.py:init():863] starting run threads in backend
+2024-10-12 23:30:05,427 INFO    Thread-25 (_run_job):36088 [wandb_run.py:_console_start():2465] atexit reg
+2024-10-12 23:30:05,428 INFO    Thread-25 (_run_job):36088 [wandb_run.py:_redirect():2313] redirect: wrap_raw
+2024-10-12 23:30:05,428 INFO    Thread-25 (_run_job):36088 [wandb_run.py:_redirect():2378] Wrapping output streams.
+2024-10-12 23:30:05,428 INFO    Thread-25 (_run_job):36088 [wandb_run.py:_redirect():2403] Redirects installed.
+2024-10-12 23:30:05,428 INFO    Thread-25 (_run_job):36088 [wandb_init.py:init():907] run started, returning control to user process
+2024-10-12 23:30:05,627 INFO    Thread-25 (_run_job):36088 [wandb_run.py:_finish():2164] finishing run soham-iiith/Single_label_HPT_2.5.3/qy2sqx3f
+2024-10-12 23:30:05,627 INFO    Thread-25 (_run_job):36088 [wandb_run.py:_atexit_cleanup():2428] got exitcode: 0
+2024-10-12 23:30:05,628 INFO    Thread-25 (_run_job):36088 [wandb_run.py:_restore():2410] restore
+2024-10-12 23:30:05,628 INFO    Thread-25 (_run_job):36088 [wandb_run.py:_restore():2416] restore done
+2024-10-12 23:30:09,735 INFO    Thread-25 (_run_job):36088 [wandb_run.py:_footer_history_summary_info():4049] rendering history
+2024-10-12 23:30:09,736 INFO    Thread-25 (_run_job):36088 [wandb_run.py:_footer_history_summary_info():4081] rendering summary
+2024-10-12 23:30:09,743 INFO    Thread-25 (_run_job):36088 [wandb_run.py:_footer_sync_info():4008] logging synced files
