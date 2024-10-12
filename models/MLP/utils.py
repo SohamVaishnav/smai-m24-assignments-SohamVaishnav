@@ -27,7 +27,6 @@ def createModel(config):
         return model
     elif type == 'autoencoder':
         model = AutoEncoder(config)
-        model.add()
         return model
     elif type == 'mlp_single':
         model = MultiLayerPerceptron_SingleClass(config)
@@ -39,16 +38,16 @@ def createModel(config):
         model.add()
         return model
 
-def runModel(model, X, y):
-    model.fit(X, y)
+def runModel(model, X_train, y_train, X_valid, y_valid):
+    model.fit(X_train, y_train, X_valid, y_valid)
     # model.plot()
 
 def evalModel(model, X, y):
     metrics = model.evaluate(X, y)
     return metrics
 
-def sweep_agent_manager(project_name: str, model: str, X_train: np.ndarray, X_test: np.ndarray, 
-                        y_train: np.ndarray, y_test: np.ndarray, labels = None):
+def sweep_agent_manager(project_name: str, model: str, X_train: np.ndarray, X_valid: np.ndarray, X_test: np.ndarray, 
+                        y_train: np.ndarray, y_valid: np.ndarray, y_test: np.ndarray, labels = None):
     ''' 
     This function is used to manage the sweep agent for hyperparameter tuning.
     
@@ -92,6 +91,6 @@ def sweep_agent_manager(project_name: str, model: str, X_train: np.ndarray, X_te
     wandb.run.name = run_name
 
     model = createModel(hyperparams)
-    runModel(model, X_train, y_train)
+    runModel(model, X_train, y_train, X_valid, y_valid)
     print(evalModel(model, X_test, y_test))
     wandb.finish()
