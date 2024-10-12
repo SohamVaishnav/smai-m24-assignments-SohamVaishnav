@@ -1,0 +1,18 @@
+{"time":"2024-10-13T00:48:39.0360363+05:30","level":"INFO","msg":"using version","core version":"0.18.3"}
+{"time":"2024-10-13T00:48:39.0365523+05:30","level":"INFO","msg":"created symlink","path":"C:\\Users\\Admin\\smai-m24-assignments-SohamVaishnav\\assignments\\3\\wandb\\run-20241013_004839-huurn94u\\logs\\debug-core.log"}
+{"time":"2024-10-13T00:48:39.0370752+05:30","level":"ERROR","msg":"dialing: google: could not find default credentials. See https://cloud.google.com/docs/authentication/external/set-up-adc for more information"}
+{"time":"2024-10-13T00:48:39.0556337+05:30","level":"INFO","msg":"created new stream","id":"huurn94u"}
+{"time":"2024-10-13T00:48:39.0566333+05:30","level":"INFO","msg":"stream: started","id":"huurn94u"}
+{"time":"2024-10-13T00:48:39.0568939+05:30","level":"INFO","msg":"writer: Do: started","stream_id":{"value":"huurn94u"}}
+{"time":"2024-10-13T00:48:39.0573988+05:30","level":"INFO","msg":"sender: started","stream_id":{"value":"huurn94u"}}
+{"time":"2024-10-13T00:48:39.0573988+05:30","level":"INFO","msg":"handler: started","stream_id":{"value":"huurn94u"}}
+{"time":"2024-10-13T00:48:40.5523057+05:30","level":"INFO","msg":"wandb-core","!BADKEY":null}
+{"time":"2024-10-13T00:48:40.5533538+05:30","level":"INFO","msg":"Starting system monitor"}
+{"time":"2024-10-13T00:48:46.8324846+05:30","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2024-10-13T00:48:46.8324846+05:30","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2024-10-13T00:48:49.9222934+05:30","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2024-10-13T00:48:51.6307421+05:30","level":"INFO","msg":"stream: closing","id":"huurn94u"}
+{"time":"2024-10-13T00:48:51.6307421+05:30","level":"INFO","msg":"handler: closed","stream_id":{"value":"huurn94u"}}
+{"time":"2024-10-13T00:48:51.6307421+05:30","level":"INFO","msg":"writer: Close: closed","stream_id":{"value":"huurn94u"}}
+{"time":"2024-10-13T00:48:51.6307421+05:30","level":"INFO","msg":"sender: closed","stream_id":{"value":"huurn94u"}}
+{"time":"2024-10-13T00:48:51.6307421+05:30","level":"INFO","msg":"stream: closed","id":"huurn94u"}

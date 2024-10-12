@@ -1,0 +1,18 @@
+{"time":"2024-10-12T23:55:32.8881656+05:30","level":"INFO","msg":"using version","core version":"0.18.3"}
+{"time":"2024-10-12T23:55:32.8881656+05:30","level":"INFO","msg":"created symlink","path":"C:\\Users\\Admin\\smai-m24-assignments-SohamVaishnav\\assignments\\3\\wandb\\run-20241012_235532-z75by9ws\\logs\\debug-core.log"}
+{"time":"2024-10-12T23:55:32.8902864+05:30","level":"ERROR","msg":"dialing: google: could not find default credentials. See https://cloud.google.com/docs/authentication/external/set-up-adc for more information"}
+{"time":"2024-10-12T23:55:32.9049895+05:30","level":"INFO","msg":"created new stream","id":"z75by9ws"}
+{"time":"2024-10-12T23:55:32.9056002+05:30","level":"INFO","msg":"stream: started","id":"z75by9ws"}
+{"time":"2024-10-12T23:55:32.9056002+05:30","level":"INFO","msg":"writer: Do: started","stream_id":{"value":"z75by9ws"}}
+{"time":"2024-10-12T23:55:32.9056002+05:30","level":"INFO","msg":"handler: started","stream_id":{"value":"z75by9ws"}}
+{"time":"2024-10-12T23:55:32.9056002+05:30","level":"INFO","msg":"sender: started","stream_id":{"value":"z75by9ws"}}
+{"time":"2024-10-12T23:55:33.3051147+05:30","level":"INFO","msg":"wandb-core","!BADKEY":null}
+{"time":"2024-10-12T23:55:33.3061512+05:30","level":"INFO","msg":"Starting system monitor"}
+{"time":"2024-10-12T23:55:34.5772186+05:30","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2024-10-12T23:55:34.5772186+05:30","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2024-10-12T23:55:36.4528963+05:30","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2024-10-12T23:55:37.8503632+05:30","level":"INFO","msg":"stream: closing","id":"z75by9ws"}
+{"time":"2024-10-12T23:55:37.8503632+05:30","level":"INFO","msg":"handler: closed","stream_id":{"value":"z75by9ws"}}
+{"time":"2024-10-12T23:55:37.8503632+05:30","level":"INFO","msg":"writer: Close: closed","stream_id":{"value":"z75by9ws"}}
+{"time":"2024-10-12T23:55:37.8504811+05:30","level":"INFO","msg":"sender: closed","stream_id":{"value":"z75by9ws"}}
+{"time":"2024-10-12T23:55:37.8504811+05:30","level":"INFO","msg":"stream: closed","id":"z75by9ws"}
