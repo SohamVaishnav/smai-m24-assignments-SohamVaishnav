@@ -78,7 +78,7 @@ Training Loss vs Epochs
 ##### Task 5.2: Effect of Learning Rate
 
 Training Loss vs Epochs
-![Effect_Learning_Rate_mlp_single](figures/effect_lr_mlp_single.png)
+![Effect_Learning_Rate_mlp_single](figures/effect_lr_mlp_single_train.png)
 
 Validation Loss vs Epochs
 ![Effect_Learning_Rate_mlp_single](figures/effect_lr_mlp_single.png)
@@ -181,16 +181,52 @@ The model `MultiLayerPerceptron_Regression()` is implemented in `models/MLP/mlp_
 Rest all remains the same.
 
 #### Task 3: Hyperparameter Tuning using W&B
-GOING ON....
+
+![WandB_1_mlp_reg](figures/WandB_1_mlp_reg.png)
+
+![WandB_2_mlp_reg](figures/WandB_2_mlp_reg.png)
+
+The sweep results based on the above plots are:
+
+![Sweep_mlp_reg](figures/Sweep_mlp_reg.png)
+
+Based on the above results, the best set of hyperparameters are:
+
+|Learning Rate|Epochs|Batch Size|Optimizer|Loss Function|Hidden Layers|Activation Functions|
+|:-----------:|:----:|:--------:|:-------:|:------------:|:------------:|:-------------------:|
+|0.01|100|256|sgd|MSE|Three - [16, 8, 1]|[relu, relu, linear]|
+
+The runs can be found under the `data\internals\3` folder with the name `mlp_reg_HPT.csv` (it is a little large to be displayed here).
 
 #### Task 4: Evaluating Model
-GOING ON....
+Using the best set of hyperparameters, the model has been evaluated on the validation and test sets. The results are as follows:
+
+For validation set:
+
+|Loss|MSE|RMSE|R2 Score|
+|:---:|:---:|:---:|:------:|
+|0.29937 (MSE), 0.23648 (MAE)|0.29937|0.54715|0.74738|
+
+For test set:
+
+|Loss|MSE|RMSE|R2 Score|
+|:---:|:---:|:---:|:------:|
+|0.13441 (MSE), 0.26309 (MAE)|0.13441|0.36662|0.88217|
 
 #### Task 5: Mean Squared Error v/s Binary Cross Entropy
-I find that the Mean Squared Error is a better loss function than the Binary Cross Entropy for this dataset as the Binary Cross Entropy is not a convex function and may cause the model to get stuck in a local minima.\
-Also, the Mean Squared Error penalises the model more for the errors in prediction, thereby, making it more sensitive to the errors in prediction. This is evident from the plots of the loss functions.\
-Another reason is that the target variable is continuous and not categorical, therefore, the Binary Cross Entropy is not the best suited loss function and therefore, BCE generally tends to blow up (the log terms become too large and cause overflow).\
-It is therefore better to use loss functions such as MSE or MAE that are more suited for continuous target variables unlike BCE which is more suited for categorical target variables.
+
+For MSE: 
+![Effect_MSE_mlp_reg_train](figures/effect_MSE_mlp_reg_train.png)
+
+For BCE:
+![Effect_BCE_mlp_reg_train](figures/effect_BCE_mlp_reg_train.png)
+
+Observations:
+- The model with BCE loss function converges much faster than the model with MSE loss function. However, the loss for MSE is less than that for BCE.
+- The faster convergence of the model with BCE is intuitive as well given the nature of the target variable - binary.
+- The model with BCE loss function is more prone to overfitting than the model with MSE loss function. 
+
+However, it becomes important to note that the R2 Score is higher for MSE than for BCE, which explains that although the target variable is binary, its distribution does not follow a sigmoidal curve. Thus, BCE fails to do good.
 
 #### Task 6: Analysis 
 REMAINING....
