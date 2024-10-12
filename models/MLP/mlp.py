@@ -209,7 +209,7 @@ class MultiLayerPerceptron_SingleClass(object):
         self._learning_rate = hyperparams['learning_rate']
         self._epochs = hyperparams['epochs']
 
-    def fit(self, X, y, grad_verify=False):
+    def fit(self, X, y, X_valid, y_valid, grad_verify=False):
         '''
         Fits the model to the data.
 
@@ -222,6 +222,9 @@ class MultiLayerPerceptron_SingleClass(object):
         self._input_shape = X.shape[1]
         self._output_shape = y.shape[1]
         self._data_points = X.shape[0]
+
+        self._X_valid = X_valid
+        self._y_valid = y_valid
 
         if (grad_verify):
             self._grad_verify = True
@@ -296,21 +299,29 @@ class MultiLayerPerceptron_SingleClass(object):
                     self._weights, self._biases = optimizer.sgd(gradients, self._weights, self._biases)
                 
                 self._istraining = False
-                y_pred = self.predict(X_shuffled)
-                metrics = Measures(y_pred, y_shuffled, labels, True)
+                y_pred_train = self.predict(X_shuffled)
+                metrics = Measures(y_pred_train, y_shuffled, labels, True)
                 history['accuracy'].append(metrics.accuracy())
                 history['precision'].append(metrics.precision()[0])
                 history['recall'].append(metrics.recall()[0])
                 history['f1_score'].append(metrics.f1_score()[0])
-                history['loss'].append(self.loss(y_shuffled, y_pred))
+                history['loss'].append(self.loss(y_shuffled, y_pred_train))
                 self._metrics.append(metrics)
                 
                 if (self._wb):      
-                    wandb.log({'loss': self.loss(y_shuffled, y_pred)})
-                    wandb.log({'accuracy': metrics.accuracy()})
-                    wandb.log({'precision': metrics.precision()[0]})
-                    wandb.log({'recall': metrics.recall()[0]})
-                    wandb.log({'f1_score': metrics.f1_score()[0]})
+                    wandb.log({'train loss': self.loss(y_shuffled, y_pred_train)})
+                    wandb.log({'train accuracy': metrics.accuracy()})
+                    wandb.log({'train precision': metrics.precision()[0]})
+                    wandb.log({'train recall': metrics.recall()[0]})
+                    wandb.log({'train f1_score': metrics.f1_score()[0]})
+
+                    y_pred = self.predict(self._X_valid)
+                    metrics = Measures(y_pred, self._y_valid, labels, True)
+                    wandb.log({'val loss': self.loss(self._y_valid, y_pred)})
+                    wandb.log({'val accuracy': metrics.accuracy()})
+                    wandb.log({'val precision': metrics.precision()[0]})
+                    wandb.log({'val recall': metrics.recall()[0]})
+                    wandb.log({'val f1_score': metrics.f1_score()[0]})
                     wandb.log({'epoch': epoch})
 
         elif (self._optimizer == 'bgd'):
@@ -334,21 +345,29 @@ class MultiLayerPerceptron_SingleClass(object):
                 self._weights, self._biases = optimizer.bgd(grad_w, grad_b, self._weights, self._biases)
 
                 self._istraining = False
-                y_pred = self.predict(X)
-                metrics = Measures(y_pred, y, labels, True)
+                y_pred_train = self.predict(X)
+                metrics = Measures(y_pred_train, y, labels, True)
                 history['accuracy'].append(metrics.accuracy())
                 history['precision'].append(metrics.precision()[0])
                 history['recall'].append(metrics.recall()[0])
                 history['f1_score'].append(metrics.f1_score()[0])
-                history['loss'].append(self.loss(y, y_pred))
+                history['loss'].append(self.loss(y, y_pred_train))
                 self._metrics.append(metrics)
 
                 if (self._wb):      
-                    wandb.log({'loss': self.loss(y, y_pred)})
-                    wandb.log({'accuracy': metrics.accuracy()})
-                    wandb.log({'precision': metrics.precision()[0]})
-                    wandb.log({'recall': metrics.recall()[0]})
-                    wandb.log({'f1_score': metrics.f1_score()[0]})
+                    wandb.log({'train loss': self.loss(y, y_pred_train)})
+                    wandb.log({'train accuracy': metrics.accuracy()})
+                    wandb.log({'train precision': metrics.precision()[0]})
+                    wandb.log({'train recall': metrics.recall()[0]})
+                    wandb.log({'train f1_score': metrics.f1_score()[0]})
+
+                    y_pred = self.predict(self._X_valid)
+                    metrics = Measures(y_pred, self._y_valid, labels, True)
+                    wandb.log({'val loss': self.loss(self._y_valid, y_pred)})
+                    wandb.log({'val accuracy': metrics.accuracy()})
+                    wandb.log({'val precision': metrics.precision()[0]})
+                    wandb.log({'val recall': metrics.recall()[0]})
+                    wandb.log({'val f1_score': metrics.f1_score()[0]})
                     wandb.log({'epoch': epoch})
         
         elif (self._optimizer == 'mini_bgd'):
@@ -374,21 +393,29 @@ class MultiLayerPerceptron_SingleClass(object):
                     history['batch'].append(j)
 
                 self._istraining = False
-                y_pred = self.predict(X)
-                metrics = Measures(y_pred, y, labels, True)
+                y_pred_train = self.predict(X)
+                metrics = Measures(y_pred_train, y, labels, True)
                 history['accuracy'].append(metrics.accuracy())
                 history['precision'].append(metrics.precision()[0])
                 history['recall'].append(metrics.recall()[0])
                 history['f1_score'].append(metrics.f1_score()[0])
-                history['loss'].append(self.loss(y, y_pred))
+                history['loss'].append(self.loss(y, y_pred_train))
                 self._metrics.append(metrics)
                 
                 if (self._wb):      
-                    wandb.log({'loss': self.loss(y, y_pred)})
-                    wandb.log({'accuracy': metrics.accuracy()})
-                    wandb.log({'precision': metrics.precision()[0]})
-                    wandb.log({'recall': metrics.recall()[0]})
-                    wandb.log({'f1_score': metrics.f1_score()[0]})
+                    wandb.log({'train loss': self.loss(y, y_pred_train)})
+                    wandb.log({'train accuracy': metrics.accuracy()})
+                    wandb.log({'train precision': metrics.precision()[0]})
+                    wandb.log({'train recall': metrics.recall()[0]})
+                    wandb.log({'train f1_score': metrics.f1_score()[0]})
+
+                    y_pred = self.predict(self._X_valid)
+                    metrics = Measures(y_pred, self._y_valid, labels, True)
+                    wandb.log({'val loss': self.loss(self._y_valid, y_pred)})
+                    wandb.log({'val accuracy': metrics.accuracy()})
+                    wandb.log({'val precision': metrics.precision()[0]})
+                    wandb.log({'val recall': metrics.recall()[0]})
+                    wandb.log({'val f1_score': metrics.f1_score()[0]})
                     wandb.log({'epoch': epoch})
         self._history = history
         return y_pred
