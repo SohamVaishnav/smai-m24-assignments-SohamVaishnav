@@ -78,6 +78,21 @@ class Layer(object):
         self._units = units
         self._z = None #the inputs to the layer
         self._activation = activation_func
+    
+    def linear(self, x, derivative=False, verification=False):
+        ''' 
+        Linear activation function.
+
+        Parameters:
+            x = numpy array containing the input data.
+            derivative = boolean denoting whether to return the derivative of the function.
+            verification = boolean denoting whether to test the gradient process or not
+        '''
+        if (not verification):
+            self._z = x
+        if derivative:
+            return np.ones_like(x)
+        return x
 
     def sigmoid(self, x, derivative=False, verification=False):
         ''' 
@@ -442,6 +457,8 @@ class MultiLayerPerceptron_SingleClass(object):
                     self._a.append(self._layers[i].tanh(x = z))
                 elif (self._activations[i] == 'softmax'):
                     self._a.append(self._layers[i].softmax(x = z))
+                elif (self._activations[i] == 'linear'):
+                    self._a.append(self._layers[i].linear(x = z))
 
         elif (weights_if_verify is not None and self._grad_verify):
             a = X
@@ -455,6 +472,8 @@ class MultiLayerPerceptron_SingleClass(object):
                     a = self._layers[i].tanh(x = z, verification=self._grad_verify).T
                 elif (self._activations[i] == 'softmax'):
                     a = self._layers[i].softmax(x = z, verification=self._grad_verify).T
+                elif (self._activations[i] == 'linear'):
+                    a = self._layers[i].linear(x = z, verification=self._grad_verify).T
             return a
 
         return self._a[-1]
@@ -480,6 +499,8 @@ class MultiLayerPerceptron_SingleClass(object):
                     error = self.loss(y, y_pred, derivative=True) * self._layers[i].tanh(x = z, derivative=True)
                 elif (self._activations[i] == 'softmax'):
                     error = self.loss(y, y_pred, derivative=True)
+                elif (self._activations[i] == 'linear'):
+                    error = self.loss(y, y_pred, derivative=True)
             else:
                 z = self._layers[i]._z
                 if (self._activations[i] == 'sigmoid'):
@@ -488,6 +509,8 @@ class MultiLayerPerceptron_SingleClass(object):
                     error = np.dot(error, self._weights[i+1].T) * self._layers[i].relu(x = z, derivative=True)
                 elif (self._activations[i] == 'tanh'):
                     error = np.dot(error, self._weights[i+1].T) * self._layers[i].tanh(x = z, derivative=True)
+                elif (self._activations[i] == 'linear'):
+                    error = np.dot(error, self._weights[i+1].T)
 
             grad_b = np.sum(error, axis=0, keepdims=True)/y.shape[0]
             gradients_b.append(grad_b)
