@@ -268,265 +268,44 @@ def DataPreprocess(data: pd.DataFrame, isMulti: bool = False, isReg: bool = Fals
 
 
 ################################### Multi label classification ###################################
-wandb.login()
+# wandb.login()
 
-config_sweep = {
-'method': 'bayes',
-'name': 'Hyperparameter tuning: Multi label classification', 
-'metric': {
-    'goal': 'maximize',
-    'name': 'soft accuracy'
-}, 
-'parameters': {
-    'epochs': {'values': [50, 100, 500, 1000]},
-    'layers': {'values': [[8], [16, 8], [64, 32, 16, 8], [20, 10, 8], [64, 32, 8], [64, 16, 8], [32, 16, 8]]},
-    'activations': {'values': ['relu', 'tanh', 'sigmoid']},
-    'lr': {'values': [0.0001, 0.001, 0.01, 0.1]},
-    'batch_size': {'values': [32, 64, 256]}, 
-    'optimizer': {'values': ['sgd', 'bgd', 'mini_bgd']},
-    'thresh': {'values': [0.3, 0.5, 0.7, 0.9]}
-}
-}
+# config_sweep = {
+# 'method': 'bayes',
+# 'name': 'Hyperparameter tuning: Multi label classification', 
+# 'metric': {
+#     'goal': 'maximize',
+#     'name': 'soft accuracy'
+# }, 
+# 'parameters': {
+#     'epochs': {'values': [50, 100, 500, 1000]},
+#     'layers': {'values': [[8], [16, 8], [64, 32, 16, 8], [20, 10, 8], [64, 32, 8], [64, 16, 8], [32, 16, 8]]},
+#     'activations': {'values': ['relu', 'tanh', 'sigmoid']},
+#     'lr': {'values': [0.0001, 0.001, 0.01, 0.1]},
+#     'batch_size': {'values': [32, 64, 256]}, 
+#     'optimizer': {'values': ['sgd', 'bgd', 'mini_bgd']},
+#     'thresh': {'values': [0.3, 0.5, 0.7, 0.9]}
+# }
+# }
 
-data = DataLoader(RawDataDIR, "advertisement.csv")
-print(data.shape)
-print(data.describe())
+# data = DataLoader(RawDataDIR, "advertisement.csv")
+# print(data.shape)
+# print(data.describe())
 
-encodings_gender = {'Male': 0, 'Female': 1}
-data['gender'] = data['gender'].replace(encodings_gender)
-data['married'] = data['married'].astype(int)
+# encodings_gender = {'Male': 0, 'Female': 1}
+# data['gender'] = data['gender'].replace(encodings_gender)
+# data['married'] = data['married'].astype(int)
 
-string_features = ['education', 'city', 'occupation', 'most bought item']
-data = Word2Num(data, string_features)
+# string_features = ['education', 'city', 'occupation', 'most bought item']
+# data = Word2Num(data, string_features)
 
-scaler = StandardScaler()
-temp = data['labels']
-data = data.drop(columns = ['labels'])
-data = pd.DataFrame(scaler.fit_transform(data), columns = data.columns)
-data = pd.concat([data, temp], axis = 1)
+# scaler = StandardScaler()
+# temp = data['labels']
+# data = data.drop(columns = ['labels'])
+# data = pd.DataFrame(scaler.fit_transform(data), columns = data.columns)
+# data = pd.concat([data, temp], axis = 1)
 
-X = data.drop(columns = ['labels']).to_numpy()
-y = data['labels']
-labels = []
-for i in y:
-    temp = i.split(' ')
-    for j in temp:
-        labels.append(j)
-labels = np.unique(labels)
-num_classes = len(labels)
-Y = np.zeros((y.shape[0], num_classes))
-for i in range(y.shape[0]):
-    temp = y.iloc[i].split(' ')
-    for j in temp:
-        Y[i, np.where(labels == j)] = 1
-
-indices = np.arange(0, X.shape[0])
-np.random.shuffle(indices)
-X = X[indices]
-Y = Y[indices]
-
-X_train = X[:int(0.8*X.shape[0])]
-Y_train = Y[:int(0.8*Y.shape[0])]
-X_test = X[int(0.8*X.shape[0]):]
-Y_test = Y[int(0.8*Y.shape[0]):]
-
-def run_sweep():
-    sweep_agent_manager('Multi_label_HPT_optimSA', 'mlp_multi', labels, X_train, X_test, Y_train, Y_test)
-
-sweep_id = wandb.sweep(sweep=config_sweep, project = 'Multi_label_HPT_optimSA')
-wandb.agent(sweep_id = sweep_id, 
-            function = run_sweep, 
-            count = 20)
-
-# layers = [64, 32, 16, 8]
-# activations = ['relu', 'relu', 'relu', 'sigmoid']
-# hyperparams = {'learning_rate': 0.0001, 'epochs': 100, 'batch_size': 256, 'optimizer': 'sgd', 'num_classes': 8}
-# model = createMLP(layers, activations, hyperparams, False)
-# runMLP(model, data, grad_verify = False, isMulti = True)
-# wandb.finish()
-
-# import numpy as np
-# import matplotlib.pyplot as plt
-
-# class MLP_MultiLabel:
-#     def __init__(self, input_size, output_size, hidden_layers, learning_rate=0.01, epochs=100, batch_size=32, activation='relu'):
-#         self.input_size = input_size
-#         self.output_size = output_size
-#         self.hidden_layers = hidden_layers
-#         self.learning_rate = learning_rate
-#         self.epochs = epochs
-#         self.batch_size = batch_size
-#         self.activation = activation
-#         self.weights = []
-#         self.biases = []
-#         self.history = {"loss": [], "accuracy": [], "f1_score": []}  # To track metrics
-#         self.initialize_weights()
-
-#     def initialize_weights(self):
-#         # Initialize weights and biases for each layer
-#         layer_sizes = [self.input_size] + self.hidden_layers + [self.output_size]
-#         for i in range(len(layer_sizes) - 1):
-#             self.weights.append(np.random.randn(layer_sizes[i], layer_sizes[i+1]) * 0.01)
-#             self.biases.append(np.zeros((1, layer_sizes[i+1])))
-
-#     def activation_function(self, x, derivative=False):
-#         if self.activation == 'relu':
-#             if derivative:
-#                 return np.where(x > 0, 1, 0)
-#             return np.maximum(0, x)
-#         elif self.activation == 'sigmoid':
-#             if derivative:
-#                 sig = 1 / (1 + np.exp(-x))
-#                 return sig * (1 - sig)
-#             return 1 / (1 + np.exp(-x))
-#         elif self.activation == 'tanh':
-#             if derivative:
-#                 return 1 - np.tanh(x)**2
-#             return np.tanh(x)
-
-#     def sigmoid(self, x, derivative=False):
-#         if derivative:
-#             sig = 1 / (1 + np.exp(-x))
-#             return sig * (1 - sig)
-#         return 1 / (1 + np.exp(-x))
-
-#     def forward_propagation(self, X):
-#         self.z_values = []
-#         self.a_values = [X]
-#         for i in range(len(self.weights) - 1):
-#             z = np.dot(self.a_values[-1], self.weights[i]) + self.biases[i]
-#             a = self.activation_function(z)
-#             self.z_values.append(z)
-#             self.a_values.append(a)
-#         # Output layer with sigmoid activation (for multilabel classification)
-#         z = np.dot(self.a_values[-1], self.weights[-1]) + self.biases[-1]
-#         a = self.sigmoid(z)
-#         self.z_values.append(z)
-#         self.a_values.append(a)
-#         return a
-
-#     def back_propagation(self, X, Y):
-#         m = X.shape[0]
-#         dz = self.a_values[-1] - Y
-#         dw = np.dot(self.a_values[-2].T, dz) / m
-#         db = np.sum(dz, axis=0, keepdims=True) / m
-
-#         gradients_w = [dw]
-#         gradients_b = [db]
-
-#         # Backpropagation for hidden layers
-#         for i in reversed(range(len(self.weights) - 1)):
-#             dz = np.dot(dz, self.weights[i+1].T) * self.activation_function(self.z_values[i], derivative=True)
-#             dw = np.dot(self.a_values[i].T, dz) / m
-#             db = np.sum(dz, axis=0, keepdims=True) / m
-#             gradients_w.insert(0, dw)
-#             gradients_b.insert(0, db)
-
-#         return gradients_w, gradients_b
-
-#     def update_weights(self, gradients_w, gradients_b):
-#         for i in range(len(self.weights)):
-#             self.weights[i] -= self.learning_rate * gradients_w[i]
-#             self.biases[i] -= self.learning_rate * gradients_b[i]
-
-#     def binary_cross_entropy_loss(self, Y, Y_pred):
-#         m = Y.shape[0]
-#         return -np.sum(Y * np.log(Y_pred + 1e-8) + (1 - Y) * np.log(1 - Y_pred + 1e-8)) / m
-
-#     def predict(self, X):
-#         Y_pred = self.forward_propagation(X)
-#         return (Y_pred > 0.9).astype(int)
-
-#     def hamming_loss(self, Y_true, Y_pred):
-#         return np.mean(np.not_equal(Y_true, Y_pred))
-
-#     def f1_score(self, Y_true, Y_pred):
-#         precision = np.sum((Y_pred == 1) & (Y_true == 1), axis=0) / np.sum(Y_pred == 1, axis=0)
-#         recall = np.sum((Y_pred == 1) & (Y_true == 1), axis=0) / np.sum(Y_true == 1, axis=0)
-#         f1 = 2 * (precision * recall) / (precision + recall + 1e-8)
-#         return np.nanmean(f1)  # Handle division by zero
-
-#     def accuracy(self, Y_true, Y_pred):
-#         return np.mean(Y_pred == Y_true)
-
-#     def fit(self, X_train, Y_train):
-#         for epoch in range(self.epochs):
-#             permutation = np.random.permutation(X_train.shape[0])
-#             X_train = X_train[permutation]
-#             Y_train = Y_train[permutation]
-
-#             for i in range(0, X_train.shape[0], self.batch_size):
-#                 X_batch = X_train[i:i+self.batch_size]
-#                 Y_batch = Y_train[i:i+self.batch_size]
-#                 Y_pred = self.forward_propagation(X_batch)
-#                 gradients_w, gradients_b = self.back_propagation(X_batch, Y_batch)
-#                 self.update_weights(gradients_w, gradients_b)
-
-#             # Evaluate metrics after each epoch
-#             Y_pred_train = self.forward_propagation(X_train)
-#             loss = self.binary_cross_entropy_loss(Y_train, Y_pred_train)
-#             accuracy = self.accuracy(Y_train, (Y_pred_train > 0.7).astype(int))
-#             f1 = self.f1_score(Y_train, (Y_pred_train > 0.7).astype(int))
-            
-#             # Store metrics
-#             self.history['loss'].append(loss)
-#             self.history['accuracy'].append(accuracy)
-#             self.history['f1_score'].append(f1)
-
-#             if (epoch + 1) % 10 == 0:
-#                 print(f"Epoch {epoch+1}/{self.epochs}, Loss: {loss:.4f}, Accuracy: {accuracy:.4f}, F1 Score: {f1:.4f}")
-
-#     def evaluate(self, X_test, Y_test):
-#         Y_pred = self.predict(X_test)
-#         accuracy = self.accuracy(Y_test, Y_pred)
-#         hamming = self.hamming_loss(Y_test, Y_pred)
-#         f1 = self.f1_score(Y_test, Y_pred)
-#         print(f"Accuracy: {accuracy * 100:.2f}%")
-#         print(f"Hamming Loss: {hamming:.4f}")
-#         print(f"F1 Score: {f1:.4f}")
-
-#     def plot_metrics(self):
-#         epochs = range(1, self.epochs + 1)
-
-#         plt.figure(figsize=(14, 6))
-
-#         # Plot Loss
-#         plt.subplot(1, 3, 1)
-#         plt.plot(epochs, self.history['loss'], label='Loss')
-#         plt.title('Loss over Epochs')
-#         plt.xlabel('Epochs')
-#         plt.ylabel('Loss')
-#         plt.legend()
-
-#         # Plot Accuracy
-#         plt.subplot(1, 3, 2)
-#         plt.plot(epochs, self.history['accuracy'], label='Accuracy', color='g')
-#         plt.title('Accuracy over Epochs')
-#         plt.xlabel('Epochs')
-#         plt.ylabel('Accuracy')
-#         plt.legend()
-
-#         # Plot F1 Score
-#         plt.subplot(1, 3, 3)
-#         plt.plot(epochs, self.history['f1_score'], label='F1 Score', color='r')
-#         plt.title('F1 Score over Epochs')
-#         plt.xlabel('Epochs')
-#         plt.ylabel('F1 Score')
-#         plt.legend()
-
-#         plt.tight_layout()
-#         plt.show()
-
-# # Usage Example
-# input_size = 10  # Example input size
-# output_size = 8  # Example number of labels (multilabel)
-# hidden_layers = [64, 32]  # Example hidden layer configuration
-
-# mlp_model = MLP_MultiLabel(input_size, output_size, hidden_layers, learning_rate=0.01, epochs=100, batch_size=32, activation='relu')
-
-
-
-# X = data.drop(columns = ['labels'])
+# X = data.drop(columns = ['labels']).to_numpy()
 # y = data['labels']
 # labels = []
 # for i in y:
@@ -541,15 +320,53 @@ wandb.agent(sweep_id = sweep_id,
 #     for j in temp:
 #         Y[i, np.where(labels == j)] = 1
 
-# # X_train and Y_train should be your training data
-# mlp_model.fit(X.to_numpy(), Y)
+# indices = np.arange(0, X.shape[0])
+# np.random.shuffle(indices)
+# X = X[indices]
+# Y = Y[indices]
 
-# # Evaluate on test data
-# mlp_model.evaluate(X.to_numpy(), Y)
+# X_train = X[:int(0.8*X.shape[0])]
+# Y_train = Y[:int(0.8*Y.shape[0])]
+# X_test = X[int(0.8*X.shape[0]):]
+# Y_test = Y[int(0.8*Y.shape[0]):]
 
-# mlp_model.plot_metrics()
+# def run_sweep():
+#     sweep_agent_manager('Multi_label_HPT_optimSA', 'mlp_multi', labels, X_train, X_test, Y_train, Y_test)
+
+# sweep_id = wandb.sweep(sweep=config_sweep, project = 'Multi_label_HPT_optimSA')
+# wandb.agent(sweep_id = sweep_id, 
+#             function = run_sweep, 
+#             count = 20)
+
+# layers = [64, 32, 16, 8]
+# activations = ['relu', 'relu', 'relu', 'sigmoid']
+# hyperparams = {'learning_rate': 0.0001, 'epochs': 100, 'batch_size': 256, 'optimizer': 'sgd', 'num_classes': 8}
+# model = createMLP(layers, activations, hyperparams, False)
+# runMLP(model, data, grad_verify = False, isMulti = True)
+# wandb.finish()
+
 
 ################################### Regression ###################################
+# wandb.login()
+
+# config_sweep = {
+# 'method': 'bayes',
+# 'name': 'Hyperparameter tuning: Multi label classification', 
+# 'metric': {
+#     'goal': 'minimize',
+#     'name': 'loss'
+# }, 
+# 'parameters': {
+#     'epochs': {'values': [50, 100, 500, 1000]},
+#     'layers': {'values': [[1], [16, 1], [64, 32, 16, 1], [16, 8, 1], [64, 32, 1], [64, 16, 1], [32, 16, 1]]},
+#     'activations': {'values': ['relu', 'tanh', 'sigmoid']},
+#     'lr': {'values': [0.0001, 0.001, 0.01, 0.1]},
+#     'batch_size': {'values': [32, 64, 256]}, 
+#     'optimizer': {'values': ['sgd', 'bgd', 'mini_bgd']}, 
+#     'loss': {'values': ['mse', 'mae']}
+# }
+# }
+
 # data = DataLoader(RawDataDIR, "HousingData.csv")
 # print(data.shape)
 # print(data.describe())
@@ -560,18 +377,28 @@ wandb.agent(sweep_id = sweep_id,
 # data = pd.DataFrame(scaler.fit_transform(data), columns = data.columns)
 # print(data.describe())
 
-# toy_data = np.array([[1, 2, 3, 4, 5], [2, 3, 4, 5, 6], [3, 4, 5, 6, 7], [4, 5, 6, 7, 8], [5, 6, 7, 8, 9]])
-# toy_data = pd.DataFrame(toy_data, columns = ['A', 'B', 'C', 'D', 'E'])
-# print(toy_data.describe())
-
-# toy_data = toy_data - np.mean(toy_data, axis = 0)
-# toy_data = toy_data / np.std(toy_data, axis = 0)
-# # print(toy_data)
-# X = toy_data.drop(columns = ['E']).to_numpy()
-# y = toy_data['E'].to_numpy().reshape(-1, 1)
 
 # X = data.drop(columns = ['MEDV']).to_numpy()
 # y = data['MEDV'].to_numpy().reshape(-1, 1)
+
+# indices = np.arange(0, X.shape[0])
+# np.random.shuffle(indices)
+# X = X[indices]
+# Y = y[indices]
+
+# X_train = X[:int(0.8*X.shape[0])]
+# Y_train = Y[:int(0.8*Y.shape[0])]
+# X_test = X[int(0.8*X.shape[0]):]
+# Y_test = Y[int(0.8*Y.shape[0]):]
+
+# def run_sweep():
+#     sweep_agent_manager(project_name='MLP_Regression_HPT_trial2', model = 'regression', X_train = X_train, X_test = X_test, y_train = Y_train, y_test = Y_test)
+
+# sweep_id = wandb.sweep(sweep=config_sweep, project = 'MLP_Regression_HPT_trial2')
+# wandb.agent(sweep_id = sweep_id, 
+#             function = run_sweep, 
+#             count = 20)
+
 # layers = [64, 32, 1]
 # activations = ['relu', 'relu', 'linear']
 # hyperparams = {'learning_rate': 0.01, 'epochs': 500, 'batch_size': 16, 'optimizer': 'sgd', 'loss': 'mse'}
