@@ -34,6 +34,7 @@ def createModel(config):
         model.add()
         return model
     elif type == 'mlp_multi':
+        print("mlp_multi")
         model = MultiLayerPerceptron_MultiClass(config)
         model.add()
         return model
@@ -46,8 +47,8 @@ def evalModel(model, X, y):
     metrics = model.evaluate(X, y)
     return metrics
 
-def sweep_agent_manager(project_name: str, model: str, labels: list, 
-                        X_train: np.ndarray, X_test: np.ndarray, y_train: np.ndarray, y_test: np.ndarray):
+def sweep_agent_manager(project_name: str, model: str, X_train: np.ndarray, X_test: np.ndarray, 
+                        y_train: np.ndarray, y_test: np.ndarray, labels = None):
     ''' 
     This function is used to manage the sweep agent for hyperparameter tuning.
     
@@ -66,7 +67,7 @@ def sweep_agent_manager(project_name: str, model: str, labels: list,
     hyperparams = {}
     if (model == 'mlp_single' or model == 'mlp_multi'):
         hyperparams = {'learning_rate': [], 'epochs': [], 'batch_size': [], 'optimizer': [], 'grad_verify': False, 
-                       'labels': [], 'layers': [], 'activations': [], 'type': model, 'wb': True}
+                       'labels': [], 'layers': [], 'activations': [], 'thresh': [], 'type': model, 'wb': True}
         hyperparams['learning_rate'] = config['lr']
         hyperparams['epochs'] = config['epochs']
         hyperparams['batch_size'] = config['batch_size']
@@ -74,6 +75,7 @@ def sweep_agent_manager(project_name: str, model: str, labels: list,
         hyperparams['labels'] = labels
         hyperparams['layers'] = config['layers']
         hyperparams['activations'] = config['activations']
+        hyperparams['thresh'] = config['thresh']
 
     elif (model == 'regression' or model == 'autoencoder'):
         hyperparams = {'learning_rate': [], 'epochs': [], 'batch_size': [], 'optimizer': [], 'grad_verify': False, 
@@ -91,5 +93,5 @@ def sweep_agent_manager(project_name: str, model: str, labels: list,
 
     model = createModel(hyperparams)
     runModel(model, X_train, y_train)
-    evalModel(model, X_test, y_test)
+    print(evalModel(model, X_test, y_test))
     wandb.finish()
