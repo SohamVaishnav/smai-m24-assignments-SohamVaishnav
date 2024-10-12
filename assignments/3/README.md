@@ -77,4 +77,43 @@ REMAINING....
 
 ### 3: Multi Perceptron Regression
 
+#### Task 1: Data Analysis and Preprocessing
+The dataset used here is `HousingData.csv` which contains the information of some houses and their prices based on various features. The prices are the target variable, stored under the column `MEDV` - median value of owner-occupied homes in $1000s. Following is the visualisation of the features of the dataset:
+
+![Housing Data Pair Plot](figures/PairPlot_HousingData.png)
+
+Observations:
+- The features `CRIM`, `ZN`, `INDUS`, `CHAS`, `NOX`, `RM`, `PTRATIO`, `LSTAT` have a roughly exponential relationship with the target variable.
+- The feature `RAD` has a roughly linear relationship with the target variable.
+- The dataset is not imbalanced.
+- Some features have outliers which may affect the performance of the model.
+- Features like `CHAS` and `RAD` are categorical in nature, and `PTRATIO` is discrete. Classifying prices based on these features may not be the best idea.
+- Some features have a very high correlation with each other - `RAD` and `TAX`, `ZN` and `INDUS`, `LSTAT` and `RM`.
+- Features like `RM` and `LSTAT` have a high co-relation with the target variable.
+
+#### Task 2: Model Building from Scratch
+The model `MultiLayerPerceptron_Regression()` is implemented in `models/MLP/mlp_reg.py` and is similar to the `MultiLayerPerceptron_SingleClass()` class but with the following differences:
+- The number of units in the last layer is 1.
+- The activation function used in the last layer is linear.
+- The loss function used is mean squared error. 
+- Other loss functions like Binary Cross Entropy, Maximum Absolute Error, etc., have also been implemented.
+- The metrics used are MSE, RMSE, R2 Score as opposed to accuracy, precision, recall and f1 score in classification.
+
+Rest all remains the same.
+
+#### Task 3: Hyperparameter Tuning using W&B
+GOING ON....
+
+#### Task 4: Evaluating Model
+GOING ON....
+
+#### Task 5: Mean Squared Error v/s Binary Cross Entropy
+I find that the Mean Squared Error is a better loss function than the Binary Cross Entropy for this dataset as the Binary Cross Entropy is not a convex function and may cause the model to get stuck in a local minima.\
+Also, the Mean Squared Error penalises the model more for the errors in prediction, thereby, making it more sensitive to the errors in prediction. This is evident from the plots of the loss functions.\
+Another reason is that the target variable is continuous and not categorical, therefore, the Binary Cross Entropy is not the best suited loss function and therefore, BCE generally tends to blow up (the log terms become too large and cause overflow).\
+It is therefore better to use loss functions such as MSE or MAE that are more suited for continuous target variables unlike BCE which is more suited for categorical target variables.
+
+#### Task 6: Analysis 
+REMAINING....
+
 ### 4: Autoencoder
