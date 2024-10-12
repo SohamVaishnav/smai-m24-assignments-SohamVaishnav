@@ -205,7 +205,7 @@ class MultiLayerPerceptron_MultiClass(object):
         self._epochs = hyperparams['epochs']
         self._num_classes = hyperparams['num_classes']
 
-    def fit(self, X, y):
+    def fit(self, X, y, X_valid, y_valid):
         '''
         Fits the model to the data.
 
@@ -219,6 +219,9 @@ class MultiLayerPerceptron_MultiClass(object):
         self._input_shape = X.shape[1]
         self._output_shape = y.shape[1]
         self._data_points = X.shape[0]
+
+        self._X_valid = X_valid
+        self._y_valid = y_valid
 
         for i in range(len(self._layers)):
             if i == 0:
@@ -382,12 +385,18 @@ class MultiLayerPerceptron_MultiClass(object):
                     self._weights, self._biases = optimizer.sgd(gradients, self._weights, self._biases)
 
                 self._istraining = False
-                y_pred = self.predict(X_shuffled, return_probs=True)
-                history['loss'].append(self.loss(y_shuffled, y_pred))
+                y_pred_train = self.predict(X_shuffled, return_probs=True)
+                history['loss'].append(self.loss(y_shuffled, y_pred_train))
                 if (self._wb):
-                    wandb.log({'CE loss': self.loss(y_shuffled, y_pred)})
+                    wandb.log({'train CE loss': self.loss(y_shuffled, y_pred_train)})
+
+                    y_pred = self.predict(self._X_valid, return_probs=True)
+                    wandb.log({'val CE loss': self.loss(self._y_valid, y_pred)})
+                
+                y_pred_train = np.where(y_pred_train >= self._thresh, 1, 0)
                 y_pred = np.where(y_pred >= self._thresh, 1, 0)
-                metrics = Measures(y_pred, y_shuffled, labels, True, self._isMulti)
+
+                metrics = Measures(y_pred_train, y_shuffled, labels, True, self._isMulti)
                 history['soft accuracy'].append(metrics.accuracy()[0])
                 history['hard accuracy'].append(metrics.accuracy()[1])
                 history['precision'].append(metrics.precision()[0])
@@ -396,12 +405,20 @@ class MultiLayerPerceptron_MultiClass(object):
                 self._metrics.append(metrics)
                 
                 if (self._wb):
-                    wandb.log({'HammingLoss': self.HammingLoss(y_shuffled, y_pred)})
-                    wandb.log({'soft accuracy': metrics.accuracy()[0]})
-                    wandb.log({'hard accuracy': metrics.accuracy()[1]})
-                    wandb.log({'precision': metrics.precision()[0]})
-                    wandb.log({'recall': metrics.recall()[0]})
-                    wandb.log({'f1_score': metrics.f1_score()[0]})
+                    wandb.log({'train HammingLoss': self.HammingLoss(y_shuffled, y_pred_train)})
+                    wandb.log({'train soft accuracy': metrics.accuracy()[0]})
+                    wandb.log({'train hard accuracy': metrics.accuracy()[1]})
+                    wandb.log({'train precision': metrics.precision()[0]})
+                    wandb.log({'train recall': metrics.recall()[0]})
+                    wandb.log({'train f1_score': metrics.f1_score()[0]})
+
+                    wandb.log({'val HammingLoss': self.HammingLoss(self._y_valid, y_pred)})
+                    metrics = Measures(y_pred, self._y_valid, labels, True, self._isMulti)
+                    wandb.log({'val soft accuracy': metrics.accuracy()[0]})
+                    wandb.log({'val hard accuracy': metrics.accuracy()[1]})
+                    wandb.log({'val precision': metrics.precision()[0]})
+                    wandb.log({'val recall': metrics.recall()[0]})
+                    wandb.log({'val f1_score': metrics.f1_score()[0]})
                     wandb.log({'epoch': epoch})
 
         elif (self._optimizer == 'bgd'):
@@ -423,12 +440,18 @@ class MultiLayerPerceptron_MultiClass(object):
                 self._weights, self._biases = optimizer.bgd(grad_w, grad_b, self._weights, self._biases)
 
                 self._istraining = False
-                y_pred = self.predict(X, return_probs=True)
-                history['loss'].append(self.loss(y, y_pred))
+                y_pred_train = self.predict(X, return_probs=True)
+                history['loss'].append(self.loss(y, y_pred_train))
                 if (self._wb):
-                    wandb.log({'CE loss': self.loss(y, y_pred)})
+                    wandb.log({'CE loss': self.loss(y, y_pred_train)})
+
+                    y_pred = self.predict(self._X_valid, return_probs=True)
+                    wandb.log({'val CE loss': self.loss(self._y_valid, y_pred)})
+                
+                y_pred_train = np.where(y_pred_train >= self._thresh, 1, 0)
                 y_pred = np.where(y_pred >= self._thresh, 1, 0)
-                metrics = Measures(y_pred, y, labels, True, self._isMulti)
+
+                metrics = Measures(y_pred_train, y, labels, True, self._isMulti)
                 history['soft accuracy'].append(metrics.accuracy()[0])
                 history['hard accuracy'].append(metrics.accuracy()[1])
                 history['precision'].append(metrics.precision()[0])
@@ -437,12 +460,20 @@ class MultiLayerPerceptron_MultiClass(object):
                 self._metrics.append(metrics)
 
                 if (self._wb):      
-                    wandb.log({'HammingLoss': self.HammingLoss(y, y_pred)})
-                    wandb.log({'soft accuracy': metrics.accuracy()[0]})
-                    wandb.log({'hard accuracy': metrics.accuracy()[1]})
-                    wandb.log({'precision': metrics.precision()[0]})
-                    wandb.log({'recall': metrics.recall()[0]})
-                    wandb.log({'f1_score': metrics.f1_score()[0]})
+                    wandb.log({'train HammingLoss': self.HammingLoss(y, y_pred_train)})
+                    wandb.log({'train soft accuracy': metrics.accuracy()[0]})
+                    wandb.log({'train hard accuracy': metrics.accuracy()[1]})
+                    wandb.log({'train precision': metrics.precision()[0]})
+                    wandb.log({'train recall': metrics.recall()[0]})
+                    wandb.log({'train f1_score': metrics.f1_score()[0]})
+
+                    wandb.log({'val HammingLoss': self.HammingLoss(self._y_valid, y_pred)})
+                    metrics = Measures(y_pred, self._y_valid, labels, True, self._isMulti)
+                    wandb.log({'val soft accuracy': metrics.accuracy()[0]})
+                    wandb.log({'val hard accuracy': metrics.accuracy()[1]})
+                    wandb.log({'val precision': metrics.precision()[0]})
+                    wandb.log({'val recall': metrics.recall()[0]})
+                    wandb.log({'val f1_score': metrics.f1_score()[0]})
                     wandb.log({'epoch': epoch})
         
         elif (self._optimizer == 'mini_bgd'):
@@ -467,12 +498,18 @@ class MultiLayerPerceptron_MultiClass(object):
                     j += 1
                 
                 self._istraining = False
-                y_pred = self.predict(X, return_probs=True)
-                history['loss'].append(self.loss(y, y_pred))
+                y_pred_train = self.predict(X, return_probs=True)
+                history['loss'].append(self.loss(y, y_pred_train))
                 if (self._wb):
-                    wandb.log({'CE loss': self.loss(y, y_pred)})
+                    wandb.log({'CE loss': self.loss(y, y_pred_train)})
+
+                    y_pred = self.predict(self._X_valid, return_probs=True)
+                    wandb.log({'val CE loss': self.loss(self._y_valid, y_pred)})
+                
+                y_pred_train = np.where(y_pred_train >= self._thresh, 1, 0)
                 y_pred = np.where(y_pred >= self._thresh, 1, 0)
-                metrics = Measures(y_pred, y, labels, True, self._isMulti)
+
+                metrics = Measures(y_pred_train, y, labels, True, self._isMulti)
                 history['soft accuracy'].append(metrics.accuracy()[0])
                 history['hard accuracy'].append(metrics.accuracy()[1])
                 history['precision'].append(metrics.precision()[0])
@@ -481,12 +518,20 @@ class MultiLayerPerceptron_MultiClass(object):
                 self._metrics.append(metrics)
 
                 if (self._wb):      
-                    wandb.log({'HammingLoss': self.HammingLoss(y, y_pred)})
-                    wandb.log({'soft accuracy': metrics.accuracy()[0]})
-                    wandb.log({'hard accuracy': metrics.accuracy()[1]})
-                    wandb.log({'precision': metrics.precision()[0]})
-                    wandb.log({'recall': metrics.recall()[0]})
-                    wandb.log({'f1_score': metrics.f1_score()[0]})
+                    wandb.log({'train HammingLoss': self.HammingLoss(y, y_pred_train)})
+                    wandb.log({'train soft accuracy': metrics.accuracy()[0]})
+                    wandb.log({'train hard accuracy': metrics.accuracy()[1]})
+                    wandb.log({'train precision': metrics.precision()[0]})
+                    wandb.log({'train recall': metrics.recall()[0]})
+                    wandb.log({'train f1_score': metrics.f1_score()[0]})
+
+                    wandb.log({'val HammingLoss': self.HammingLoss(self._y_valid, y_pred)})
+                    metrics = Measures(y_pred, self._y_valid, labels, True, self._isMulti)
+                    wandb.log({'val soft accuracy': metrics.accuracy()[0]})
+                    wandb.log({'val hard accuracy': metrics.accuracy()[1]})
+                    wandb.log({'val precision': metrics.precision()[0]})
+                    wandb.log({'val recall': metrics.recall()[0]})
+                    wandb.log({'val f1_score': metrics.f1_score()[0]})
                     wandb.log({'epoch': epoch})
 
         self._history = history
