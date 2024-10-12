@@ -32,15 +32,69 @@ The model has been implemented in `models/MLP/mlp.py`, the features of which are
 - Inside the `MultiLayerPerceptron_SingleClass()` class, a numerical gradient method has also been implemented to check the analytical gradients. The validity of gradients calculated by backprop method is checked using the norm of the gradients calculated analytically and numerically.
 
 #### Task 3: Hyperparameter Tuning using W&B
-GOING ON....
+Following are the results of the hyperparameter tuning:
+
+![WandB_1_mlp_single](figures/WandB_1_mlp_single.png)
+
+![WandB_2_mlp_single](figures/WandB_2_mlp_single.png)
+
+The sweep results based on the above plots are:
+
+![Sweep_mlp_single](figures/Sweep_mlp_single.png)
+
+Based on the above results, the best set of hyperparameters are:
+
+|Learning Rate|Epochs|Batch Size|Optimizer|Hidden Layers|Activation Functions|
+|:-----------:|:----:|:--------:|:-------:|:------------:|:-------------------:|
+|0.01|50|32|sgd|Three - [32, 16, 6]|[relu, relu, softmax]|
+
+A table containing the HPT results has been put under the `data\internals\3` folder (it is a little large to be displayed here).
 
 #### Task 4: Evaluation of best model
-GOING ON....
+Using the best set of hyperparameters, the model has been evaluated on the valid and test datas. The results are as follows:
+
+For validation set:
+
+|Loss|Accuracy|Precision|Recall|F1 Score|
+|:---:|:------:|:-------:|:----:|:------:|
+|0.80109|0.66667|0.30242|0.29478|0.29856|
+
+For test set:
+
+|Loss|Accuracy|Precision|Recall|F1 Score|
+|:---:|:------:|:-------:|:----:|:------:|
+|1.00648|0.56522|0.29352|0.27518|0.28406|
 
 #### Task 5: Analysing hyperparameter effects
+
 ##### Task 5.1: Effect of Non-linearity
+
+Validation Loss vs Epochs
+![Effect_Non_Linearity_mlp_single](figures/effect_non_linearity_mlp_single.png)
+
+Training Loss vs Epochs
+![Effect_Non_Linearity_Training_mlp_single](figures/effect_non_linearity_training_mlp_single.png)
+
 ##### Task 5.2: Effect of Learning Rate
+
+Training Loss vs Epochs
+![Effect_Learning_Rate_mlp_single](figures/effect_learning_rate_mlp_single.png)
+
+Validation Loss vs Epochs
+![Effect_Learning_Rate_mlp_single](figures/effect_lr_mlp_single.png)
+
 ##### Task 5.3: Effect of Batch Size
+
+Training Loss vs Epochs
+![Effect_Batch_Size_mlp_single_train](figures/effect_bs_mlp_single_train.png)
+
+Validation Loss vs Epochs
+![Effect_Batch_Size_mlp_single_valid](figures/effect_bs_mlp_single.png)
+
+Observations:
+- We see that the model is quite sensitive to the learning rate. A learning rate that is too high causes the model to diverge and also overfit. Whereas, a learning rate that is too low causes the model to converge too slowly.
+- The model is quite sensitive to the activation functions used - using relu as the activation function for the hidden layers and softmax in the last layer gives the best results. Sigmoid convergence is the slowest and tanh is faster than relu.
+- The model is also sensitive to the batch size - using a batch size of 1 is equivalent to using stochastic gradient descent and using a batch size equal to the training set size is equivalent to using batch gradient descent. Using a mini-batch gradient descent with an optimal batch size gives faster convergence than using stochastic gradient descent. However, on the downside, the change in loss is not much significant for each epoch. 
 
 #### Task 6: Multi-label Classification
 The dataset used here is `advertisement.csv` which contains the information of some 1000 individuals and the kinds of products they have purchased as well as the categories of the products that highlights the kind of advertisement they are most likely to click on.
