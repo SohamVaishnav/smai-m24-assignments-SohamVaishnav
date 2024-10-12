@@ -290,25 +290,25 @@ def DataPreprocess(data: pd.DataFrame, isMulti: bool = False, isReg: bool = Fals
 
 
 ################################### Multi label classification ###################################
-wandb.login()
+# wandb.login()
 
-config_sweep = {
-'method': 'bayes',
-'name': 'Hyperparameter tuning: Multi label classification', 
-'metric': {
-    'goal': 'maximize',
-    'name': 'soft accuracy'
-}, 
-'parameters': {
-    'epochs': {'values': [50, 100, 500, 1000]},
-    'layers': {'values': [[8], [16, 8], [64, 32, 16, 8], [20, 10, 8], [64, 32, 8], [64, 16, 8], [32, 16, 8]]},
-    'activations': {'values': ['relu', 'tanh', 'sigmoid']},
-    'lr': {'values': [0.0001, 0.001, 0.01, 0.1]},
-    'batch_size': {'values': [32, 64, 256]}, 
-    'optimizer': {'values': ['sgd', 'bgd', 'mini_bgd']},
-    'thresh': {'values': [0.3, 0.5, 0.7, 0.9]}
-}
-}
+# config_sweep = {
+# 'method': 'bayes',
+# 'name': 'Hyperparameter tuning: Multi label classification', 
+# 'metric': {
+#     'goal': 'maximize',
+#     'name': 'soft accuracy'
+# }, 
+# 'parameters': {
+#     'epochs': {'values': [50, 100, 500, 1000]},
+#     'layers': {'values': [[8], [16, 8], [64, 32, 16, 8], [20, 10, 8], [64, 32, 8], [64, 16, 8], [32, 16, 8]]},
+#     'activations': {'values': ['relu', 'tanh', 'sigmoid']},
+#     'lr': {'values': [0.0001, 0.001, 0.01, 0.1]},
+#     'batch_size': {'values': [32, 64, 256]}, 
+#     'optimizer': {'values': ['sgd', 'bgd', 'mini_bgd']},
+#     'thresh': {'values': [0.3, 0.5, 0.7, 0.9]}
+# }
+# }
 
 # config_sweep = {
 # 'method': 'bayes',
@@ -328,7 +328,7 @@ config_sweep = {
 # }
 # }
 
-data = DataLoader(RawDataDIR, "advertisement.csv")
+# data = DataLoader(RawDataDIR, "advertisement.csv")
 # print(data.shape)
 # print(data.describe())
 
@@ -361,53 +361,53 @@ data = DataLoader(RawDataDIR, "advertisement.csv")
 # fig = px.scatter(data, x = 'city', y = 'most bought item', color = 'occupation', title = 'Items bought with respect to city and occupation')
 # fig.show()
 
-encodings_gender = {'Male': 0, 'Female': 1}
-data['gender'] = data['gender'].replace(encodings_gender)
-data['married'] = data['married'].astype(int)
+# encodings_gender = {'Male': 0, 'Female': 1}
+# data['gender'] = data['gender'].replace(encodings_gender)
+# data['married'] = data['married'].astype(int)
 
-string_features = ['education', 'city', 'occupation', 'most bought item']
-data = Word2Num(data, string_features)
+# string_features = ['education', 'city', 'occupation', 'most bought item']
+# data = Word2Num(data, string_features)
 
-scaler = StandardScaler()
-temp = data['labels']
-data = data.drop(columns = ['labels'])
-data = pd.DataFrame(scaler.fit_transform(data), columns = data.columns)
-data = pd.concat([data, temp], axis = 1)
+# scaler = StandardScaler()
+# temp = data['labels']
+# data = data.drop(columns = ['labels'])
+# data = pd.DataFrame(scaler.fit_transform(data), columns = data.columns)
+# data = pd.concat([data, temp], axis = 1)
 
-X = data.drop(columns = ['labels']).to_numpy()
-y = data['labels']
-labels = []
-for i in y:
-    temp = i.split(' ')
-    for j in temp:
-        labels.append(j)
-labels = np.unique(labels)
-num_classes = len(labels)
-Y = np.zeros((y.shape[0], num_classes))
-for i in range(y.shape[0]):
-    temp = y.iloc[i].split(' ')
-    for j in temp:
-        Y[i, np.where(labels == j)] = 1
+# X = data.drop(columns = ['labels']).to_numpy()
+# y = data['labels']
+# labels = []
+# for i in y:
+#     temp = i.split(' ')
+#     for j in temp:
+#         labels.append(j)
+# labels = np.unique(labels)
+# num_classes = len(labels)
+# Y = np.zeros((y.shape[0], num_classes))
+# for i in range(y.shape[0]):
+#     temp = y.iloc[i].split(' ')
+#     for j in temp:
+#         Y[i, np.where(labels == j)] = 1
 
-indices = np.arange(0, X.shape[0])
-np.random.shuffle(indices)
-X = X[indices]
-Y = Y[indices]
+# indices = np.arange(0, X.shape[0])
+# np.random.shuffle(indices)
+# X = X[indices]
+# Y = Y[indices]
 
-X_train = X[:int(0.8*X.shape[0])]
-Y_train = Y[:int(0.8*Y.shape[0])]
-X_valid = X[int(0.8*X.shape[0]):int(0.9*X.shape[0])]
-Y_valid = Y[int(0.8*Y.shape[0]):int(0.9*Y.shape[0])]
-X_test = X[int(0.9*X.shape[0]):]
-Y_test = Y[int(0.9*Y.shape[0]):]
+# X_train = X[:int(0.8*X.shape[0])]
+# Y_train = Y[:int(0.8*Y.shape[0])]
+# X_valid = X[int(0.8*X.shape[0]):int(0.9*X.shape[0])]
+# Y_valid = Y[int(0.8*Y.shape[0]):int(0.9*Y.shape[0])]
+# X_test = X[int(0.9*X.shape[0]):]
+# Y_test = Y[int(0.9*Y.shape[0]):]
 
-def run_sweep():
-    sweep_agent_manager('Multi_label_HPT_optimSA_trial3', 'mlp_multi', X_train, X_valid, X_test, Y_train, Y_valid, Y_test, labels)
+# def run_sweep():
+#     sweep_agent_manager('Multi_label_HPT_optimSA_trial3', 'mlp_multi', X_train, X_valid, X_test, Y_train, Y_valid, Y_test, labels)
 
-sweep_id = wandb.sweep(sweep=config_sweep, project = 'Multi_label_HPT_optimSA_trial3')
-wandb.agent(sweep_id = sweep_id, 
-            function = run_sweep, 
-            count = 20)
+# sweep_id = wandb.sweep(sweep=config_sweep, project = 'Multi_label_HPT_optimSA_trial3')
+# wandb.agent(sweep_id = sweep_id, 
+#             function = run_sweep, 
+#             count = 20)
 
 # layers = [64, 32, 16, 8]
 # activations = ['relu', 'relu', 'relu', 'sigmoid']
@@ -418,14 +418,14 @@ wandb.agent(sweep_id = sweep_id,
 
 
 ################################### Regression ###################################
-# wandb.login()
+wandb.login()
 
 # config_sweep = {
 # 'method': 'bayes',
 # 'name': 'Hyperparameter tuning: Multi label classification', 
 # 'metric': {
 #     'goal': 'minimize',
-#     'name': 'loss'
+#     'name': 'val loss'
 # }, 
 # 'parameters': {
 #     'epochs': {'values': [50, 100, 500, 1000]},
@@ -434,46 +434,70 @@ wandb.agent(sweep_id = sweep_id,
 #     'lr': {'values': [0.0001, 0.001, 0.01, 0.1]},
 #     'batch_size': {'values': [32, 64, 256]}, 
 #     'optimizer': {'values': ['sgd', 'bgd', 'mini_bgd']}, 
-#     'loss': {'values': ['mse', 'mae']}
+#     'loss': {'values': ['cross_entropy']}
 # }
 # }
 
-# data = DataLoader(RawDataDIR, "HousingData.csv")
-# print(data.shape)
-# print(data.describe())
+config_sweep = {
+'method': 'bayes',
+'name': 'Hyperparameter tuning: Multi label classification', 
+'metric': {
+    'goal': 'minimize',
+    'name': 'val loss'
+}, 
+'parameters': {
+    'epochs': {'values': [50]},
+    'layers': {'values': [[16, 8, 1]]},
+    'activations': {'values': ['relu']},
+    'lr': {'values': [0.01]},
+    'batch_size': {'values': [256]}, 
+    'optimizer': {'values': ['sgd']}, 
+    'loss': {'values': ['mse']}
+}
+}
 
-# data = data.fillna(data.median())
+data = DataLoader(RawDataDIR, "diabetes.csv")
+print(data.shape)
+print(data.describe())
+
+print(data.isnull().sum())
+
+data = data.fillna(data.median())
 
 # fig = px.scatter_matrix(data, dimensions = ['CRIM', 'ZN', 'INDUS', 'CHAS', 'NOX', 'RM', 'AGE', 'DIS', 'RAD', 'TAX', 'PTRATIO', 'B', 'LSTAT', 'MEDV'], color = 'MEDV', labels = {'MEDV': 'Value in $1000s'})
 # fig.update_traces(diagonal_visible = True, showupperhalf = False)
 # fig.update_layout(height = 1700, width = 1700, title_text="Pair Plot of Housing Features by Median Value")
 # fig.show()
 
-# scaler = StandardScaler()
+scaler = StandardScaler()
 # data = pd.DataFrame(scaler.fit_transform(data), columns = data.columns)
 # print(data.describe())
 
 
-# X = data.drop(columns = ['MEDV']).to_numpy()
-# y = data['MEDV'].to_numpy().reshape(-1, 1)
+X = data.drop(columns = ['Outcome'])
+X = pd.DataFrame(scaler.fit_transform(X), columns = X.columns)
+X = X.to_numpy()
+y = data['Outcome'].to_numpy().reshape(-1, 1)
 
-# indices = np.arange(0, X.shape[0])
-# np.random.shuffle(indices)
-# X = X[indices]
-# Y = y[indices]
+indices = np.arange(0, X.shape[0])
+np.random.shuffle(indices)
+X = X[indices]
+Y = y[indices]
 
-# X_train = X[:int(0.8*X.shape[0])]
-# Y_train = Y[:int(0.8*Y.shape[0])]
-# X_test = X[int(0.8*X.shape[0]):]
-# Y_test = Y[int(0.8*Y.shape[0]):]
+X_train = X[:int(0.8*X.shape[0])]
+Y_train = Y[:int(0.8*Y.shape[0])]
+X_valid = X[int(0.8*X.shape[0]):int(0.9*X.shape[0])]
+Y_valid = Y[int(0.8*Y.shape[0]):int(0.9*Y.shape[0])]
+X_test = X[int(0.9*X.shape[0]):]
+Y_test = Y[int(0.9*Y.shape[0]):]
 
-# def run_sweep():
-#     sweep_agent_manager(project_name='MLP_Regression_HPT_trial2', model = 'regression', X_train = X_train, X_test = X_test, y_train = Y_train, y_test = Y_test)
+def run_sweep():
+    sweep_agent_manager(project_name='MLP_Regression_HPT_3.5', model = 'regression', X_train = X_train, X_valid = X_valid, X_test = X_test, y_train = Y_train, y_valid = Y_valid, y_test = Y_test)
 
-# sweep_id = wandb.sweep(sweep=config_sweep, project = 'MLP_Regression_HPT_trial2')
-# wandb.agent(sweep_id = sweep_id, 
-#             function = run_sweep, 
-#             count = 20)
+sweep_id = wandb.sweep(sweep=config_sweep, project = 'MLP_Regression_HPT_3.5')
+wandb.agent(sweep_id = sweep_id, 
+            function = run_sweep, 
+            count = 1)
 
 # layers = [64, 32, 1]
 # activations = ['relu', 'relu', 'linear']
