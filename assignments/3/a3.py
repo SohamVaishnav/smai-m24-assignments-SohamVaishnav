@@ -23,6 +23,7 @@ from models.MLP.mlp import *
 from models.MLP.mlp_multi import *
 from models.MLP.mlp_regression import *
 from models.MLP.auto_encoder import *
+from models.knn.knn import *
 from performance_measures.metricsMLP import *
 
 from models.MLP.utils import *
@@ -196,14 +197,14 @@ def DataPreprocess(data: pd.DataFrame, isMulti: bool = False, isReg: bool = Fals
 #     return None
 
 ################################### Single label classification ###################################
-# wandb.login()
+wandb.login()
 
 # config_sweep = {
 # 'method': 'bayes',
 # 'name': 'Hyperparameter tuning: Single label classification', 
 # 'metric': {
 #     'goal': 'maximize',
-#     'name': 'accuracy'
+#     'name': 'val accuracy'
 # }, 
 # 'parameters': {
 #     'epochs': {'values': [50, 100, 500, 1000]},
@@ -211,13 +212,32 @@ def DataPreprocess(data: pd.DataFrame, isMulti: bool = False, isReg: bool = Fals
 #     'activations': {'values': ['relu', 'tanh', 'sigmoid']},
 #     'lr': {'values': [0.001, 0.01, 0.1]},
 #     'batch_size': {'values': [32, 64, 128]}, 
-#     'optimizer': {'values': ['sgd', 'bgd', 'mini_bgd']}
+#     'optimizer': {'values': ['sgd', 'bgd', 'mini_bgd']}, 
+#     'thresh': {'values': [0.3, 0.5, 0.7, 0.9]}
 # }
 # }
 
-# data = DataLoader(RawDataDIR, "WineQT.csv")
-# print(data.shape)
-# print(data.describe())
+config_sweep = {
+'method': 'grid',
+'name': 'Hyperparameter tuning: Single label classification', 
+'metric': {
+    'goal': 'maximize',
+    'name': 'val accuracy'
+}, 
+'parameters': {
+    'epochs': {'values': [50]},
+    'layers': {'values': [[32, 16, 6]]},
+    'activations': {'values': ['relu']},
+    'lr': {'values': [0.01]},
+    'batch_size': {'values': [32, 64, 128, 256]}, 
+    'optimizer': {'values': ['mini_bgd']}, 
+    'thresh': {'values': [0.3]}
+}
+}
+
+data = DataLoader(RawDataDIR, "WineQT.csv")
+print(data.shape)
+print(data.describe())
 
 # temp = data.drop(columns = ['quality'])
 # labels = [temp.columns[i] for i in range(0, 12)]
@@ -226,34 +246,36 @@ def DataPreprocess(data: pd.DataFrame, isMulti: bool = False, isReg: bool = Fals
 # fig.update_layout(height = 1700, width = 1700, title_text="Pair Plot of Wine Features by Quality")
 # fig.show()
 
-# data = DataPreprocess(data, isMulti = False)
-# print(data.describe())
+data = DataPreprocess(data, isMulti = False)
+print(data.describe())
 
-# X = data.drop(columns = ['quality']).to_numpy()
-# y = data['quality']
-# num_classes = len(np.unique(y))
-# labels = np.unique(y)-3
-# Y = np.zeros((y.shape[0], num_classes))
-# for i in range(y.shape[0]):
-#     Y[i, y.iloc[i]-3] = 1
+X = data.drop(columns = ['quality']).to_numpy()
+y = data['quality']
+num_classes = len(np.unique(y))
+labels = np.unique(y)-3
+Y = np.zeros((y.shape[0], num_classes))
+for i in range(y.shape[0]):
+    Y[i, y.iloc[i]-3] = 1
 
-# indices = np.arange(0, X.shape[0])
-# np.random.shuffle(indices)
-# X = X[indices]
-# Y = Y[indices]
+indices = np.arange(0, X.shape[0])
+np.random.shuffle(indices)
+X = X[indices]
+Y = Y[indices]
 
-# X_train = X[:int(0.8*X.shape[0])]
-# Y_train = Y[:int(0.8*Y.shape[0])]
-# X_test = X[int(0.8*X.shape[0]):]
-# Y_test = Y[int(0.8*Y.shape[0]):]
+X_train = X[:int(0.8*X.shape[0])]
+Y_train = Y[:int(0.8*Y.shape[0])]
+X_valid = X[int(0.8*X.shape[0]):int(0.9*X.shape[0])]
+Y_valid = Y[int(0.8*Y.shape[0]):int(0.9*Y.shape[0])]
+X_test = X[int(0.9*X.shape[0]):]
+Y_test = Y[int(0.9*Y.shape[0]):]
 
-# def run_sweep():
-#     sweep_agent_manager('Single_label_HPT', 'mlp_single', labels, X_train, X_test, Y_train, Y_test)
+def run_sweep():
+    sweep_agent_manager('Single_label_HPT_2.5.3', 'mlp_single', X_train, X_valid, X_test, Y_train, Y_valid, Y_test, labels)
 
-# sweep_id = wandb.sweep(sweep=config_sweep, project = 'Single_label_HPT')
-# wandb.agent(sweep_id = sweep_id, 
-#             function = run_sweep, 
-#             count = 15)
+sweep_id = wandb.sweep(sweep=config_sweep, project = 'Single_label_HPT_2.5.3')
+wandb.agent(sweep_id = sweep_id, 
+            function = run_sweep, 
+            count = 4)
 
 # layers = [64, 32, 6]
 # activations = 'relu'
@@ -291,6 +313,35 @@ def DataPreprocess(data: pd.DataFrame, isMulti: bool = False, isReg: bool = Fals
 # data = DataLoader(RawDataDIR, "advertisement.csv")
 # print(data.shape)
 # print(data.describe())
+
+# fig = px.histogram(data, x = 'age', title = 'Age distribution of the people')
+# fig.show()
+
+# fig1 = go.Pie(values = data['married'].value_counts(), labels = ['True', 'False'], name = 'Marriage Status')
+# fig2 = go.Pie(values = data['gender'].value_counts(), labels = ['Male', 'Female'], name = 'Gender')
+# fig = sp.make_subplots(rows=1, cols=2, specs=[[{'type':'domain'}, {'type':'domain'}]])
+# fig.update_layout(title_text="Marriage and Gender Distributions")
+# fig.add_trace(fig1, row = 1, col = 1)
+# fig.add_trace(fig2, row = 1, col = 2)
+# fig.show()
+
+# fig = px.histogram(data, x = 'most bought item', title = 'Most bought item distribution')
+# fig.show()
+
+# fig = px.scatter(data, x = 'city', y = 'most bought item', color = 'most bought item', title = 'City distribution with respect to most bought item')
+# fig.show()
+
+# fig = px.scatter(data, x = 'city', y = 'gender', color = 'gender', title = 'City distribution with respect to Gender')
+# fig.show()
+
+# fig = px.scatter(data, x = 'most bought item', y = 'gender', color = 'most bought item', title = 'Items bought with respect to Gender')
+# fig.show()
+
+# fig = px.scatter(data, x = 'city', y = 'most bought item', color = 'education', title = 'Items bought with respect to city and education')
+# fig.show()
+
+# fig = px.scatter(data, x = 'city', y = 'most bought item', color = 'occupation', title = 'Items bought with respect to city and occupation')
+# fig.show()
 
 # encodings_gender = {'Male': 0, 'Female': 1}
 # data['gender'] = data['gender'].replace(encodings_gender)
@@ -373,6 +424,11 @@ def DataPreprocess(data: pd.DataFrame, isMulti: bool = False, isReg: bool = Fals
 
 # data = data.fillna(data.median())
 
+# fig = px.scatter_matrix(data, dimensions = ['CRIM', 'ZN', 'INDUS', 'CHAS', 'NOX', 'RM', 'AGE', 'DIS', 'RAD', 'TAX', 'PTRATIO', 'B', 'LSTAT', 'MEDV'], color = 'MEDV', labels = {'MEDV': 'Value in $1000s'})
+# fig.update_traces(diagonal_visible = True, showupperhalf = False)
+# fig.update_layout(height = 1700, width = 1700, title_text="Pair Plot of Housing Features by Median Value")
+# fig.show()
+
 # scaler = StandardScaler()
 # data = pd.DataFrame(scaler.fit_transform(data), columns = data.columns)
 # print(data.describe())
@@ -417,18 +473,57 @@ def DataPreprocess(data: pd.DataFrame, isMulti: bool = False, isReg: bool = Fals
 # model.plot()
 # # wandb.finish()
 
+
 ################################### Autoencoder ###################################
-# data = DataLoader(RawDataDIR, "HousingData.csv")
+# wandb.login()
+
+# config_sweep = {
+# 'method': 'bayes',
+# 'name': 'Hyperparameter tuning: Autoencoder', 
+# 'metric': {
+#     'goal': 'minimize',
+#     'name': 'loss'
+# }, 
+# 'parameters': {
+#     'epochs': {'values': [100, 500]},
+#     'layers': {'values': [[17, 8, 17, 18], [17, 11, 17, 18], [17, 4, 17, 18], [17, 11, 9, 11, 17, 18]]},
+#     'activations': {'values': ['relu', 'tanh', 'sigmoid']},
+#     'lr': {'values': [0.0001, 0.001, 0.01]},
+#     'batch_size': {'values': [64, 128, 256]}, 
+#     'optimizer': {'values': ['sgd', 'bgd', 'mini_bgd']}, 
+#     'loss': {'values': ['mse', 'mae']}
+# }
+# }
+
+# KNN_DIR = os.path.join(UserDIR, "./data/interim/1/spotify_KNN")
+# data = pd.read_csv(os.path.join(KNN_DIR, "spotify_word2num.csv"), index_col = 0)
 # print(data.shape)
 # print(data.describe())
 
-# data = data.fillna(data.median())
+# model = KNN()
+# isValid = True
+# train_set, valid_set, test_set = model.DataSplitter(0.8, isValid, 0.1, data, 'track_genre')
+# print("Training set: ", train_set.shape)
+# print("Testing set: ", test_set.shape)
+# print("Validation set: ", valid_set.shape)
 
-# scaler = StandardScaler()
-# data = pd.DataFrame(scaler.fit_transform(data), columns = data.columns)
+# y_train = train_set['track_genre'].to_numpy().reshape(-1, 1)
+# X_train = train_set.drop(columns = ['track_genre'], axis = 1).to_numpy()
 
-# X = data.drop(columns = ['MEDV']).to_numpy()
-# y = data['MEDV'].to_numpy().reshape(-1, 1)
+# y_test = test_set['track_genre'].to_numpy().reshape(-1, 1)  
+# X_test = test_set.drop(columns = ['track_genre'], axis = 1).to_numpy()
+
+# y_valid = valid_set['track_genre'].to_numpy().reshape(-1, 1)
+# X_valid = valid_set.drop(columns = ['track_genre'], axis = 1).to_numpy()
+
+# def run_sweep():
+#     sweep_agent_manager(project_name='AutoEncoder_HPT', model = 'autoencoder', X_train = X_train, X_test = X_valid, y_train = X_train, y_test = X_valid)
+
+# sweep_id = wandb.sweep(sweep=config_sweep, project = 'AutoEncoder_HPT')
+# wandb.agent(sweep_id = sweep_id, 
+#             function = run_sweep, 
+#             count = 5)
+
 # layers = [64, 32, 1]
 # activations = ['relu', 'relu', 'linear']
 # layers = [7, 5, 3, 5, 7, 14]
