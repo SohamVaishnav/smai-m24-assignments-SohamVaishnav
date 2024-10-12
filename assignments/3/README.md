@@ -119,10 +119,35 @@ For the model, I have used the `MultiLayerPerceptron_MultiClass()` class in `mod
 Rest everything is the same as in the single label classification case.
 
 ##### Hyperparameter Tuning
-GOING ON....
+
+![WandB_1_mlp_multi](figures/WandB_1_mlp_multi.png)
+
+![WandB_2_mlp_multi](figures/WandB_2_mlp_multi.png)
+
+![WandB_3_mlp_multi](figures/WandB_3_mlp_multi.png)
+
+The sweep results based on the above plots are:
+
+![Sweep_mlp_multi](figures/Sweep_mlp_multi.png)
+
+Based on the above results, the best set of hyperparameters are:
+
+|Learning Rate|Epochs|Batch Size|Threshold|Optimizer|Hidden Layers|Activation Functions|
+|:-----------:|:----:|:--------:|:-------:|:------------:|:-------------------:|
+|0.001|100|256|0.3|bgd|Four - [64, 32, 8]|[relu, relu, sigmoid]|
 
 ##### Evaluation of best model
-GOING ON....
+Based on the best set of hyperparameters, the model has been evaluated on the validation and test sets. The results are as follows:
+
+For validation set:
+|Loss|Soft Accuracy|Hard Accuracy|Precision|Recall|F1 Score|
+|:---:|:------:|:-------:|:----:|:----:|:------:|
+|0.74089|0.9777|0.0|0.33917|0.97581|0.50337|
+
+For test set:
+|Loss|Soft Accuracy|Hard Accuracy|Precision|Recall|F1 Score|
+|:---:|:------:|:-------:|:----:|:----:|:------:|
+|0.75995|0.97445|0.01|0.34305|0.975|0.50753|
 
 #### Task 7: Analysis 
 For each datapoint, the model predicts the probabilities of the datapoint belonging to each of the classes. The class with the highest probability is the predicted class (in case of single label classification). Whereas, in case of multi-label classification, the model predicts the probabilities of the datapoint belonging to each of the classes and the datapoint is predicted to belong to all the classes for which the probability is greater than some threshold (passed as a hyperparameter). Following analysis is found:
