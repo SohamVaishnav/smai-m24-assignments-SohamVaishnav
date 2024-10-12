@@ -256,9 +256,10 @@ class MultiLayerPerceptron_MultiClass(object):
             y = numpy array containing the output data.
         '''
         y_pred = self.predict(X, return_probs=True)
-        results = {'loss':[], 'soft accuracy':[], 'hard accuracy':[], 'precision':[], 'recall':[], 'f1_score':[]}
-        results['loss'].append(self.loss(y, y_pred))
+        results = {'CE loss':[], 'soft accuracy':[], 'hard accuracy':[], 'precision':[], 'recall':[], 'f1_score':[], 'HammingLoss':[]}
+        results['CE loss'].append(self.loss(y, y_pred))
         y_pred = np.where(y_pred >= self._thresh, 1, 0)
+        results['HammingLoss'].append(self.HammingLoss(y, y_pred))
         metrics = Measures(y_pred, y, self._labels, True, self._isMulti)
         results['soft accuracy'].append(metrics.accuracy()[0])
         results['hard accuracy'].append(metrics.accuracy()[1])
@@ -285,6 +286,9 @@ class MultiLayerPerceptron_MultiClass(object):
             return (y_pred - y_true)
         return -np.mean(y_true * np.log(y_pred + 1e-10) + (1 - y_true) * np.log(1 - y_pred + 1e-10))
     
+    def HammingLoss(self, y_true, y_pred):
+        return np.mean(y_true != y_pred)
+
     def backprop(self, y, y_pred):
         '''
         Backward propagation of the model.
@@ -380,6 +384,8 @@ class MultiLayerPerceptron_MultiClass(object):
                 self._istraining = False
                 y_pred = self.predict(X_shuffled, return_probs=True)
                 history['loss'].append(self.loss(y_shuffled, y_pred))
+                if (self._wb):
+                    wandb.log({'CE loss': self.loss(y_shuffled, y_pred)})
                 y_pred = np.where(y_pred >= self._thresh, 1, 0)
                 metrics = Measures(y_pred, y_shuffled, labels, True, self._isMulti)
                 history['soft accuracy'].append(metrics.accuracy()[0])
@@ -389,8 +395,8 @@ class MultiLayerPerceptron_MultiClass(object):
                 history['f1_score'].append(metrics.f1_score()[0])
                 self._metrics.append(metrics)
                 
-                if (self._wb):      
-                    wandb.log({'loss': self.loss(y_shuffled, y_pred)})
+                if (self._wb):
+                    wandb.log({'HammingLoss': self.HammingLoss(y_shuffled, y_pred)})
                     wandb.log({'soft accuracy': metrics.accuracy()[0]})
                     wandb.log({'hard accuracy': metrics.accuracy()[1]})
                     wandb.log({'precision': metrics.precision()[0]})
@@ -419,6 +425,8 @@ class MultiLayerPerceptron_MultiClass(object):
                 self._istraining = False
                 y_pred = self.predict(X, return_probs=True)
                 history['loss'].append(self.loss(y, y_pred))
+                if (self._wb):
+                    wandb.log({'CE loss': self.loss(y, y_pred)})
                 y_pred = np.where(y_pred >= self._thresh, 1, 0)
                 metrics = Measures(y_pred, y, labels, True, self._isMulti)
                 history['soft accuracy'].append(metrics.accuracy()[0])
@@ -429,7 +437,7 @@ class MultiLayerPerceptron_MultiClass(object):
                 self._metrics.append(metrics)
 
                 if (self._wb):      
-                    wandb.log({'loss': self.loss(y, y_pred)})
+                    wandb.log({'HammingLoss': self.HammingLoss(y, y_pred)})
                     wandb.log({'soft accuracy': metrics.accuracy()[0]})
                     wandb.log({'hard accuracy': metrics.accuracy()[1]})
                     wandb.log({'precision': metrics.precision()[0]})
@@ -461,6 +469,8 @@ class MultiLayerPerceptron_MultiClass(object):
                 self._istraining = False
                 y_pred = self.predict(X, return_probs=True)
                 history['loss'].append(self.loss(y, y_pred))
+                if (self._wb):
+                    wandb.log({'CE loss': self.loss(y, y_pred)})
                 y_pred = np.where(y_pred >= self._thresh, 1, 0)
                 metrics = Measures(y_pred, y, labels, True, self._isMulti)
                 history['soft accuracy'].append(metrics.accuracy()[0])
@@ -471,7 +481,7 @@ class MultiLayerPerceptron_MultiClass(object):
                 self._metrics.append(metrics)
 
                 if (self._wb):      
-                    wandb.log({'loss': self.loss(y, y_pred)})
+                    wandb.log({'HammingLoss': self.HammingLoss(y, y_pred)})
                     wandb.log({'soft accuracy': metrics.accuracy()[0]})
                     wandb.log({'hard accuracy': metrics.accuracy()[1]})
                     wandb.log({'precision': metrics.precision()[0]})
