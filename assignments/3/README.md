@@ -73,12 +73,12 @@ Validation Loss vs Epochs
 ![Effect_Non_Linearity_mlp_single](figures/effect_non_linearity_mlp_single.png)
 
 Training Loss vs Epochs
-![Effect_Non_Linearity_Training_mlp_single](figures/effect_non_linearity_training_mlp_single.png)
+![Effect_Non_Linearity_Training_mlp_single](figures/effect_non_linearity_mlp_single_train.png)
 
 ##### Task 5.2: Effect of Learning Rate
 
 Training Loss vs Epochs
-![Effect_Learning_Rate_mlp_single](figures/effect_learning_rate_mlp_single.png)
+![Effect_Learning_Rate_mlp_single](figures/effect_lr_mlp_single.png)
 
 Validation Loss vs Epochs
 ![Effect_Learning_Rate_mlp_single](figures/effect_lr_mlp_single.png)
