@@ -1,0 +1,1 @@
+{"_step":7999,"_timestamp":1.7286967171638916e+09,"_wandb":{"runtime":94},"soft accuracy":0.6922727272727273,"recall":0.6874401213142844,"_runtime":94.1434751,"f1_score":0.46706486476031445,"HammingLoss":0.53734375,"precision":0.3536832875054763,"CE loss":0.6533149808191656,"hard accuracy":0,"epoch":999}

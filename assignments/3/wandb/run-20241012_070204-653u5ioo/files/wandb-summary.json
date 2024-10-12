@@ -1,0 +1,1 @@
+{"CE loss":0.6430262897790691,"f1_score":0.5116279069767442,"_step":7999,"recall":1,"_wandb":{"runtime":151},"_runtime":151.5799584,"epoch":999,"precision":0.34375,"HammingLoss":0.65625,"_timestamp":1.7286968762384844e+09,"hard accuracy":0,"soft accuracy":1}

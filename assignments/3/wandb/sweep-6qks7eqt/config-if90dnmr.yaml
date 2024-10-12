@@ -1,0 +1,19 @@
+wandb_version: 1
+
+activations:
+  value: sigmoid
+batch_size:
+  value: 256
+epochs:
+  value: 1000
+layers:
+  value:
+  - 64
+  - 32
+  - 8
+lr:
+  value: 0.001
+optimizer:
+  value: sgd
+thresh:
+  value: 0.7

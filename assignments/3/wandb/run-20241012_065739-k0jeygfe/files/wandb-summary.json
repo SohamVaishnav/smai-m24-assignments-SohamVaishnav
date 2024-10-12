@@ -1,0 +1,1 @@
+{"_wandb":{"runtime":157},"CE loss":0.643211469226217,"_step":7999,"hard accuracy":0,"_runtime":157.4206851,"_timestamp":1.728696616725393e+09,"HammingLoss":0.65625,"soft accuracy":1,"epoch":999,"recall":1,"f1_score":0.5116279069767442,"precision":0.34375}
