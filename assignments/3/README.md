@@ -133,7 +133,7 @@ The sweep results based on the above plots are:
 Based on the above results, the best set of hyperparameters are:
 
 |Learning Rate|Epochs|Batch Size|Threshold|Optimizer|Hidden Layers|Activation Functions|
-|:-----------:|:----:|:--------:|:-------:|:------------:|:-------------------:|
+|:-----------:|:----:|:--------:|:-------:|:-------:|:------------:|:-------------------:|
 |0.001|100|256|0.3|bgd|Four - [64, 32, 8]|[relu, relu, sigmoid]|
 
 ##### Evaluation of best model
