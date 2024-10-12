@@ -1,0 +1,17 @@
+wandb_version: 1
+
+activations:
+  value: sigmoid
+batch_size:
+  value: 256
+epochs:
+  value: 1000
+layers:
+  value:
+  - 1
+loss:
+  value: cross_entropy
+lr:
+  value: 0.001
+optimizer:
+  value: mini_bgd
