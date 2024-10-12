@@ -1,0 +1,1 @@
+{"soft accuracy":0,"_timestamp":1.7286957951651669e+09,"HammingLoss":0.34375,"_step":3999,"epoch":499,"hard accuracy":0,"_wandb":{"runtime":51},"CE loss":0.6437868467283018,"_runtime":51.3055739,"precision":NaN,"recall":0,"f1_score":NaN}

@@ -1,0 +1,30 @@
+{"time":"2024-10-12T06:18:36.4820685+05:30","level":"INFO","msg":"using version","core version":"0.18.3"}
+{"time":"2024-10-12T06:18:36.4820685+05:30","level":"INFO","msg":"created symlink","path":"C:\\Users\\Admin\\smai-m24-assignments-SohamVaishnav\\assignments\\3\\wandb\\run-20241012_061836-x10cerqy\\logs\\debug-core.log"}
+{"time":"2024-10-12T06:18:36.4831383+05:30","level":"ERROR","msg":"dialing: google: could not find default credentials. See https://cloud.google.com/docs/authentication/external/set-up-adc for more information"}
+{"time":"2024-10-12T06:18:36.5036926+05:30","level":"INFO","msg":"created new stream","id":"x10cerqy"}
+{"time":"2024-10-12T06:18:36.5076878+05:30","level":"INFO","msg":"stream: started","id":"x10cerqy"}
+{"time":"2024-10-12T06:18:36.5076878+05:30","level":"INFO","msg":"handler: started","stream_id":{"value":"x10cerqy"}}
+{"time":"2024-10-12T06:18:36.5082102+05:30","level":"INFO","msg":"writer: Do: started","stream_id":{"value":"x10cerqy"}}
+{"time":"2024-10-12T06:18:36.5082102+05:30","level":"INFO","msg":"sender: started","stream_id":{"value":"x10cerqy"}}
+{"time":"2024-10-12T06:18:36.8714634+05:30","level":"INFO","msg":"wandb-core","!BADKEY":null}
+{"time":"2024-10-12T06:18:36.8738618+05:30","level":"INFO","msg":"Starting system monitor"}
+{"time":"2024-10-12T06:19:53.3793857+05:30","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2024-10-12T06:19:53.3793857+05:30","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2024-10-12T06:24:50.2168088+05:30","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": dial tcp: lookup api.wandb.ai: no such host"}
+{"time":"2024-10-12T06:24:50.2168088+05:30","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/soham-iiith/Multi_label_HPT_optimSA/x10cerqy/file_stream\": dial tcp: lookup api.wandb.ai: no such host"}
+{"time":"2024-10-12T06:27:49.982552+05:30","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": dial tcp: lookup api.wandb.ai: no such host"}
+{"time":"2024-10-12T06:27:49.982552+05:30","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/soham-iiith/Multi_label_HPT_optimSA/x10cerqy/file_stream\": dial tcp: lookup api.wandb.ai: no such host"}
+{"time":"2024-10-12T06:43:12.2232214+05:30","level":"WARN","msg":"sender: taking a long time","seconds":1398.275975,"work":"WorkRecord(*service_go_proto.Request_Defer); Control(local:true always_send:true)"}
+{"time":"2024-10-12T06:43:12.9457117+05:30","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": dial tcp: lookup api.wandb.ai: no such host"}
+{"time":"2024-10-12T06:43:12.9457117+05:30","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/soham-iiith/Multi_label_HPT_optimSA/x10cerqy/file_stream\": dial tcp: lookup api.wandb.ai: no such host"}
+{"time":"2024-10-12T06:43:21.2490634+05:30","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": dial tcp: lookup api.wandb.ai: no such host"}
+{"time":"2024-10-12T06:43:21.7917423+05:30","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/soham-iiith/Multi_label_HPT_optimSA/x10cerqy/file_stream\": dial tcp: lookup api.wandb.ai: no such host"}
+{"time":"2024-10-12T06:43:41.1041125+05:30","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/soham-iiith/Multi_label_HPT_optimSA/x10cerqy/file_stream\": dial tcp: lookup api.wandb.ai: no such host"}
+{"time":"2024-10-12T06:43:41.1975642+05:30","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": dial tcp: lookup api.wandb.ai: no such host"}
+{"time":"2024-10-12T06:44:17.8410009+05:30","level":"INFO","msg":"sender: succeeded after taking longer than expected","seconds":1463.8937545,"work":"WorkRecord(*service_go_proto.Request_Defer); Control(local:true always_send:true)"}
+{"time":"2024-10-12T06:44:17.8914949+05:30","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2024-10-12T06:44:19.8608803+05:30","level":"INFO","msg":"stream: closing","id":"x10cerqy"}
+{"time":"2024-10-12T06:44:19.8608803+05:30","level":"INFO","msg":"handler: closed","stream_id":{"value":"x10cerqy"}}
+{"time":"2024-10-12T06:44:19.8608803+05:30","level":"INFO","msg":"writer: Close: closed","stream_id":{"value":"x10cerqy"}}
+{"time":"2024-10-12T06:44:19.8608803+05:30","level":"INFO","msg":"sender: closed","stream_id":{"value":"x10cerqy"}}
+{"time":"2024-10-12T06:44:19.8608803+05:30","level":"INFO","msg":"stream: closed","id":"x10cerqy"}

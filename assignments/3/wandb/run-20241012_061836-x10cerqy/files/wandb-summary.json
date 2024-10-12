@@ -1,0 +1,1 @@
+{"f1_score":NaN,"_wandb":{"runtime":76},"precision":NaN,"recall":0.75,"_runtime":76.8974157,"HammingLoss":0.573125,"epoch":499,"_timestamp":1.7286941933771286e+09,"hard accuracy":0,"CE loss":0.6574406762857206,"_step":3999,"soft accuracy":0.7572727272727273}

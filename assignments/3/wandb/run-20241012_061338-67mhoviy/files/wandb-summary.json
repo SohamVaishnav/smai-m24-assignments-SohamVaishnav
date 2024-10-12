@@ -1,0 +1,1 @@
+{"epoch":999,"f1_score":0.5227278468395723,"precision":0.6579701502999491,"recall":0.4336030256717649,"CE loss":5.64936802341324,"hard accuracy":0.0725,"HammingLoss":0.28140625,"soft accuracy":0.4326530612244898,"_timestamp":1.7286939695152333e+09,"_step":7999,"_wandb":{"runtime":151},"_runtime":151.2260554}
