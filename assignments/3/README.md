@@ -143,6 +143,6 @@ From the above plots, it is evident that the best set of hyperparameters are:
 
 |Learning Rate|Epochs|Batch Size|Optimizer|Loss Function|Hidden Layers|Activation Functions|
 |:-----------:|:----:|:--------:|:-------:|:------------:|:------------:|:-------------------:|
-|0.001|100|256|sgd|MAE|3 - [17, 11, 17]|[relu, relu, relu]|
+|0.001|100|256|sgd|MAE|Three - [17, 11, 17]|[relu, relu, relu]|
 
 
