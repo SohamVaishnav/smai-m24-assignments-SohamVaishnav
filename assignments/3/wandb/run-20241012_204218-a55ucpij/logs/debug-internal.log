@@ -1,0 +1,18 @@
+{"time":"2024-10-12T20:42:18.8350119+05:30","level":"INFO","msg":"using version","core version":"0.18.3"}
+{"time":"2024-10-12T20:42:18.8355321+05:30","level":"INFO","msg":"created symlink","path":"C:\\Users\\Admin\\smai-m24-assignments-SohamVaishnav\\assignments\\3\\wandb\\run-20241012_204218-a55ucpij\\logs\\debug-core.log"}
+{"time":"2024-10-12T20:42:18.8365713+05:30","level":"ERROR","msg":"dialing: google: could not find default credentials. See https://cloud.google.com/docs/authentication/external/set-up-adc for more information"}
+{"time":"2024-10-12T20:42:18.8518615+05:30","level":"INFO","msg":"created new stream","id":"a55ucpij"}
+{"time":"2024-10-12T20:42:18.8523849+05:30","level":"INFO","msg":"stream: started","id":"a55ucpij"}
+{"time":"2024-10-12T20:42:18.8523849+05:30","level":"INFO","msg":"handler: started","stream_id":{"value":"a55ucpij"}}
+{"time":"2024-10-12T20:42:18.8523849+05:30","level":"INFO","msg":"sender: started","stream_id":{"value":"a55ucpij"}}
+{"time":"2024-10-12T20:42:18.8523849+05:30","level":"INFO","msg":"writer: Do: started","stream_id":{"value":"a55ucpij"}}
+{"time":"2024-10-12T20:42:19.2499663+05:30","level":"INFO","msg":"wandb-core","!BADKEY":null}
+{"time":"2024-10-12T20:42:19.2515865+05:30","level":"INFO","msg":"Starting system monitor"}
+{"time":"2024-10-12T20:42:21.8257516+05:30","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2024-10-12T20:42:21.8257516+05:30","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2024-10-12T20:42:23.1420458+05:30","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2024-10-12T20:42:24.5689394+05:30","level":"INFO","msg":"stream: closing","id":"a55ucpij"}
+{"time":"2024-10-12T20:42:24.5689394+05:30","level":"INFO","msg":"handler: closed","stream_id":{"value":"a55ucpij"}}
+{"time":"2024-10-12T20:42:24.5689394+05:30","level":"INFO","msg":"writer: Close: closed","stream_id":{"value":"a55ucpij"}}
+{"time":"2024-10-12T20:42:24.5689394+05:30","level":"INFO","msg":"sender: closed","stream_id":{"value":"a55ucpij"}}
+{"time":"2024-10-12T20:42:24.5694682+05:30","level":"INFO","msg":"stream: closed","id":"a55ucpij"}
