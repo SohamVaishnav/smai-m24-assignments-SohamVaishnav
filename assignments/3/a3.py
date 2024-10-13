@@ -318,13 +318,13 @@ def DataPreprocess(data: pd.DataFrame, isMulti: bool = False, isReg: bool = Fals
 #     'name': 'soft accuracy'
 # }, 
 # 'parameters': {
-#     'epochs': {'values': [100]},
-#     'layers': {'values': [[64, 32, 16, 8]]},
+#     'epochs': {'values': [1000]},
+#     'layers': {'values': [[20, 10, 8]]},
 #     'activations': {'values': ['tanh']},
-#     'lr': {'values': [0.01]},
-#     'batch_size': {'values': [32, 64, 256]}, 
+#     'lr': {'values': [0.001]},
+#     'batch_size': {'values': [64]}, 
 #     'optimizer': {'values': ['mini_bgd']},
-#     'thresh': {'values': [0.3]}
+#     'thresh': {'values': [0.7]}
 # }
 # }
 
@@ -402,12 +402,12 @@ def DataPreprocess(data: pd.DataFrame, isMulti: bool = False, isReg: bool = Fals
 # Y_test = Y[int(0.9*Y.shape[0]):]
 
 # def run_sweep():
-#     sweep_agent_manager('Multi_label_HPT_optimSA_trial3', 'mlp_multi', X_train, X_valid, X_test, Y_train, Y_valid, Y_test, labels)
+#     sweep_agent_manager('Multi_label_HPT_optimSA_trial4', 'mlp_multi', X_train, X_valid, X_test, Y_train, Y_valid, Y_test, labels)
 
-# sweep_id = wandb.sweep(sweep=config_sweep, project = 'Multi_label_HPT_optimSA_trial3')
+# sweep_id = wandb.sweep(sweep=config_sweep, project = 'Multi_label_HPT_optimSA_trial4')
 # wandb.agent(sweep_id = sweep_id, 
 #             function = run_sweep, 
-#             count = 20)
+#             count = 1)
 
 # layers = [64, 32, 16, 8]
 # activations = ['relu', 'relu', 'relu', 'sigmoid']
@@ -446,13 +446,13 @@ def DataPreprocess(data: pd.DataFrame, isMulti: bool = False, isReg: bool = Fals
 #     'name': 'val loss'
 # }, 
 # 'parameters': {
-#     'epochs': {'values': [50]},
-#     'layers': {'values': [[16, 8, 1]]},
+#     'epochs': {'values': [100]},
+#     'layers': {'values': [[1]]},
 #     'activations': {'values': ['relu']},
-#     'lr': {'values': [0.01]},
+#     'lr': {'values': [0.001]},
 #     'batch_size': {'values': [256]}, 
 #     'optimizer': {'values': ['sgd']}, 
-#     'loss': {'values': ['mse']}
+#     'loss': {'values': ['cross_entropy']}
 # }
 # }
 
@@ -521,38 +521,43 @@ def DataPreprocess(data: pd.DataFrame, isMulti: bool = False, isReg: bool = Fals
 ################################### Autoencoder ###################################
 # wandb.login()
 
-config_sweep = {
-'method': 'bayes',
-'name': 'Hyperparameter tuning: Autoencoder', 
-'metric': {
-    'goal': 'minimize',
-    'name': 'loss'
-}, 
-'parameters': {
-    'epochs': {'values': [100]},
-    'layers': {'values': [[17, 11, 17, 18]]},
-    'activations': {'values': ['relu']},
-    'lr': {'values': [0.001]},
-    'batch_size': {'values': [256]}, 
-    'optimizer': {'values': ['sgd']}, 
-    'loss': {'values': ['mse']}
-}
-}
+# config_sweep = {
+# 'method': 'bayes',
+# 'name': 'Hyperparameter tuning: Autoencoder', 
+# 'metric': {
+#     'goal': 'minimize',
+#     'name': 'loss'
+# }, 
+# 'parameters': {
+#     'epochs': {'values': [50]},
+#     'layers': {'values': [[20, 30, 40, 113]]},
+#     'activations': {'values': ['relu']},
+#     'lr': {'values': [0.01]},
+#     'batch_size': {'values': [256]}, 
+#     'optimizer': {'values': ['sgd']}
+# }
+# }
 
-KNN_DIR = os.path.join(UserDIR, "./data/interim/1/spotify_KNN")
-data = pd.read_csv(os.path.join(KNN_DIR, "spotify_word2num.csv"), index_col = 0)
-print(data.shape)
-print(data.describe())
+# KNN_DIR = os.path.join(UserDIR, "./data/interim/1/spotify_KNN")
+# data = pd.read_csv(os.path.join(KNN_DIR, "spotify_word2num.csv"), index_col = 0)
+# print(data.shape)
+# print(data.describe())
 
-hyperparams = {'learning_rate': [], 'epochs': [], 'batch_size': [], 'optimizer': [], 'grad_verify': False, 
-                       'loss': [], 'layers': [], 'activations': [], 'type': 'autoencoder', 'wb': False}
-hyperparams['learning_rate'] = config_sweep['parameters']['lr']['values'][0]
-hyperparams['epochs'] = config_sweep['parameters']['epochs']['values'][0]
-hyperparams['batch_size'] = config_sweep['parameters']['batch_size']['values'][0]
-hyperparams['loss'] = config_sweep['parameters']['loss']['values'][0]
-hyperparams['layers'] = config_sweep['parameters']['layers']['values'][0]
-hyperparams['activations'] = config_sweep['parameters']['activations']['values'][0]
-hyperparams['optimizer'] = config_sweep['parameters']['optimizer']['values'][0]
+# labels = np.unique(data['track_genre'])
+# labels = {labels[i]:i for i in range(len(labels))}
+# labels = list(labels.values())
+
+# hyperparams = {'learning_rate': [], 'epochs': [], 'batch_size': [], 'optimizer': [], 'grad_verify': False, 
+#                        'labels': [], 'layers': [], 'activations': [], 'thresh': [], 'type': 'mlp_single', 'wb': False}
+# hyperparams['learning_rate'] = config_sweep['parameters']['lr']['values'][0]
+# hyperparams['epochs'] = config_sweep['parameters']['epochs']['values'][0]
+# hyperparams['batch_size'] = config_sweep['parameters']['batch_size']['values'][0]
+# # hyperparams['loss'] = config_sweep['parameters']['loss']['values'][0]
+# hyperparams['thresh'] = 0.3
+# hyperparams['labels'] = labels
+# hyperparams['layers'] = config_sweep['parameters']['layers']['values'][0]
+# hyperparams['activations'] = config_sweep['parameters']['activations']['values'][0]
+# hyperparams['optimizer'] = config_sweep['parameters']['optimizer']['values'][0]
 
 # temp = data.drop(columns = ['track_genre'])
 
@@ -566,29 +571,48 @@ hyperparams['optimizer'] = config_sweep['parameters']['optimizer']['values'][0]
 # data_latent = pd.concat([pd.DataFrame(temp_latent), data['track_genre']], axis = 1)
 # np.savetxt(os.path.join(PreProcessDIR, "data_latent.csv"), temp_latent, delimiter = ",")
 
-data_latent = pd.read_csv(os.path.join(PreProcessDIR, "data_latent.csv"))
-data_latent = data_latent.iloc[:, :4]
-data_latent['track_genre'] = data['track_genre'].values
+# data_latent = pd.read_csv(os.path.join(PreProcessDIR, "data_latent.csv"))
+# data_latent = data_latent.iloc[:, :4]
+# data_latent['track_genre'] = data['track_genre'].values
 
-model_1 = KNN()
-isValid = True
-train_set, valid_set, test_set = model_1.DataSplitter(0.8, isValid, 0.1, data_latent, 'track_genre')
-print("Training set: ", train_set.shape)
-print("Testing set: ", test_set.shape)
-print("Validation set: ", valid_set.shape)
 
-y_train = train_set['track_genre']
-X_train = train_set.drop(columns = ['track_genre'], axis = 1)
+# model_1 = KNN()
+# isValid = True
+# train_set, valid_set, test_set = model_1.DataSplitter(0.8, isValid, 0.1, data_latent, 'track_genre')
+# print("Training set: ", train_set.shape)
+# print("Testing set: ", test_set.shape)
+# print("Validation set: ", valid_set.shape)
 
-y_test = test_set['track_genre'] 
-X_test = test_set.drop(columns = ['track_genre'], axis = 1)
+# y_train = train_set['track_genre']
+# labels = np.unique(y_train)
+# labels = {labels[i]:i for i in range(len(labels))}
+# num_classes = len(labels)
+# Y_train = np.zeros((y_train.shape[0], num_classes))
+# for i in range(y_train.shape[0]):
+#     Y_train[i, labels[y_train.iloc[i]]] = 1
+# X_train = train_set.drop(columns = ['track_genre'], axis = 1).to_numpy()
 
-y_valid = valid_set['track_genre']
-X_valid = valid_set.drop(columns = ['track_genre'], axis = 1)
+# y_test = test_set['track_genre']
+# labels = np.unique(y_test)
+# labels = {labels[i]:i for i in range(len(labels))}
+# num_classes = len(labels)
+# Y_test = np.zeros((y_test.shape[0], num_classes))
+# for i in range(y_test.shape[0]):
+#     Y_test[i, labels[y_test.iloc[i]]] = 1
+# X_test = test_set.drop(columns = ['track_genre'], axis = 1).to_numpy()
 
-print(X_train.shape)
-print(X_valid.shape)
-print(X_test.shape)
+# y_valid = valid_set['track_genre']
+# labels = np.unique(y_valid)
+# labels = {labels[i]:i for i in range(len(labels))}
+# num_classes = len(labels)
+# Y_valid = np.zeros((y_valid.shape[0], num_classes))
+# for i in range(y_valid.shape[0]):
+#     Y_valid[i, labels[y_valid.iloc[i]]] = 1
+# X_valid = valid_set.drop(columns = ['track_genre'], axis = 1).to_numpy()
+
+# print(X_train.shape)
+# print(X_valid.shape)
+# print(X_test.shape)
 
 # model_2 = AutoEncoder(hyperparams)
 # model_2.fit(X_train, X_train, X_valid, X_valid)
@@ -632,15 +656,21 @@ print(X_test.shape)
 # X_valid_latent = pd.read_csv(os.path.join(PreProcessDIR, "X_valid_latent.csv"))
 # X_test_latent = pd.read_csv(os.path.join(PreProcessDIR, "X_test_latent.csv"))
 
-time_start = time.time()
-model_1.fit(X_train, y_train)
-model_1.SetDistMetric('l1')
-model_1.SetNumNeighbors(15)
-model_1.FindDistances(X_valid, 'optimised')
-y_pred, acc, prec, recall, f1 = model_1.predict(X_valid, y_valid)
-time_end = time.time()
-print("Accuracy: ", acc)
-print("Precision: ", prec)
-print("Recall: ", recall)
-print("F1 Score: ", f1)
-print("Time taken: ", time_end - time_start)
+# time_start = time.time()
+# model_1.fit(X_train, y_train)
+# model_1.SetDistMetric('l1')
+# model_1.SetNumNeighbors(15)
+# model_1.FindDistances(X_valid, 'optimised')
+# y_pred, acc, prec, recall, f1 = model_1.predict(X_valid, y_valid)
+# time_end = time.time()
+# print("Accuracy: ", acc)
+# print("Precision: ", prec)
+# print("Recall: ", recall)
+# print("F1 Score: ", f1)
+# print("Time taken: ", time_end - time_start)
+
+# model_2 = MultiLayerPerceptron_SingleClass(hyperparams)
+# model_2.add()
+# model_2.fit(X_train, Y_train, X_valid, Y_valid)
+# print(model_2.evaluate(X_test, Y_test))
+
