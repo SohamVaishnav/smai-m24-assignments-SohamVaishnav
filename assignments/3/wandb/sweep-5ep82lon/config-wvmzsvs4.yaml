@@ -1,0 +1,19 @@
+wandb_version: 1
+
+activations:
+  value: relu
+batch_size:
+  value: 256
+epochs:
+  value: 50
+layers:
+  value:
+  - 16
+  - 8
+  - 1
+loss:
+  value: mse
+lr:
+  value: 0.01
+optimizer:
+  value: sgd

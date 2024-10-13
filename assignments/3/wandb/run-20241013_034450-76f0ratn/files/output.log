@@ -1,0 +1,67 @@
+Epoch:  0
+Epoch:  1
+Epoch:  2
+Epoch:  3
+Epoch:  4
+Epoch:  5
+Epoch:  6
+Epoch:  7
+C:\Users\Admin\AppData\Local\Programs\Python\Python311\Lib\site-packages\numpy\core\_methods.py:181: RuntimeWarning: overflow encountered in reduce
+  ret = umr_sum(arr, axis, dtype, out, keepdims, where=where)
+C:\Users\Admin\AppData\Local\Programs\Python\Python311\Lib\site-packages\numpy\core\fromnumeric.py:86: RuntimeWarning: overflow encountered in reduce
+  return ufunc.reduce(obj, axis, dtype, out, **passkwargs)
+Epoch:  8
+C:\Users\Admin\smai-m24-assignments-SohamVaishnav\models\MLP\mlp_regression.py:630: RuntimeWarning: overflow encountered in square
+  return np.mean((self._y_true - self._y_pred) ** 2)
+C:\Users\Admin\smai-m24-assignments-SohamVaishnav\models\MLP\mlp_regression.py:636: RuntimeWarning: overflow encountered in square
+  return np.sqrt(np.mean((self._y_true - self._y_pred) ** 2))
+C:\Users\Admin\smai-m24-assignments-SohamVaishnav\models\MLP\mlp_regression.py:642: RuntimeWarning: overflow encountered in square
+  return 1 - np.sum((self._y_true - self._y_pred) ** 2) / np.sum((self._y_true - np.mean(self._y_true)) ** 2)
+Epoch:  9
+Epoch:  10
+Epoch:  11
+Epoch:  12
+Epoch:  13
+Epoch:  14
+Epoch:  15
+Epoch:  16
+Epoch:  17
+Epoch:  18
+Epoch:  19
+Epoch:  20
+Epoch:  21
+Epoch:  22
+Epoch:  23
+Epoch:  24
+Epoch:  25
+Epoch:  26
+Epoch:  27
+Epoch:  28
+Epoch:  29
+Epoch:  30
+Epoch:  31
+C:\Users\Admin\smai-m24-assignments-SohamVaishnav\models\MLP\mlp_regression.py:348: RuntimeWarning: overflow encountered in add
+  grad_w = [x+y for x, y in zip(grad_w, grads[0])]
+C:\Users\Admin\smai-m24-assignments-SohamVaishnav\models\MLP\mlp_regression.py:349: RuntimeWarning: overflow encountered in add
+  grad_b = [x+y for x, y in zip(grad_b, grads[1])]
+C:\Users\Admin\smai-m24-assignments-SohamVaishnav\models\MLP\mlp_regression.py:446: RuntimeWarning: invalid value encountered in add
+  z = np.dot(self._a[i], self._weights[i]) + self._biases[i]
+Epoch:  32
+Epoch:  33
+Epoch:  34
+Epoch:  35
+Epoch:  36
+Epoch:  37
+Epoch:  38
+Epoch:  39
+Epoch:  40
+Epoch:  41
+Epoch:  42
+Epoch:  43
+Epoch:  44
+Epoch:  45
+Epoch:  46
+Epoch:  47
+Epoch:  48
+Epoch:  49
+{'loss': nan, 'mse': nan, 'rmse': nan, 'r2': nan}

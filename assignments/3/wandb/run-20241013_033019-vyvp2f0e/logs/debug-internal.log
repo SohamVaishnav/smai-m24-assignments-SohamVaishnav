@@ -1,0 +1,18 @@
+{"time":"2024-10-13T03:30:19.3307033+05:30","level":"INFO","msg":"using version","core version":"0.18.3"}
+{"time":"2024-10-13T03:30:19.3307033+05:30","level":"INFO","msg":"created symlink","path":"C:\\Users\\Admin\\smai-m24-assignments-SohamVaishnav\\assignments\\3\\wandb\\run-20241013_033019-vyvp2f0e\\logs\\debug-core.log"}
+{"time":"2024-10-13T03:30:19.3320788+05:30","level":"ERROR","msg":"dialing: google: could not find default credentials. See https://cloud.google.com/docs/authentication/external/set-up-adc for more information"}
+{"time":"2024-10-13T03:30:19.3483946+05:30","level":"INFO","msg":"created new stream","id":"vyvp2f0e"}
+{"time":"2024-10-13T03:30:19.3495935+05:30","level":"INFO","msg":"writer: Do: started","stream_id":{"value":"vyvp2f0e"}}
+{"time":"2024-10-13T03:30:19.3495935+05:30","level":"INFO","msg":"stream: started","id":"vyvp2f0e"}
+{"time":"2024-10-13T03:30:19.3495935+05:30","level":"INFO","msg":"sender: started","stream_id":{"value":"vyvp2f0e"}}
+{"time":"2024-10-13T03:30:19.3495935+05:30","level":"INFO","msg":"handler: started","stream_id":{"value":"vyvp2f0e"}}
+{"time":"2024-10-13T03:30:19.7109859+05:30","level":"INFO","msg":"wandb-core","!BADKEY":null}
+{"time":"2024-10-13T03:30:19.7120494+05:30","level":"INFO","msg":"Starting system monitor"}
+{"time":"2024-10-13T03:30:22.9308606+05:30","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2024-10-13T03:30:22.9308606+05:30","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2024-10-13T03:30:25.6963227+05:30","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2024-10-13T03:30:27.1582641+05:30","level":"INFO","msg":"stream: closing","id":"vyvp2f0e"}
+{"time":"2024-10-13T03:30:27.1582641+05:30","level":"INFO","msg":"handler: closed","stream_id":{"value":"vyvp2f0e"}}
+{"time":"2024-10-13T03:30:27.1587871+05:30","level":"INFO","msg":"writer: Close: closed","stream_id":{"value":"vyvp2f0e"}}
+{"time":"2024-10-13T03:30:27.1588615+05:30","level":"INFO","msg":"sender: closed","stream_id":{"value":"vyvp2f0e"}}
+{"time":"2024-10-13T03:30:27.1588615+05:30","level":"INFO","msg":"stream: closed","id":"vyvp2f0e"}

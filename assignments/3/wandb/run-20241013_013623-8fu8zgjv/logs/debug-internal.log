@@ -1,0 +1,18 @@
+{"time":"2024-10-13T01:36:23.0414407+05:30","level":"INFO","msg":"using version","core version":"0.18.3"}
+{"time":"2024-10-13T01:36:23.0414407+05:30","level":"INFO","msg":"created symlink","path":"C:\\Users\\Admin\\smai-m24-assignments-SohamVaishnav\\assignments\\3\\wandb\\run-20241013_013623-8fu8zgjv\\logs\\debug-core.log"}
+{"time":"2024-10-13T01:36:23.0440259+05:30","level":"ERROR","msg":"dialing: google: could not find default credentials. See https://cloud.google.com/docs/authentication/external/set-up-adc for more information"}
+{"time":"2024-10-13T01:36:23.0582628+05:30","level":"INFO","msg":"created new stream","id":"8fu8zgjv"}
+{"time":"2024-10-13T01:36:23.0590934+05:30","level":"INFO","msg":"stream: started","id":"8fu8zgjv"}
+{"time":"2024-10-13T01:36:23.0590934+05:30","level":"INFO","msg":"handler: started","stream_id":{"value":"8fu8zgjv"}}
+{"time":"2024-10-13T01:36:23.0590934+05:30","level":"INFO","msg":"writer: Do: started","stream_id":{"value":"8fu8zgjv"}}
+{"time":"2024-10-13T01:36:23.0608823+05:30","level":"INFO","msg":"sender: started","stream_id":{"value":"8fu8zgjv"}}
+{"time":"2024-10-13T01:36:23.4188758+05:30","level":"INFO","msg":"wandb-core","!BADKEY":null}
+{"time":"2024-10-13T01:36:23.4197017+05:30","level":"INFO","msg":"Starting system monitor"}
+{"time":"2024-10-13T01:36:24.5133897+05:30","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2024-10-13T01:36:24.5139124+05:30","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2024-10-13T01:36:26.3925586+05:30","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2024-10-13T01:36:27.8355409+05:30","level":"INFO","msg":"stream: closing","id":"8fu8zgjv"}
+{"time":"2024-10-13T01:36:27.8355409+05:30","level":"INFO","msg":"handler: closed","stream_id":{"value":"8fu8zgjv"}}
+{"time":"2024-10-13T01:36:27.8355409+05:30","level":"INFO","msg":"writer: Close: closed","stream_id":{"value":"8fu8zgjv"}}
+{"time":"2024-10-13T01:36:27.8355409+05:30","level":"INFO","msg":"sender: closed","stream_id":{"value":"8fu8zgjv"}}
+{"time":"2024-10-13T01:36:27.8360454+05:30","level":"INFO","msg":"stream: closed","id":"8fu8zgjv"}

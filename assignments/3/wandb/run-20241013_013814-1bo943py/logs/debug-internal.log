@@ -1,0 +1,18 @@
+{"time":"2024-10-13T01:38:14.2726896+05:30","level":"INFO","msg":"using version","core version":"0.18.3"}
+{"time":"2024-10-13T01:38:14.2726896+05:30","level":"INFO","msg":"created symlink","path":"C:\\Users\\Admin\\smai-m24-assignments-SohamVaishnav\\assignments\\3\\wandb\\run-20241013_013814-1bo943py\\logs\\debug-core.log"}
+{"time":"2024-10-13T01:38:14.2737666+05:30","level":"ERROR","msg":"dialing: google: could not find default credentials. See https://cloud.google.com/docs/authentication/external/set-up-adc for more information"}
+{"time":"2024-10-13T01:38:14.2890765+05:30","level":"INFO","msg":"created new stream","id":"1bo943py"}
+{"time":"2024-10-13T01:38:14.289626+05:30","level":"INFO","msg":"stream: started","id":"1bo943py"}
+{"time":"2024-10-13T01:38:14.289626+05:30","level":"INFO","msg":"handler: started","stream_id":{"value":"1bo943py"}}
+{"time":"2024-10-13T01:38:14.289626+05:30","level":"INFO","msg":"writer: Do: started","stream_id":{"value":"1bo943py"}}
+{"time":"2024-10-13T01:38:14.289626+05:30","level":"INFO","msg":"sender: started","stream_id":{"value":"1bo943py"}}
+{"time":"2024-10-13T01:38:14.701849+05:30","level":"INFO","msg":"wandb-core","!BADKEY":null}
+{"time":"2024-10-13T01:38:14.7029113+05:30","level":"INFO","msg":"Starting system monitor"}
+{"time":"2024-10-13T01:39:19.1723006+05:30","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2024-10-13T01:39:19.1723006+05:30","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2024-10-13T01:39:21.4024565+05:30","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2024-10-13T01:39:22.8562195+05:30","level":"INFO","msg":"stream: closing","id":"1bo943py"}
+{"time":"2024-10-13T01:39:22.8562195+05:30","level":"INFO","msg":"handler: closed","stream_id":{"value":"1bo943py"}}
+{"time":"2024-10-13T01:39:22.8562195+05:30","level":"INFO","msg":"writer: Close: closed","stream_id":{"value":"1bo943py"}}
+{"time":"2024-10-13T01:39:22.8562195+05:30","level":"INFO","msg":"sender: closed","stream_id":{"value":"1bo943py"}}
+{"time":"2024-10-13T01:39:22.8562195+05:30","level":"INFO","msg":"stream: closed","id":"1bo943py"}

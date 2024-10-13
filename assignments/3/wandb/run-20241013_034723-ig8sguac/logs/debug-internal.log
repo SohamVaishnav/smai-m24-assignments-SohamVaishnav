@@ -1,0 +1,18 @@
+{"time":"2024-10-13T03:47:23.4281131+05:30","level":"INFO","msg":"using version","core version":"0.18.3"}
+{"time":"2024-10-13T03:47:23.4281131+05:30","level":"INFO","msg":"created symlink","path":"C:\\Users\\Admin\\smai-m24-assignments-SohamVaishnav\\assignments\\3\\wandb\\run-20241013_034723-ig8sguac\\logs\\debug-core.log"}
+{"time":"2024-10-13T03:47:23.4311851+05:30","level":"ERROR","msg":"dialing: google: could not find default credentials. See https://cloud.google.com/docs/authentication/external/set-up-adc for more information"}
+{"time":"2024-10-13T03:47:23.445967+05:30","level":"INFO","msg":"created new stream","id":"ig8sguac"}
+{"time":"2024-10-13T03:47:23.446117+05:30","level":"INFO","msg":"stream: started","id":"ig8sguac"}
+{"time":"2024-10-13T03:47:23.446117+05:30","level":"INFO","msg":"handler: started","stream_id":{"value":"ig8sguac"}}
+{"time":"2024-10-13T03:47:23.4466212+05:30","level":"INFO","msg":"writer: Do: started","stream_id":{"value":"ig8sguac"}}
+{"time":"2024-10-13T03:47:23.4466212+05:30","level":"INFO","msg":"sender: started","stream_id":{"value":"ig8sguac"}}
+{"time":"2024-10-13T03:47:23.8500291+05:30","level":"INFO","msg":"wandb-core","!BADKEY":null}
+{"time":"2024-10-13T03:47:23.8516736+05:30","level":"INFO","msg":"Starting system monitor"}
+{"time":"2024-10-13T03:47:31.7964254+05:30","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2024-10-13T03:47:31.7964254+05:30","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2024-10-13T03:47:36.0456194+05:30","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2024-10-13T03:47:37.5032067+05:30","level":"INFO","msg":"stream: closing","id":"ig8sguac"}
+{"time":"2024-10-13T03:47:37.5035059+05:30","level":"INFO","msg":"handler: closed","stream_id":{"value":"ig8sguac"}}
+{"time":"2024-10-13T03:47:37.5035059+05:30","level":"INFO","msg":"writer: Close: closed","stream_id":{"value":"ig8sguac"}}
+{"time":"2024-10-13T03:47:37.5035059+05:30","level":"INFO","msg":"sender: closed","stream_id":{"value":"ig8sguac"}}
+{"time":"2024-10-13T03:47:37.5035059+05:30","level":"INFO","msg":"stream: closed","id":"ig8sguac"}
