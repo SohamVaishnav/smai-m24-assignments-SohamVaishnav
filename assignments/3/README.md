@@ -260,4 +260,43 @@ From the above plots, it is evident that the best set of hyperparameters are:
 |:-----------:|:----:|:--------:|:-------:|:------------:|:------------:|:-------------------:|
 |0.001|100|256|sgd|MAE|Three - [17, 11, 17]|[relu, relu, relu]|
 
+#### Task 3: Running KNN on Latent Space
 
+Following is the comparison of the performance of the KNN classifier on the reduced and full dataset:
+
+| Hyperparams | Reduced Dataset A2 | Reduced Dataset A1 | Full Dataset |
+|--|--|--|
+| k | 15 | 15 | 15 |
+| dist_metric | l1 | l1 |
+| features | 4 | 4 | 18 |
+
+On the Validation set:
+
+| Metrics | Reduced Dataset A1 | Reduced Dataset A2 | Full Dataset |
+|--|--|--|--|
+| Accuracy | 16.25 | 15.05 | 36.88 |
+| Precision_Macro | 0.1527 | 0.1491 | 0.3579 |
+| Precision_Micro | 0.1625 | 0.1506 | 0.3688 |
+| Recall_Macro | 0.1489 | 0.1415 | 0.3366 |
+| Recall_Micro | 0.1625 | 0.1506 | 0.3688 |
+| F1_Macro | 0.1508 | 0.1452 | 0.3469 |
+| F1_Mirco | 0.1625 | 0.1506 | 0.3688 |
+| inference time (seconds) | 40.04 | 27.20 | 96.36 |
+
+On the Test set:
+
+| Metrics | Reduced Dataset A1| Reduced Dataset A2 |
+|--|--|--|
+| Accuracy | 15.49 | 15.06 |
+| Precision_Macro | 0.1485 | 0.1523 |
+| Precision_Micro | 0.1549 | 0.1506 |
+| Recall_Macro | 0.1427 | 0.1434 |
+| Recall_Micro | 0.1549 | 0.1506 |
+| F1_Macro | 0.1455 | 0.1447 |      
+| F1_Mirco | 0.1549 | 0.1506 |
+| inference time (seconds) | 38.27 | 27.49 |
+
+Observations:
+- The performance of the KNN classifier is better on the reduced dataset as compared to the full dataset. This is expected as the reduced dataset contains only 4 features as compared to 18 in the full dataset.
+- The performance of the KNN classifier is comparable on the reduced dataset for A1 and A2.
+- The inference time is much lesser for the reduced dataset in A2 as compared to the reduced dataset in A1 - overall, both are much lesser than that of the full dataset.

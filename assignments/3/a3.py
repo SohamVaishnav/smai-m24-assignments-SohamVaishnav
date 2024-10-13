@@ -418,7 +418,7 @@ def DataPreprocess(data: pd.DataFrame, isMulti: bool = False, isReg: bool = Fals
 
 
 ################################### Regression ###################################
-wandb.login()
+# wandb.login()
 
 # config_sweep = {
 # 'method': 'bayes',
@@ -438,66 +438,66 @@ wandb.login()
 # }
 # }
 
-config_sweep = {
-'method': 'bayes',
-'name': 'Hyperparameter tuning: Multi label classification', 
-'metric': {
-    'goal': 'minimize',
-    'name': 'val loss'
-}, 
-'parameters': {
-    'epochs': {'values': [50]},
-    'layers': {'values': [[16, 8, 1]]},
-    'activations': {'values': ['relu']},
-    'lr': {'values': [0.01]},
-    'batch_size': {'values': [256]}, 
-    'optimizer': {'values': ['sgd']}, 
-    'loss': {'values': ['mse']}
-}
-}
+# config_sweep = {
+# 'method': 'bayes',
+# 'name': 'Hyperparameter tuning: Multi label classification', 
+# 'metric': {
+#     'goal': 'minimize',
+#     'name': 'val loss'
+# }, 
+# 'parameters': {
+#     'epochs': {'values': [50]},
+#     'layers': {'values': [[16, 8, 1]]},
+#     'activations': {'values': ['relu']},
+#     'lr': {'values': [0.01]},
+#     'batch_size': {'values': [256]}, 
+#     'optimizer': {'values': ['sgd']}, 
+#     'loss': {'values': ['mse']}
+# }
+# }
 
-data = DataLoader(RawDataDIR, "diabetes.csv")
-print(data.shape)
-print(data.describe())
-
-print(data.isnull().sum())
-
-data = data.fillna(data.median())
-
-# fig = px.scatter_matrix(data, dimensions = ['CRIM', 'ZN', 'INDUS', 'CHAS', 'NOX', 'RM', 'AGE', 'DIS', 'RAD', 'TAX', 'PTRATIO', 'B', 'LSTAT', 'MEDV'], color = 'MEDV', labels = {'MEDV': 'Value in $1000s'})
-# fig.update_traces(diagonal_visible = True, showupperhalf = False)
-# fig.update_layout(height = 1700, width = 1700, title_text="Pair Plot of Housing Features by Median Value")
-# fig.show()
-
-scaler = StandardScaler()
-# data = pd.DataFrame(scaler.fit_transform(data), columns = data.columns)
+# data = DataLoader(RawDataDIR, "diabetes.csv")
+# print(data.shape)
 # print(data.describe())
 
+# print(data.isnull().sum())
 
-X = data.drop(columns = ['Outcome'])
-X = pd.DataFrame(scaler.fit_transform(X), columns = X.columns)
-X = X.to_numpy()
-y = data['Outcome'].to_numpy().reshape(-1, 1)
+# data = data.fillna(data.median())
 
-indices = np.arange(0, X.shape[0])
-np.random.shuffle(indices)
-X = X[indices]
-Y = y[indices]
+# # fig = px.scatter_matrix(data, dimensions = ['CRIM', 'ZN', 'INDUS', 'CHAS', 'NOX', 'RM', 'AGE', 'DIS', 'RAD', 'TAX', 'PTRATIO', 'B', 'LSTAT', 'MEDV'], color = 'MEDV', labels = {'MEDV': 'Value in $1000s'})
+# # fig.update_traces(diagonal_visible = True, showupperhalf = False)
+# # fig.update_layout(height = 1700, width = 1700, title_text="Pair Plot of Housing Features by Median Value")
+# # fig.show()
 
-X_train = X[:int(0.8*X.shape[0])]
-Y_train = Y[:int(0.8*Y.shape[0])]
-X_valid = X[int(0.8*X.shape[0]):int(0.9*X.shape[0])]
-Y_valid = Y[int(0.8*Y.shape[0]):int(0.9*Y.shape[0])]
-X_test = X[int(0.9*X.shape[0]):]
-Y_test = Y[int(0.9*Y.shape[0]):]
+# scaler = StandardScaler()
+# # data = pd.DataFrame(scaler.fit_transform(data), columns = data.columns)
+# # print(data.describe())
 
-def run_sweep():
-    sweep_agent_manager(project_name='MLP_Regression_HPT_3.5', model = 'regression', X_train = X_train, X_valid = X_valid, X_test = X_test, y_train = Y_train, y_valid = Y_valid, y_test = Y_test)
 
-sweep_id = wandb.sweep(sweep=config_sweep, project = 'MLP_Regression_HPT_3.5')
-wandb.agent(sweep_id = sweep_id, 
-            function = run_sweep, 
-            count = 1)
+# X = data.drop(columns = ['Outcome'])
+# X = pd.DataFrame(scaler.fit_transform(X), columns = X.columns)
+# X = X.to_numpy()
+# y = data['Outcome'].to_numpy().reshape(-1, 1)
+
+# indices = np.arange(0, X.shape[0])
+# np.random.shuffle(indices)
+# X = X[indices]
+# Y = y[indices]
+
+# X_train = X[:int(0.8*X.shape[0])]
+# Y_train = Y[:int(0.8*Y.shape[0])]
+# X_valid = X[int(0.8*X.shape[0]):int(0.9*X.shape[0])]
+# Y_valid = Y[int(0.8*Y.shape[0]):int(0.9*Y.shape[0])]
+# X_test = X[int(0.9*X.shape[0]):]
+# Y_test = Y[int(0.9*Y.shape[0]):]
+
+# def run_sweep():
+#     sweep_agent_manager(project_name='MLP_Regression_HPT_3.5', model = 'regression', X_train = X_train, X_valid = X_valid, X_test = X_test, y_train = Y_train, y_valid = Y_valid, y_test = Y_test)
+
+# sweep_id = wandb.sweep(sweep=config_sweep, project = 'MLP_Regression_HPT_3.5')
+# wandb.agent(sweep_id = sweep_id, 
+#             function = run_sweep, 
+#             count = 1)
 
 # layers = [64, 32, 1]
 # activations = ['relu', 'relu', 'linear']
@@ -521,44 +521,90 @@ wandb.agent(sweep_id = sweep_id,
 ################################### Autoencoder ###################################
 # wandb.login()
 
-# config_sweep = {
-# 'method': 'bayes',
-# 'name': 'Hyperparameter tuning: Autoencoder', 
-# 'metric': {
-#     'goal': 'minimize',
-#     'name': 'loss'
-# }, 
-# 'parameters': {
-#     'epochs': {'values': [100, 500]},
-#     'layers': {'values': [[17, 8, 17, 18], [17, 11, 17, 18], [17, 4, 17, 18], [17, 11, 9, 11, 17, 18]]},
-#     'activations': {'values': ['relu', 'tanh', 'sigmoid']},
-#     'lr': {'values': [0.0001, 0.001, 0.01]},
-#     'batch_size': {'values': [64, 128, 256]}, 
-#     'optimizer': {'values': ['sgd', 'bgd', 'mini_bgd']}, 
-#     'loss': {'values': ['mse', 'mae']}
-# }
-# }
+config_sweep = {
+'method': 'bayes',
+'name': 'Hyperparameter tuning: Autoencoder', 
+'metric': {
+    'goal': 'minimize',
+    'name': 'loss'
+}, 
+'parameters': {
+    'epochs': {'values': [100]},
+    'layers': {'values': [[17, 11, 17, 18]]},
+    'activations': {'values': ['relu']},
+    'lr': {'values': [0.001]},
+    'batch_size': {'values': [256]}, 
+    'optimizer': {'values': ['sgd']}, 
+    'loss': {'values': ['mse']}
+}
+}
 
-# KNN_DIR = os.path.join(UserDIR, "./data/interim/1/spotify_KNN")
-# data = pd.read_csv(os.path.join(KNN_DIR, "spotify_word2num.csv"), index_col = 0)
-# print(data.shape)
-# print(data.describe())
+KNN_DIR = os.path.join(UserDIR, "./data/interim/1/spotify_KNN")
+data = pd.read_csv(os.path.join(KNN_DIR, "spotify_word2num.csv"), index_col = 0)
+print(data.shape)
+print(data.describe())
 
-# model = KNN()
-# isValid = True
-# train_set, valid_set, test_set = model.DataSplitter(0.8, isValid, 0.1, data, 'track_genre')
-# print("Training set: ", train_set.shape)
-# print("Testing set: ", test_set.shape)
-# print("Validation set: ", valid_set.shape)
+hyperparams = {'learning_rate': [], 'epochs': [], 'batch_size': [], 'optimizer': [], 'grad_verify': False, 
+                       'loss': [], 'layers': [], 'activations': [], 'type': 'autoencoder', 'wb': False}
+hyperparams['learning_rate'] = config_sweep['parameters']['lr']['values'][0]
+hyperparams['epochs'] = config_sweep['parameters']['epochs']['values'][0]
+hyperparams['batch_size'] = config_sweep['parameters']['batch_size']['values'][0]
+hyperparams['loss'] = config_sweep['parameters']['loss']['values'][0]
+hyperparams['layers'] = config_sweep['parameters']['layers']['values'][0]
+hyperparams['activations'] = config_sweep['parameters']['activations']['values'][0]
+hyperparams['optimizer'] = config_sweep['parameters']['optimizer']['values'][0]
 
-# y_train = train_set['track_genre'].to_numpy().reshape(-1, 1)
-# X_train = train_set.drop(columns = ['track_genre'], axis = 1).to_numpy()
+# temp = data.drop(columns = ['track_genre'])
 
-# y_test = test_set['track_genre'].to_numpy().reshape(-1, 1)  
-# X_test = test_set.drop(columns = ['track_genre'], axis = 1).to_numpy()
+# print(temp.to_numpy())
 
-# y_valid = valid_set['track_genre'].to_numpy().reshape(-1, 1)
-# X_valid = valid_set.drop(columns = ['track_genre'], axis = 1).to_numpy()
+# model_2 = AutoEncoder(hyperparams)
+# model_2.fit(temp.to_numpy(), temp.to_numpy(), temp.to_numpy(), temp.to_numpy())
+# model_2.evaluate(temp.to_numpy(), temp.to_numpy())
+
+# temp_latent = model_2.get_latent(temp.to_numpy())
+# data_latent = pd.concat([pd.DataFrame(temp_latent), data['track_genre']], axis = 1)
+# np.savetxt(os.path.join(PreProcessDIR, "data_latent.csv"), temp_latent, delimiter = ",")
+
+data_latent = pd.read_csv(os.path.join(PreProcessDIR, "data_latent.csv"))
+data_latent = data_latent.iloc[:, :4]
+data_latent['track_genre'] = data['track_genre'].values
+
+model_1 = KNN()
+isValid = True
+train_set, valid_set, test_set = model_1.DataSplitter(0.8, isValid, 0.1, data_latent, 'track_genre')
+print("Training set: ", train_set.shape)
+print("Testing set: ", test_set.shape)
+print("Validation set: ", valid_set.shape)
+
+y_train = train_set['track_genre']
+X_train = train_set.drop(columns = ['track_genre'], axis = 1)
+
+y_test = test_set['track_genre'] 
+X_test = test_set.drop(columns = ['track_genre'], axis = 1)
+
+y_valid = valid_set['track_genre']
+X_valid = valid_set.drop(columns = ['track_genre'], axis = 1)
+
+print(X_train.shape)
+print(X_valid.shape)
+print(X_test.shape)
+
+# model_2 = AutoEncoder(hyperparams)
+# model_2.fit(X_train, X_train, X_valid, X_valid)
+# model_2.evaluate(X_test, X_test)
+
+# X_train_latent = model_2.get_latent(X_train)
+# X_valid_latent = model_2.get_latent(X_valid)
+# X_test_latent = model_2.get_latent(X_test)
+
+# print(X_train_latent.shape)
+# print(X_valid_latent.shape)
+# print(X_test_latent.shape)
+
+# np.savetxt(os.path.join(PreProcessDIR, "X_train_latent.csv"), X_train_latent, delimiter = ",")
+# np.savetxt(os.path.join(PreProcessDIR, "X_valid_latent.csv"), X_valid_latent, delimiter = ",")
+# np.savetxt(os.path.join(PreProcessDIR, "X_test_latent.csv"), X_test_latent, delimiter = ",")
 
 # def run_sweep():
 #     sweep_agent_manager(project_name='AutoEncoder_HPT', model = 'autoencoder', X_train = X_train, X_test = X_valid, y_train = X_train, y_test = X_valid)
@@ -582,3 +628,19 @@ wandb.agent(sweep_id = sweep_id,
 # model.plot()
 # wandb.finish()
 
+# X_train_latent = pd.read_csv(os.path.join(PreProcessDIR, "X_train_latent.csv"))
+# X_valid_latent = pd.read_csv(os.path.join(PreProcessDIR, "X_valid_latent.csv"))
+# X_test_latent = pd.read_csv(os.path.join(PreProcessDIR, "X_test_latent.csv"))
+
+time_start = time.time()
+model_1.fit(X_train, y_train)
+model_1.SetDistMetric('l1')
+model_1.SetNumNeighbors(15)
+model_1.FindDistances(X_valid, 'optimised')
+y_pred, acc, prec, recall, f1 = model_1.predict(X_valid, y_valid)
+time_end = time.time()
+print("Accuracy: ", acc)
+print("Precision: ", prec)
+print("Recall: ", recall)
+print("F1 Score: ", f1)
+print("Time taken: ", time_end - time_start)
