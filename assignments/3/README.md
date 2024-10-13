@@ -149,11 +149,6 @@ For test set:
 |:---:|:------:|:-------:|:----:|:----:|:------:|
 |0.75995|0.97445|0.01|0.34305|0.975|0.50753|
 
-#### Task 7: Analysis 
-For each datapoint, the model predicts the probabilities of the datapoint belonging to each of the classes. The class with the highest probability is the predicted class (in case of single label classification). Whereas, in case of multi-label classification, the model predicts the probabilities of the datapoint belonging to each of the classes and the datapoint is predicted to belong to all the classes for which the probability is greater than some threshold (passed as a hyperparameter). Following analysis is found:
-
-REMAINING....
-
 ### 3: Multi Perceptron Regression
 
 #### Task 1: Data Analysis and Preprocessing
@@ -231,6 +226,9 @@ However, it becomes important to note that the R2 Score is higher for MSE than f
 #### Task 6: Analysis 
 MSE is higher forthose datapoints which are far away from the mean, thereby, explaining the higher loss. Since the dataset is standardized, the datapoints which are far away from the mean are the outliers. However, the model is not affected much by outliers or even a particular feature due to th standardisation.
 
+#### Task 7: BONUS
+The combined regression and classification model is implemented in `models/MLP/mlp_final.py`.
+
 ### 4: AutoEncoder
 
 #### Task 1: Autoencoder Implementation from scratch
@@ -280,7 +278,7 @@ On the Validation set:
 | Recall_Macro | 0.1489 | 0.1415 | 0.3366 |
 | Recall_Micro | 0.1625 | 0.1506 | 0.3688 |
 | F1_Macro | 0.1508 | 0.1452 | 0.3469 |
-| F1_Mirco | 0.1625 | 0.1506 | 0.3688 |
+| F1_Micro | 0.1625 | 0.1506 | 0.3688 |
 | inference time (seconds) | 40.04 | 27.20 | 96.36 |
 
 On the Test set:
@@ -293,10 +291,32 @@ On the Test set:
 | Recall_Macro | 0.1427 | 0.1434 |
 | Recall_Micro | 0.1549 | 0.1506 |
 | F1_Macro | 0.1455 | 0.1447 |      
-| F1_Mirco | 0.1549 | 0.1506 |
+| F1_Micro | 0.1549 | 0.1506 |
 | inference time (seconds) | 38.27 | 27.49 |
 
 Observations:
 - The performance of the KNN classifier is better on the reduced dataset as compared to the full dataset. This is expected as the reduced dataset contains only 4 features as compared to 18 in the full dataset.
 - The performance of the KNN classifier is comparable on the reduced dataset for A1 and A2.
 - The inference time is much lesser for the reduced dataset in A2 as compared to the reduced dataset in A1 - overall, both are much lesser than that of the full dataset.
+
+#### Task 4: Comparing with MLP
+
+By using the best set of hyperparameters, the classification performance of MLP is compared with that of KNN. For the same number of reduced features, the performance of KNN is better than that of MLP.
+
+Following are the results of the same (using MLP):
+
+On the Test set:
+
+| Metrics | Reduced Dataset A2 |
+|--|--|--|
+| Accuracy | 13.31 |
+| Precision_Macro | 0.0908 | 
+| Precision_Micro | 0.1331 | 
+| Recall_Macro | 0.1146 | 
+| Recall_Micro | 0.1331 | 
+| F1_Macro | 0.1014 |      
+| F1_Micro | 0.1331 |
+
+Reasons for the relatively poorer performance of MLP as compared to KNN:
+- The features are not linearly separable.
+- The number of classes is too high as compared to the number of samples and the number of features.
