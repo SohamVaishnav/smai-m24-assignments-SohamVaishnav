@@ -199,7 +199,10 @@ class MutliLayerPerceptron_Regression(object):
         '''
         layers = self._config['layers']
         activations = []
-        activations.append('linear')
+        if (self._loss == 'cross_entropy'):
+            activations.append('sigmoid')
+        else:
+            activations.append('linear')
         for i in range(len(layers)-1):
             activations.insert(0, self._activations)
         self._activations = activations
@@ -219,7 +222,7 @@ class MutliLayerPerceptron_Regression(object):
         self._epochs = hyperparams['epochs']
         self._loss = hyperparams['loss']
 
-    def fit(self, X, y,grad_verify=False):
+    def fit(self, X, y, X_valid, y_valid, grad_verify=False):
         '''
         Fits the model to the data.
 
@@ -233,6 +236,9 @@ class MutliLayerPerceptron_Regression(object):
         self._input_shape = X.shape[1]
         self._output_shape = y.shape[1]
         self._data_points = X.shape[0]
+
+        self._X_valid = X_valid
+        self._y_valid = y_valid
 
         if (grad_verify):
             self._grad_verify = True
@@ -305,19 +311,26 @@ class MutliLayerPerceptron_Regression(object):
                     self._weights, self._biases = optimizer.sgd(gradients, self._weights, self._biases)
 
                 self._istraining = False
-                y_pred = self.predict(X_shuffled)
-                metrics = metrics_regression(y_pred, y_shuffled)
+                y_pred_train = self.predict(X_shuffled)
+                metrics = metrics_regression(y_pred_train, y_shuffled)
                 history['mse'].append(metrics.mse())
                 history['rmse'].append(metrics.rmse())
                 history['r2'].append(metrics.r2())
-                history['loss'].append(self.loss(y_shuffled, y_pred))
+                history['loss'].append(self.loss(y_shuffled, y_pred_train))
                 self._metrics.append(metrics)
                 
                 if (self._wb):
-                    wandb.log({'loss': self.loss(y_shuffled, y_pred)})
-                    wandb.log({'mse': metrics.mse()})
-                    wandb.log({'rmse': metrics.rmse()})
-                    wandb.log({'r2': metrics.r2()})
+                    wandb.log({'train loss': self.loss(y_shuffled, y_pred_train)})
+                    wandb.log({'train mse': metrics.mse()})
+                    wandb.log({'train rmse': metrics.rmse()})
+                    wandb.log({'train r2': metrics.r2()})
+
+                    y_pred = self.predict(self._X_valid)
+                    metrics = metrics_regression(y_pred, self._y_valid)
+                    wandb.log({'val loss': self.loss(self._y_valid, y_pred)})
+                    wandb.log({'val mse': metrics.mse()})
+                    wandb.log({'val rmse': metrics.rmse()})
+                    wandb.log({'val r2': metrics.r2()})
                     wandb.log({'epoch': epoch})
 
         elif (self._optimizer == 'bgd'):
@@ -341,19 +354,26 @@ class MutliLayerPerceptron_Regression(object):
                 self._weights, self._biases = optimizer.bgd(grad_w, grad_b, self._weights, self._biases)
 
                 self._istraining = False
-                y_pred = self.predict(X)
-                metrics = metrics_regression(y_pred, y)
+                y_pred_train = self.predict(X)
+                metrics = metrics_regression(y_pred_train, y)
                 history['mse'].append(metrics.mse())
                 history['rmse'].append(metrics.rmse())
                 history['r2'].append(metrics.r2())
-                history['loss'].append(self.loss(y, y_pred))
+                history['loss'].append(self.loss(y, y_pred_train))
                 self._metrics.append(metrics)
 
                 if (self._wb):
-                    wandb.log({'loss': self.loss(y, y_pred)})
-                    wandb.log({'mse': metrics.mse()})
-                    wandb.log({'rmse': metrics.rmse()})
-                    wandb.log({'r2': metrics.r2()})
+                    wandb.log({'train loss': self.loss(y, y_pred_train)})
+                    wandb.log({'train mse': metrics.mse()})
+                    wandb.log({'train rmse': metrics.rmse()})
+                    wandb.log({'train r2': metrics.r2()})
+
+                    y_pred = self.predict(self._X_valid)
+                    metrics = metrics_regression(y_pred, self._y_valid)
+                    wandb.log({'val loss': self.loss(self._y_valid, y_pred)})
+                    wandb.log({'val mse': metrics.mse()})
+                    wandb.log({'val rmse': metrics.rmse()})
+                    wandb.log({'val r2': metrics.r2()})
                     wandb.log({'epoch': epoch})
         
         elif (self._optimizer == 'mini_bgd'):
@@ -376,19 +396,26 @@ class MutliLayerPerceptron_Regression(object):
                     self._weights, self._biases = optimizer.mini_bgd(gradients, self._weights, self._biases, self._batch_size)
                     j += 1
                 self._istraining = False
-                y_pred = self.predict(X)
-                metrics = metrics_regression(y_pred, y)
+                y_pred_train = self.predict(X)
+                metrics = metrics_regression(y_pred_train, y)
                 history['mse'].append(metrics.mse())
                 history['rmse'].append(metrics.rmse())
                 history['r2'].append(metrics.r2())
-                history['loss'].append(self.loss(y, y_pred))
+                history['loss'].append(self.loss(y, y_pred_train))
                 self._metrics.append(metrics)
 
                 if (self._wb):
-                    wandb.log({'loss': self.loss(y, y_pred)})
-                    wandb.log({'mse': metrics.mse()})
-                    wandb.log({'rmse': metrics.rmse()})
-                    wandb.log({'r2': metrics.r2()})
+                    wandb.log({'train loss': self.loss(y, y_pred_train)})
+                    wandb.log({'train mse': metrics.mse()})
+                    wandb.log({'train rmse': metrics.rmse()})
+                    wandb.log({'train r2': metrics.r2()})
+
+                    y_pred = self.predict(self._X_valid)
+                    metrics = metrics_regression(y_pred, self._y_valid)
+                    wandb.log({'val loss': self.loss(self._y_valid, y_pred)})
+                    wandb.log({'val mse': metrics.mse()})
+                    wandb.log({'val rmse': metrics.rmse()})
+                    wandb.log({'val r2': metrics.r2()})
                     wandb.log({'epoch': epoch})
         self._history = history
         return y_pred
@@ -534,7 +561,7 @@ class MutliLayerPerceptron_Regression(object):
         if (self._loss == 'cross_entropy'):
             y_pred = y_pred.clip(1e-10, 1-1e-10)
             if (derivative):
-                return y_true/y_pred - (1 - y_true)/(1 - y_pred)
+                return (y_true - y_pred) / (y_pred * (1 - y_pred) + 1e-10)
             return -np.mean(y_true * np.log(y_pred + 1e-10) + (1 - y_true) * np.log(1 - y_pred + 1e-10))
         if (self._loss == 'mae'):
             if (derivative):
