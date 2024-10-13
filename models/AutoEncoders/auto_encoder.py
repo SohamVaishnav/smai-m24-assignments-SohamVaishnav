@@ -13,7 +13,7 @@ UserDIR = os.path.dirname(AssignDIR)
 
 sys.path.append(UserDIR)
 
-from models.MLP.auto_encoder import *
+from models.AutoEncoders.auto_encoder import *
 from models.MLP.mlp_regression import *
 
 class AutoEncoder(object):
