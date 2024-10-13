@@ -92,5 +92,8 @@ def sweep_agent_manager(project_name: str, model: str, X_train: np.ndarray, X_va
 
     model = createModel(hyperparams)
     runModel(model, X_train, y_train, X_valid, y_valid)
+    #write the predictions to a csv file
+    y_pred = model.predict(X_test)
+    pd.DataFrame(y_pred, columns=labels).to_csv(f"Task2_7_predictions.csv", index=False)
     print(evalModel(model, X_test, y_test))
     wandb.finish()
