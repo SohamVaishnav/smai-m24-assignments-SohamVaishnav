@@ -308,7 +308,7 @@ Following are the results of the same (using MLP):
 On the Test set:
 
 | Metrics | Reduced Dataset A2 |
-|--|--|--|
+|--|--|
 | Accuracy | 13.31 |
 | Precision_Macro | 0.0908 | 
 | Precision_Micro | 0.1331 | 
@@ -320,3 +320,6 @@ On the Test set:
 Reasons for the relatively poorer performance of MLP as compared to KNN:
 - The features are not linearly separable.
 - The number of classes is too high as compared to the number of samples and the number of features.
+
+### 5: Link to W&B
+Please find experiments here: [link to experiments on W&B](https://wandb.ai/soham-iiith/projects).
