@@ -229,7 +229,7 @@ Observations:
 However, it becomes important to note that the R2 Score is higher for MSE than for BCE, which explains that although the target variable is binary, its distribution does not follow a sigmoidal curve. Thus, BCE fails to do good.
 
 #### Task 6: Analysis 
-REMAINING....
+MSE is higher forthose datapoints which are far away from the mean, thereby, explaining the higher loss. Since the dataset is standardized, the datapoints which are far away from the mean are the outliers. However, the model is not affected much by outliers or even a particular feature due to th standardisation.
 
 ### 4: AutoEncoder
 
