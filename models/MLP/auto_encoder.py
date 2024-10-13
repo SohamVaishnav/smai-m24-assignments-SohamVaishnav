@@ -27,7 +27,7 @@ class AutoEncoder(object):
         self._model = MutliLayerPerceptron_Regression(config)
         self._model.add()
     
-    def fit(self, X, y):
+    def fit(self, X, y, X_valid, y_valid):
         ''' 
         Fits the autoencoder to the data.
 
@@ -35,13 +35,14 @@ class AutoEncoder(object):
             X (np.ndarray): The input data.
             y (np.ndarray): The target data.
         '''
-        self._model.fit(X, y)
+        self._model.fit(X, y, X_valid, y_valid)
     
     def get_latent(self, X):
         ''' 
         Gets the latent space representation of the data.
         '''
-        return self._model.forward(X, encode=True)
+        latent = self._model.forward(X, encode=True)
+        return latent
     
     def evaluate(self, X, y):
         ''' 

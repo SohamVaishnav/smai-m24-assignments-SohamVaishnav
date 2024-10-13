@@ -429,13 +429,16 @@ class MutliLayerPerceptron_Regression(object):
             encode = boolean denoting whether to encode or decode.
         '''
         if (encode and not decode):
-            a = []
-            a.append(X)
+            self._a = []
+            self._a.append(X)
             start = 0
-            end = (len(self._layers)-1)/2 if len(self._layers)%2 != 0 else (len(self._layers))/2
+            if (len(self._layers)%2 != 0):
+                end = int((len(self._layers)-1)/2)
+            else:
+                end = int(len(self._layers)/2)
         elif (decode and not encode):
-            a = []
-            a.append(X)
+            self._a = []
+            self._a.append(X)
             start = (len(self._layers)-1)/2 if len(self._layers)%2 != 0 else (len(self._layers))/2
             end = len(self._layers)
         elif (not encode and not decode):
@@ -444,8 +447,6 @@ class MutliLayerPerceptron_Regression(object):
             start = 0
             end = len(self._layers)
         for i in range(start, end):
-            # if (self._optimizer == 'mini_bgd'):
-            #     self._a[i] = np.mean(self._a[i], axis=0).reshape(1, -1)
             z = np.dot(self._a[i], self._weights[i]) + self._biases[i]
             if (self._activations[i] == 'sigmoid'):
                 self._a.append(self._layers[i].sigmoid(x = z))
@@ -457,8 +458,6 @@ class MutliLayerPerceptron_Regression(object):
                 self._a.append(self._layers[i].softmax(x = z))
             elif (self._activations[i] == 'linear'):
                 self._a.append(self._layers[i].linear(x = z))
-        # if (self._optimizer == 'mini_bgd'):
-        #     self._a[-1] = np.mean(self._a[-1], axis=0).reshape(1, -1)
 
         return self._a[-1]
     
