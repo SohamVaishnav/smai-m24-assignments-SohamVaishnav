@@ -7,6 +7,7 @@ import pandas as pd
 import sys
 import os
 import wandb
+import zipfile
 
 import cv2
 
@@ -44,6 +45,31 @@ class MultiMNISTDataset(object):
         self.valid = valid
         self.batch_size = batch_size
 
-    def load_data(self):
+        assert os.path.exists(self.root), f"Path {self.root} does not exist."
+
+    def load_mnist_data(self) -> None:
+        '''
+        Load the MNIST dataset.
+        '''
+        self._data_path = os.path.join(self.root, 'double_mnist')
+        self._train_path = os.path.join(self._data_path, 'train')
+        self._valid_path = os.path.join(self._data_path, 'valid')
+        self._test_path = os.path.join(self._data_path, 'test')
+
+        for path in [self._train_path, self._valid_path, self._test_path]:
+            assert os.path.exists(path), f"Path {path} does not exist."
+
+        self._train_images = []
+        self._valid_images = []
+        self._test_images = []
+
+        for root, _, files in os.walk(self._train_path):
+            self._train_images.extend([os.path.join(root, file) for file in files])
+        for root, _, files in os.walk(self._valid_path):
+            self._valid_images.extend([os.path.join(root, file) for file in files])
+        for root, _, files in os.walk(self._test_path):
+            self._test_images.extend([os.path.join(root, file) for file in files])
+        
         pass
 
+DL = MultiMNISTDataset()
