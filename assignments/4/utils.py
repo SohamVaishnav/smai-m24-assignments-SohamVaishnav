@@ -93,6 +93,11 @@ class MultiMNISTDataset(object):
                     self._test_labels.extend([len(root[-1]) for file in files])
         
         pass
-
-DL = MultiMNISTDataset(root=RawDataDIR, batch_size=32)
-DL.load_mnist_data(task='num_digits')
+    
+    def getLabels(self) -> None:
+        '''
+        Returns the labels for the dataset.
+        '''
+        labels = np.unique(self._train_labels + self._valid_labels + self._test_labels)
+        self._labels
+        pass
