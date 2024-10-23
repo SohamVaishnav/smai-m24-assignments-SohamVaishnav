@@ -7,6 +7,7 @@ import pandas as pd
 import sys
 import os
 import wandb
+import PIL
 
 import cv2
 
@@ -35,7 +36,7 @@ class MultiMNISTDataset(object):
     MultiMNISTDataset class.
     '''
 
-    def __init__(self, root: str, batch_size: int):
+    def __init__(self, batch_size: int, root: str = RawDataDIR):
         ''' 
         Parameters:
             root: str = path to the dataset.
@@ -43,6 +44,10 @@ class MultiMNISTDataset(object):
         '''
         self._root = root
         self._batch_size = batch_size
+        self._resizer = transforms.Compose([transforms.ToPILImage(), 
+                                        transforms.Resize((28, 28)), 
+                                        transforms.ToTensor(),
+                                        transforms.Normalize((0.5,), (0.5,))])
 
         assert os.path.exists(self._root), f"Path {self._root} does not exist."
 
@@ -61,36 +66,68 @@ class MultiMNISTDataset(object):
         for path in [self._train_path, self._valid_path, self._test_path]:
             assert os.path.exists(path), f"Path {path} does not exist."
 
+        self._train_images_paths = []
         self._train_images = []
         self._train_labels = []
+
+        self._valid_images_paths = []
         self._valid_images = []
         self._valid_labels = []
+
+        self._test_images_paths = []
         self._test_images = []
         self._test_labels = []
 
         for root, _, files in os.walk(self._train_path):
-            self._train_images.extend([os.path.join(root, file) for file in files])
+            self._train_images_paths.extend([os.path.join(root, file) for file in files])
             if (task == 'num_digits'):
                 if ([len(file.split('_')) > 1 for file in files] == [True for file in files]):
                     self._train_labels.extend([len(file.split('_')[-1].removesuffix('.png')) for file in files])
                 else:
-                    self._train_labels.extend([len(root[-1]) for file in files])
+                    self._train_labels.extend([0 for file in files])
+        
+        for i in range(len(self._train_images_paths)):
+            self._train_images.append(cv2.imread(self._train_images_paths[i], cv2.IMREAD_GRAYSCALE))
+            # self._train_images[-1] = self._resizer(self._train_images[-1])
+            # self._train_images[-1] = self._train_images[-1].numpy()
+            # self._train_images[-1] = np.transpose(self._train_images[-1], (1, 2, 0))
+            self._train_images[-1] = cv2.resize(self._train_images[-1], (28, 28))
+            self._train_images[-1] = self._train_images[-1].astype(np.float32)
+            self._train_images[-1] /= 255.0
         
         for root, _, files in os.walk(self._valid_path):
-            self._valid_images.extend([os.path.join(root, file) for file in files])
+            self._valid_images_paths.extend([os.path.join(root, file) for file in files])
             if (task == 'num_digits'):
                 if ([len(file.split('_')) > 1 for file in files] == [True for file in files]):
                     self._valid_labels.extend([len(file.split('_')[-1].removesuffix('.png')) for file in files])
                 else:
-                    self._valid_labels.extend([len(root[-1]) for file in files])
+                    self._valid_labels.extend([0 for file in files])
+        
+        for i in range(len(self._valid_images_paths)):
+            self._valid_images.append(cv2.imread(self._valid_images_paths[i], cv2.IMREAD_GRAYSCALE))
+            # self._valid_images[-1] = self._resizer(self._valid_images[-1])
+            # self._valid_images[-1] = self._valid_images[-1].numpy()
+            # self._valid_images[-1] = np.transpose(self._valid_images[-1], (1, 2, 0))
+            self._valid_images[-1] = cv2.resize(self._valid_images[-1], (28, 28))
+            self._valid_images[-1] = self._valid_images[-1].astype(np.float32)
+            self._valid_images[-1] /= 255.0
         
         for root, _, files in os.walk(self._test_path):
-            self._test_images.extend([os.path.join(root, file) for file in files])
+            self._test_images_paths.extend([os.path.join(root, file) for file in files])
             if (task == 'num_digits'):
                 if ([len(file.split('_')) > 1 for file in files] == [True for file in files]):
                     self._test_labels.extend([len(file.split('_')[-1].removesuffix('.png')) for file in files])
                 else:
-                    self._test_labels.extend([len(root[-1]) for file in files])
+                    self._test_labels.extend([0 for file in files])
+        
+        for i in range(len(self._test_images_paths)):
+            self._test_images.append(cv2.imread(self._test_images_paths[i], cv2.IMREAD_GRAYSCALE))
+            # self._test_images[-1] = self._resizer(self._test_images[-1])
+            # self._test_images[-1] = self._test_images[-1].numpy()
+            # self._test_images[-1] = np.transpose(self._test_images[-1], (1, 2, 0))
+            self._test_images[-1] = cv2.resize(self._test_images[-1], (28, 28))
+            self._test_images[-1] = self._test_images[-1].astype(np.float32)
+            self._test_images[-1] /= 255.0
         
         pass
     
@@ -99,5 +136,5 @@ class MultiMNISTDataset(object):
         Returns the labels for the dataset.
         '''
         labels = np.unique(self._train_labels + self._valid_labels + self._test_labels)
-        self._labels
-        pass
+        self._labels = labels
+        return self._labels
