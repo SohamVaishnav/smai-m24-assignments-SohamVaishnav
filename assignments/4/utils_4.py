@@ -85,6 +85,11 @@ class MultiMNISTDataset(object):
                     self._train_labels.extend([len(file.split('_')[-1].removesuffix('.png')) for file in files])
                 else:
                     self._train_labels.extend([0 for file in files])
+            elif (task == 'multi_label'):
+                if ([len(file.split('_')) > 1 for file in files] == [True for file in files]):
+                    self._train_labels.extend([int(file.split('_')[0])+1 for file in files])
+                else:
+                    self._train_labels.extend([0 for file in files])
         
         for i in range(len(self._train_images_paths)):
             self._train_images.append(cv2.imread(self._train_images_paths[i], cv2.IMREAD_GRAYSCALE))
