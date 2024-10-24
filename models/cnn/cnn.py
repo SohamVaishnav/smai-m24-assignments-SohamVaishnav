@@ -57,10 +57,14 @@ class Model_trainer:
         self._wb = config['wandb']
         self._labels = config['labels']
         self._labelsRnum = config['labelsRnum']
+        self._FM_Vis = config['FM_Vis']
         pass 
 
     def accuracy(self, y_pred, y_true):
-        _, preds = torch.max(y_pred, dim=1)
+        if (self._model._task == 'classification'):
+            _, preds = torch.max(y_pred, dim=1)
+        elif (self._model._task == 'regression'):
+            preds = torch.round(y_pred)
         return torch.tensor(torch.sum(preds == y_true).item() / len(preds))
 
     def trainer(self, X_train, y_train, X_valid, y_valid, epochs) -> None:
@@ -74,6 +78,7 @@ class Model_trainer:
             y_valid: Validation labels
             epochs: Number of epochs to train the model
         '''
+        loss = 0
         for epoch in range(epochs):
             print("Epoch: ", epoch)
             self._optimizer.zero_grad()
@@ -82,8 +87,19 @@ class Model_trainer:
                 label = np.array(y_train[batch:batch+self._batch_size])
 
                 img = torch.tensor(img).unsqueeze(1).to(self._device)
-                label = torch.tensor(label, dtype = torch.long).to(self._device)
+                if (self._model._task == 'classification'):
+                    label = torch.tensor(label, dtype = torch.long).to(self._device)
+                elif (self._model._task == 'regression'):
+                    label = torch.tensor(label, dtype = torch.float).to(self._device)
+                
                 pred = self._model.forward(img)
+
+                if (self._FM_Vis):
+                    if (batch == self._batch_size or batch == self._batch_size*100 or batch == self._batch_size*150):
+                        pred = self._model.forward(img, True)
+
+                if (self._model._task == 'regression'):
+                    pred = torch.reshape(pred, (-1,))
 
                 if (self._loss == 'cross_entropy'):
                     loss = F.cross_entropy(pred, label)
@@ -93,27 +109,8 @@ class Model_trainer:
                 self._optimizer.step()
                 self._optimizer.zero_grad()
 
-            # X_train = np.array(X_train)
-            # y_pred_train = self._model.forward(torch.tensor(X_train).unsqueeze(1).to(self._device))
             self.evaluate(X_train, y_train, False)
             self.evaluate(X_valid, y_valid, False)
-            # y_pred_train = torch.detach(y_pred_train).cpu().numpy()
-            # y_train = np.array(y_train)
-            # Metrics = Measures(y_pred_train, y_train, self._labels, self._labelsRnum, False)
-            # acc_train = Metrics.accuracy()
-            # prec_train = Metrics.precision()
-            # rec_train = Metrics.recall()
-            # f1_train = Metrics.f1_score()
-            # print(f"accuracy: {acc_train}")
-
-            # y_pred_valid, loss_valid = self.evaluate(X_valid, y_valid, False)
-            # y_pred_valid = np.array(y_pred_valid)
-            # y_valid = np.array(y_valid)
-            # Metrics = Measures(y_pred_valid, y_valid, self._labels, self._labelsRnum, False)
-            # acc_valid = Metrics.accuracy()
-            # prec_valid = Metrics.precision()
-            # rec_valid = Metrics.recall()
-            # f1_valid = Metrics.f1_score()
 
             # if (self._wb):
                 # wandb.log({'Train Loss': np.mean(loss_train), 'Valid Loss': np.mean(loss_valid)})
@@ -143,8 +140,14 @@ class Model_trainer:
                 label = np.array(y_test[batch:batch+self._batch_size])
                 
                 img = torch.tensor(img).unsqueeze(1).to(self._device)
-                label = torch.tensor(label, dtype = torch.long).to(self._device)
+                if (self._model._task == 'classification'):
+                    label = torch.tensor(label, dtype = torch.long).to(self._device)
+                elif (self._model._task == 'regression'):
+                    label = torch.tensor(label, dtype = torch.float).to(self._device)
                 y_pred.append(self._model.forward(img))
+
+                if (self._model._task == 'regression'):
+                    y_pred[-1] = torch.reshape(y_pred[-1], (-1,))
                 
                 if (self._loss == 'cross_entropy'):
                     loss.append(F.cross_entropy(y_pred[-1], label))
@@ -154,20 +157,7 @@ class Model_trainer:
                 acc.append(self.accuracy(y_pred[-1], label))
             
             print("Acc = ", np.mean(acc))
-            if (isTest):
-                y_pred = np.array(y_pred)
-                y_test = np.array(y_test)
-                Metrics = Measures(y_pred, y_test, self._labels, self._labelsRnum, False)
-                acc = Metrics.accuracy()
-                prec = Metrics.precision()
-                rec = Metrics.recall()
-                f1 = Metrics.f1_score()
-                print(f'Test Loss: {np.mean(loss)}')
-                print(f'Test Accuracy: {acc}')
-                print(f'Test Precision: {prec}')
-                print(f'Test Recall: {rec}')
-                print(f'Test F1 Score: {f1}')
-
+            print("Loss = ", np.mean(loss))
         return y_pred, loss
 
 class CNN(nn.Module):
@@ -195,50 +185,58 @@ class CNN(nn.Module):
         self._num_classes = self._FCLayers[-1]
 
         self._convs = nn.ModuleList()
-        if (self._task == 'classification'):
-            for i in range(len(self._ConvLayers)):
-                if (i == 0):
-                    self._convs.append(nn.Conv2d(in_channels=self._in_channels, out_channels=self._ConvLayers[i], 
-                                                 kernel_size=self._kernel_size[i], padding = self._kernel_size[i]//2))
-                else:
-                    self._convs.append(nn.Conv2d(in_channels=self._ConvLayers[i-1], out_channels=self._ConvLayers[i], 
-                                                 kernel_size=self._kernel_size[i], padding = self._kernel_size[i]//2))
+        for i in range(len(self._ConvLayers)):
+            if (i == 0):
+                self._convs.append(nn.Conv2d(in_channels=self._in_channels, out_channels=self._ConvLayers[i], 
+                                             kernel_size=self._kernel_size[i], padding = self._kernel_size[i]//2))
+            else:
+                self._convs.append(nn.Conv2d(in_channels=self._ConvLayers[i-1], out_channels=self._ConvLayers[i], 
+                                             kernel_size=self._kernel_size[i], padding = self._kernel_size[i]//2))
         
         self._fcs = nn.ModuleList()
         for i in range(len(self._FCLayers)):
             if (i != len(self._FCLayers)-1):
-                if (self._task == 'classification'):
-                    input_shape = self._ConvLayers[-1]
-                elif (self._task == 'regression'):
-                    input_shape = self._in_channels
                 self._fcs.append(nn.Linear(in_features=self._FCLayers[i], out_features=self._FCLayers[i+1]))
             if (self._dropout is not None):
                 self._fcs.append(nn.Dropout(self._dropout))
         pass
 
-    def forward(self, input):
+    def forward(self, input, Viz = False):
         '''
         Forward pass for the model.
 
         Parameters:
             input: Input to the model
+            Viz: Whether to visualize the feature maps or not
         '''
-        if (self._task == 'classification'):
-            for i in range(len(self._ConvLayers)):
-                if isinstance(self._convs[i], nn.Conv2d):
-                    input = self._convs[i](input)
-                elif isinstance(self._convs[i], nn.MaxPool2d):
-                    input = self._convs[i](input)
-                if (self._activation == 'relu' and i != len(self._ConvLayers)-1):
-                    input = F.relu(input)
-                elif (self._activation == 'tanh' and i != len(self._ConvLayers)-1):
-                    input = F.tanh(input)
-                elif (self._activation == 'sigmoid' and i != len(self._ConvLayers)-1):
-                    input = F.sigmoid(input)
-                elif (self._activation == 'softmax' and i != len(self._ConvLayers)-1):
-                    input = F.softmax(input)
-                if (i == len(self._ConvLayers)-1 and self._pool is not None):
-                    input = F.max_pool2d(input, self._pool[i])
+        if (Viz):
+            fig = plt.figure(figsize=(10, 5))
+            fig.suptitle('Feature Maps', fontsize=16)
+            plt.tight_layout()
+            j = 1
+        for i in range(len(self._ConvLayers)):
+            if isinstance(self._convs[i], nn.Conv2d):
+                input = self._convs[i](input)
+            elif isinstance(self._convs[i], nn.MaxPool2d):
+                input = self._convs[i](input)
+            if (self._activation == 'relu' and i != len(self._ConvLayers)-1):
+                input = F.relu(input)
+            elif (self._activation == 'tanh' and i != len(self._ConvLayers)-1):
+                input = F.tanh(input)
+            elif (self._activation == 'sigmoid' and i != len(self._ConvLayers)-1):
+                input = F.sigmoid(input)
+            elif (self._activation == 'softmax' and i != len(self._ConvLayers)-1):
+                input = F.softmax(input)
+            if (i == len(self._ConvLayers)-1 and self._pool is not None):
+                input = F.max_pool2d(input, self._pool[i])
+            if (Viz):
+                ax = plt.subplot(1, 3, j)
+                ax.imshow(input[0, 0].detach().cpu().numpy())
+                ax.set_title('Layer #{}'.format(j))
+                ax.axis('off')
+                j += 1
+        if (Viz):
+            plt.show()
         
         input = input.view(input.size(0), -1)
         for i in range(len(self._FCLayers)):
