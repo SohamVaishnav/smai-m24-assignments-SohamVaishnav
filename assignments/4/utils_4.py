@@ -7,7 +7,7 @@ import pandas as pd
 import sys
 import os
 import wandb
-import PIL
+import struct
 
 import cv2
 
@@ -18,7 +18,7 @@ import torch.optim as optim
 
 import torchvision
 from torch.utils.data import random_split
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Dataset
 
 import torchvision.transforms as transforms
 
@@ -197,3 +197,188 @@ class MultiMNISTDataset(object):
 #                                                                             '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21',
 #                                                                             '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', 'digits'])
 # df.to_csv(os.path.join(PreProcessDIR, 'multi_label_test_labels.csv'), index=False)
+
+# class FashionMNISTDataset(Dataset):
+#     '''
+#     A custom Dataset class to handle FashionMNIST binary data (.ubyte files).
+#     '''
+#     def __init__(self, images_path: str, labels_path: str, transform=None):
+#         self.images = self._read_images(images_path)
+#         self.labels = self._read_labels(labels_path)
+#         self.transform = transform
+
+#     def __len__(self):
+#         return len(self.labels)
+
+#     def __getitem__(self, idx):
+#         image = self.images[idx]
+#         label = self.labels[idx]
+#         if self.transform:
+#             image = self.transform(image)
+#         return image, label
+
+#     def _read_images(self, file_path: str):
+#         '''Read images from the binary .ubyte file.'''
+#         with open(file_path, 'rb') as f:
+#             magic, num, rows, cols = struct.unpack(">IIII", f.read(16))
+#             images = np.frombuffer(f.read(), dtype=np.uint8).reshape(num, rows, cols)
+#             images = images.astype(np.float32) / 255.0  # Normalize to [0, 1]
+#         return images
+
+#     def _read_labels(self, file_path: str):
+#         '''Read labels from the binary .ubyte file.'''
+#         with open(file_path, 'rb') as f:
+#             magic, num = struct.unpack(">II", f.read(8))
+#             labels = np.frombuffer(f.read(), dtype=np.uint8)
+#         return labels
+
+# class FashionMNISTLoader:
+#     '''
+#     A class to load FashionMNIST dataset from binary .ubyte files.
+#     '''
+#     def __init__(self, batch_size: int, root: str = RawDataDIR):
+#         '''
+#         Parameters:
+#             root (str): Path to the dataset directory.
+#             batch_size (int): Batch size for data loaders.
+#         '''
+#         self._root = os.path.join(root, 'fashionMNIST')
+#         self._batch_size = batch_size
+#         self._transform = transforms.Compose([
+#             transforms.ToPILImage(),
+#             transforms.Resize((28, 28)),
+#             transforms.ToTensor(),
+#             transforms.Normalize((0.5,), (0.5,))
+#         ])
+
+#         assert os.path.exists(self._root), f"Path {self._root} does not exist."
+
+#     def _get_data_paths(self, dataset_type: str):
+#         '''
+#         Get the paths to the images and labels .ubyte files.
+#         '''
+#         images_path = os.path.join(self._root, f'{dataset_type}-images-idx3-ubyte')
+#         labels_path = os.path.join(self._root, f'{dataset_type}-labels-idx1-ubyte')
+#         assert os.path.exists(images_path), f"{images_path} does not exist."
+#         assert os.path.exists(labels_path), f"{labels_path} does not exist."
+#         return images_path, labels_path
+
+#     def _create_dataloader(self, dataset_type: str):
+#         '''
+#         Create a DataLoader for the given dataset type (train/val/test).
+#         '''
+#         images_path, labels_path = self._get_data_paths(dataset_type)
+#         dataset = FashionMNISTDataset(images_path, labels_path, transform=self._transform)
+#         return DataLoader(dataset, batch_size=self._batch_size, shuffle=(dataset_type == 'train'))
+
+#     def load_data(self):
+#         '''
+#         Load the train, validation, and test DataLoaders.
+#         '''
+#         train_loader = self._create_dataloader('train')
+#         test_loader = self._create_dataloader('t10k')
+#         return train_loader, test_loader
+
+
+import os
+import struct
+import numpy as np
+from torch.utils.data import Dataset, DataLoader, random_split
+from torchvision import transforms
+from PIL import Image
+import torch
+
+class FashionMNISTDataset(Dataset):
+    '''
+    A custom Dataset class to handle FashionMNIST binary data (.ubyte files).
+    '''
+    def __init__(self, images_path: str, labels_path: str, transform=None):
+        self.images = self._read_images(images_path)
+        self.labels = self._read_labels(labels_path)
+        self.transform = transform
+
+    def __len__(self):
+        return len(self.labels)
+
+    def __getitem__(self, idx):
+        image = self.images[idx]
+        label = self.labels[idx]
+        image = Image.fromarray(image, mode='L')
+
+        if self.transform:
+            image = self.transform(image)
+
+        return image, label
+
+    def _read_images(self, file_path: str):
+        '''Read images from the binary .ubyte file.'''
+        with open(file_path, 'rb') as f:
+            magic, num, rows, cols = struct.unpack(">IIII", f.read(16))
+            images = np.frombuffer(f.read(), dtype=np.uint8).reshape(num, rows, cols)
+            images = images.astype(np.float32) / 255.0 
+        return images
+
+    def _read_labels(self, file_path: str):
+        '''Read labels from the binary .ubyte file.'''
+        with open(file_path, 'rb') as f:
+            magic, num = struct.unpack(">II", f.read(8))
+            labels = np.frombuffer(f.read(), dtype=np.uint8)
+        return labels
+
+
+class FashionMNISTLoader:
+    '''
+    A class to load FashionMNIST dataset from binary .ubyte files.
+    '''
+    def __init__(self, batch_size: int, root: str = RawDataDIR):
+        '''
+        Parameters:
+            root (str): Path to the dataset directory.
+            batch_size (int): Batch size for data loaders.
+        '''
+        self._root = os.path.join(root, 'fashionMNIST')
+        self._batch_size = batch_size
+        self._transform = transforms.Compose([
+            transforms.Resize((28, 28)),
+            transforms.ToTensor(),
+            transforms.Normalize((0.5,), (0.5,))
+        ])
+
+        assert os.path.exists(self._root), f"Path {self._root} does not exist."
+
+    def _get_data_paths(self, dataset_type: str):
+        '''
+        Get the paths to the images and labels .ubyte files.
+        '''
+        images_path = os.path.join(self._root, f'{dataset_type}-images-idx3-ubyte')
+        labels_path = os.path.join(self._root, f'{dataset_type}-labels-idx1-ubyte')
+        assert os.path.exists(images_path), f"{images_path} does not exist."
+        assert os.path.exists(labels_path), f"{labels_path} does not exist."
+        return images_path, labels_path
+
+    def _create_dataloader(self, dataset_type: str, shuffle: bool = False):
+        '''
+        Create a DataLoader for the given dataset type (train/val/test).
+        '''
+        images_path, labels_path = self._get_data_paths(dataset_type)
+        dataset = FashionMNISTDataset(images_path, labels_path, transform=self._transform)
+        return DataLoader(dataset, batch_size=self._batch_size, shuffle=shuffle)
+
+    def load_data(self):
+        '''
+        Load the train, validation, and test DataLoaders.
+        Splits train dataset into 80% train and 20% validation.
+        '''
+        images_path, labels_path = self._get_data_paths('train')
+        full_train_dataset = FashionMNISTDataset(images_path, labels_path, transform=self._transform)
+
+        train_size = int(0.8 * len(full_train_dataset))
+        val_size = len(full_train_dataset) - train_size
+        train_dataset, val_dataset = random_split(full_train_dataset, [train_size, val_size])
+
+        train_loader = DataLoader(train_dataset, batch_size=self._batch_size, shuffle=True)
+        val_loader = DataLoader(val_dataset, batch_size=self._batch_size, shuffle=False)
+
+        test_loader = self._create_dataloader('t10k', shuffle=False)
+
+        return train_loader, val_loader, test_loader
