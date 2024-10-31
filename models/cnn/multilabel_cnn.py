@@ -23,8 +23,8 @@ import torchvision.transforms as transforms
 
 from sklearn.metrics import precision_score, recall_score, f1_score
 
-AssignDIR = os.path.dirname(os.path.dirname(os.path.abspath('cnn.py')))
-CurrDIR = os.path.dirname(os.path.abspath('cnn.py'))
+AssignDIR = os.path.dirname(os.path.dirname(os.path.abspath('multilabel_cnn.py')))
+CurrDIR = os.path.dirname(os.path.abspath('multilabel_cnn.py'))
 UserDIR = os.path.dirname(AssignDIR)
 
 sys.path.append(UserDIR)

@@ -157,8 +157,8 @@ class PcaAutoencoder(nn.Module):
         """
         Reduce the dimensionality of the input data.
         """
-        X_centered = X - self.mean  # Use the mean computed during fit
-        return torch.mm(X_centered, self.eigenvectors)  # Shape: (batch_size, output_dim)
+        X_centered = X - self.mean 
+        return torch.mm(X_centered, self.eigenvectors)
 
     def decode(self, Z):
         """
