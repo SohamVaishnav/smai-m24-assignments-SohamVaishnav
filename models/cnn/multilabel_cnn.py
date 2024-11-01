@@ -78,28 +78,28 @@ class Model_trainer:
         Parameters:
             vector: One-hot encoded labels
         '''
-        # batch_size = vector.size(0)
-        # preds = vector.view(batch_size, 3, 11)
-        # preds = torch.argmax(preds, dim=2)
-        pred = []
-        ones = torch.argmax(vector[:,0:11], dim=1)
-        twos = torch.argmax(vector[:,11:22], dim=1)
-        threes = torch.argmax(vector[:,22:33], dim=1)
-        for i in range(len(vector)):
-            if (ones[i] != 10 and twos[i] == 10 and threes[i] == 10):
-                label = ones[i]
-                pred.append(label)
-            elif (ones[i] != 10 and twos[i] != 10 and threes[i] == 10):
-                label = (ones[i])*10 + (twos[i])*1
-                pred.append(label)
-            elif (ones[i] != 10 and twos[i] != 10 and threes[i] != 10):
-                label = (ones[i])*100 + (twos[i])*10 + (threes[i])*1
-                pred.append(label)
-            elif (ones[i] == 10 and twos[i] == 10 and threes[i] == 10):
-                label = -1
-                pred.append(label)
-        preds = np.array(pred)
-        preds = torch.tensor(preds)
+        batch_size = vector.size(0)
+        preds = vector.view(batch_size, 3, 11)
+        preds = torch.argmax(preds, dim=2)
+        # pred = []
+        # ones = torch.argmax(vector[:,0:11], dim=1)
+        # twos = torch.argmax(vector[:,11:22], dim=1)
+        # threes = torch.argmax(vector[:,22:33], dim=1)
+        # for i in range(len(vector)):
+        #     if (ones[i] != 10 and twos[i] == 10 and threes[i] == 10):
+        #         label = ones[i]
+        #         pred.append(label)
+        #     elif (ones[i] != 10 and twos[i] != 10 and threes[i] == 10):
+        #         label = (ones[i])*10 + (twos[i])*1
+        #         pred.append(label)
+        #     elif (ones[i] != 10 and twos[i] != 10 and threes[i] != 10):
+        #         label = (ones[i])*100 + (twos[i])*10 + (threes[i])*1
+        #         pred.append(label)
+        #     elif (ones[i] == 10 and twos[i] == 10 and threes[i] == 10):
+        #         label = -1
+        #         pred.append(label)
+        # preds = np.array(pred)
+        # preds = torch.tensor(preds)
         return preds
 
     def HamminAccuracy(self, y_pred, y_true):
@@ -141,6 +141,10 @@ class Model_trainer:
             epochs: Number of epochs to train the model
         '''
         loss = 0
+        acc_train = []
+        acc_valid = []
+        loss_train = []
+        loss_valid = []
         for epoch in range(epochs):
             print("Epoch: ", epoch)
             self._optimizer.zero_grad()
@@ -148,7 +152,7 @@ class Model_trainer:
                 img = np.array(X_train[batch:batch+self._batch_size])
                 label = np.array(y_train[batch:batch+self._batch_size])
 
-                img = torch.tensor(img).to(self._device)
+                img = torch.tensor(img).unsqueeze(1).to(self._device)
                 if (self._model._task == 'classification'):
                     label = torch.tensor(label, dtype = torch.float).to(self._device)
                 elif (self._model._task == 'regression'):
@@ -177,19 +181,30 @@ class Model_trainer:
                 self._optimizer.step()
                 self._optimizer.zero_grad()
 
-            acc_train, loss_train, y_pred_train = self.evaluate(X_train, y_train, False)
-            acc_valid, loss_valid, y_pred_val = self.evaluate(X_valid, y_valid, False)
+            acc, loss, y_pred_train = self.evaluate(X_train, y_train, False)
+            acc_train.append(acc)
+            loss_train.append(loss)
+            acc, loss, y_pred_val = self.evaluate(X_valid, y_valid, False)
+            acc_valid.append(acc)
+            loss_valid.append(loss)
 
-            # y_train = torch.tensor(y_train)
-            # y_valid = torch.tensor(y_valid)
-            # prec_train = self.precision(y_train, y_pred_train)
-            # prec_valid = self.precision(y_valid, y_pred_val)
+        # plt.figure(figsize=(10, 5))
+        # plt.plot(acc_train, label = 'Train Accuracy')
+        # plt.plot(acc_valid, label = 'Valid Accuracy')
+        # plt.legend()
+        # plt.xlabel('Epochs')
+        # plt.ylabel('Accuracy')
+        # plt.title('Accuracy vs Epochs')
+        # plt.show()
 
-            # rec_train = self.recall(y_train, y_pred_train)
-            # rec_valid = self.recall(y_valid, y_pred_val)
-
-            # f1_train = self.f1_score(y_train, y_pred_train)
-            # f1_valid = self.f1_score(y_valid, y_pred_val)
+        # plt.figure(figsize=(10, 5))
+        # plt.plot(loss_train, label = 'Train Loss')
+        # plt.plot(loss_valid, label = 'Valid Loss')
+        # plt.legend()
+        # plt.xlabel('Epochs')
+        # plt.ylabel('Loss')
+        # plt.title('Loss vs Epochs')
+        # plt.show()
 
             # if (self._wb):
             #     wandb.log({'Train Loss': np.mean(loss_train), 'Valid Loss': np.mean(loss_valid)})
@@ -218,7 +233,7 @@ class Model_trainer:
                 img = np.array(X_test[batch:batch+self._batch_size])
                 label = np.array(y_test[batch:batch+self._batch_size])
                 
-                img = torch.tensor(img).to(self._device)
+                img = torch.tensor(img).unsqueeze(1).to(self._device)
                 if (self._model._task == 'classification'):
                     label = torch.tensor(label, dtype = torch.float).to(self._device)
                 elif (self._model._task == 'regression'):
@@ -239,7 +254,7 @@ class Model_trainer:
                 elif (self._loss == 'KLD'):
                     loss.append(F.kl_div(y_pred[-1], label))
 
-                acc.append(self.HamminAccuracy(y_pred[-1], label))
+                acc.append(self.accuracy(y_pred[-1], label))
             
             print("Acc = ", np.mean(acc))
             print("Loss = ", np.mean(loss))
@@ -282,8 +297,8 @@ class MultiCNN(nn.Module):
         for i in range(len(self._FCLayers)):
             if (i != len(self._FCLayers)-1):
                 self._fcs.append(nn.Linear(in_features=self._FCLayers[i], out_features=self._FCLayers[i+1]))
-            # if (self._dropout is not None):
-                # self._fcs.append(nn.Dropout(self._dropout))
+            if (self._dropout is not None):
+                self._fcs.append(nn.Dropout(self._dropout))
         pass
 
     def forward(self, input, Viz = False):
@@ -324,7 +339,7 @@ class MultiCNN(nn.Module):
             plt.show()
         
         input = input.view(input.size(0), -1)
-        for i in range(len(self._FCLayers)-1):
+        for i in range(len(self._FCLayers)):
             input = self._fcs[i](input)
             if (self._activation == 'relu' and i != len(self._FCLayers)-1):
                 input = F.relu(input)
@@ -334,8 +349,8 @@ class MultiCNN(nn.Module):
                 input = F.sigmoid(input)
             elif (self._activation == 'softmax' and i != len(self._FCLayers)-1):
                 input = F.softmax(input)
-            if (self._dropout is not None and i != len(self._FCLayers)-2):
-                input = F.dropout(input, self._dropout)
+            # if (self._dropout is not None and i != len(self._FCLayers)-2):
+            #     input = F.dropout(input, self._dropout)
 
         # input[:,0:11] = F.softmax(input[:,0:11], dim=1)
         # input[:,11:22] = F.softmax(input[:,11:22], dim=1)
