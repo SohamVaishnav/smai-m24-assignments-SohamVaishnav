@@ -10,6 +10,7 @@ import wandb
 import struct
 
 import cv2
+from PIL import Image
 
 import torch
 import torch.nn as nn
@@ -45,7 +46,7 @@ class MultiMNISTDataset(object):
         self._root = root
         self._batch_size = batch_size
         self._resizer = transforms.Compose([transforms.ToPILImage(),
-                                        transforms.Resize((64, 64)), 
+                                        transforms.Resize((28, 28)), 
                                         transforms.ToTensor(),
                                         transforms.Normalize((0.5,), (0.5,))])
 
@@ -93,12 +94,12 @@ class MultiMNISTDataset(object):
         
         for i in range(len(self._train_images_paths)):
             self._train_images.append(cv2.imread(self._train_images_paths[i], cv2.IMREAD_GRAYSCALE))
-            self._train_images[-1] = self._resizer(self._train_images[-1])
-            self._train_images[-1] = self._train_images[-1].numpy()
+            # self._train_images[-1] = self._resizer(self._train_images[-1])
+            # self._train_images[-1] = self._train_images[-1].numpy()
             # self._train_images[-1] = np.transpose(self._train_images[-1], (1, 2, 0))
-            # self._train_images[-1] = cv2.resize(self._train_images[-1], (64, 64))
-            # self._train_images[-1] = self._train_images[-1].astype(np.float32)
-            # self._train_images[-1] /= 255.0
+            self._train_images[-1] = cv2.resize(self._train_images[-1], (28, 28))
+            self._train_images[-1] = self._train_images[-1].astype(np.float32)
+            self._train_images[-1] /= 255.0
         
         for root, _, files in os.walk(self._valid_path):
             self._valid_images_paths.extend([os.path.join(root, file) for file in files])
@@ -115,12 +116,12 @@ class MultiMNISTDataset(object):
         
         for i in range(len(self._valid_images_paths)):
             self._valid_images.append(cv2.imread(self._valid_images_paths[i], cv2.IMREAD_GRAYSCALE))
-            self._valid_images[-1] = self._resizer(self._valid_images[-1])
-            self._valid_images[-1] = self._valid_images[-1].numpy()
+            # self._valid_images[-1] = self._resizer(self._valid_images[-1])
+            # self._valid_images[-1] = self._valid_images[-1].numpy()
             # self._valid_images[-1] = np.transpose(self._valid_images[-1], (1, 2, 0))
-            # self._valid_images[-1] = cv2.resize(self._valid_images[-1], (64, 64))
-            # self._valid_images[-1] = self._valid_images[-1].astype(np.float32)
-            # self._valid_images[-1] /= 255.0
+            self._valid_images[-1] = cv2.resize(self._valid_images[-1], (28, 28))
+            self._valid_images[-1] = self._valid_images[-1].astype(np.float32)
+            self._valid_images[-1] /= 255.0
         
         for root, _, files in os.walk(self._test_path):
             self._test_images_paths.extend([os.path.join(root, file) for file in files])
@@ -137,12 +138,12 @@ class MultiMNISTDataset(object):
         
         for i in range(len(self._test_images_paths)):
             self._test_images.append(cv2.imread(self._test_images_paths[i], cv2.IMREAD_GRAYSCALE))
-            self._test_images[-1] = self._resizer(self._test_images[-1])
-            self._test_images[-1] = self._test_images[-1].numpy()
+            # self._test_images[-1] = self._resizer(self._test_images[-1])
+            # self._test_images[-1] = self._test_images[-1].numpy()
             # self._test_images[-1] = np.transpose(self._test_images[-1], (1, 2, 0))
-            # self._test_images[-1] = cv2.resize(self._test_images[-1], (64, 64))
-            # self._test_images[-1] = self._test_images[-1].astype(np.float32)
-            # self._test_images[-1] /= 255.0
+            self._test_images[-1] = cv2.resize(self._test_images[-1], (28, 28))
+            self._test_images[-1] = self._test_images[-1].astype(np.float32)
+            self._test_images[-1] /= 255.0
         
         pass
     
@@ -197,96 +198,6 @@ class MultiMNISTDataset(object):
 #                                                                             '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21',
 #                                                                             '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', 'digits'])
 # df.to_csv(os.path.join(PreProcessDIR, 'multi_label_test_labels.csv'), index=False)
-
-# class FashionMNISTDataset(Dataset):
-#     '''
-#     A custom Dataset class to handle FashionMNIST binary data (.ubyte files).
-#     '''
-#     def __init__(self, images_path: str, labels_path: str, transform=None):
-#         self.images = self._read_images(images_path)
-#         self.labels = self._read_labels(labels_path)
-#         self.transform = transform
-
-#     def __len__(self):
-#         return len(self.labels)
-
-#     def __getitem__(self, idx):
-#         image = self.images[idx]
-#         label = self.labels[idx]
-#         if self.transform:
-#             image = self.transform(image)
-#         return image, label
-
-#     def _read_images(self, file_path: str):
-#         '''Read images from the binary .ubyte file.'''
-#         with open(file_path, 'rb') as f:
-#             magic, num, rows, cols = struct.unpack(">IIII", f.read(16))
-#             images = np.frombuffer(f.read(), dtype=np.uint8).reshape(num, rows, cols)
-#             images = images.astype(np.float32) / 255.0  # Normalize to [0, 1]
-#         return images
-
-#     def _read_labels(self, file_path: str):
-#         '''Read labels from the binary .ubyte file.'''
-#         with open(file_path, 'rb') as f:
-#             magic, num = struct.unpack(">II", f.read(8))
-#             labels = np.frombuffer(f.read(), dtype=np.uint8)
-#         return labels
-
-# class FashionMNISTLoader:
-#     '''
-#     A class to load FashionMNIST dataset from binary .ubyte files.
-#     '''
-#     def __init__(self, batch_size: int, root: str = RawDataDIR):
-#         '''
-#         Parameters:
-#             root (str): Path to the dataset directory.
-#             batch_size (int): Batch size for data loaders.
-#         '''
-#         self._root = os.path.join(root, 'fashionMNIST')
-#         self._batch_size = batch_size
-#         self._transform = transforms.Compose([
-#             transforms.ToPILImage(),
-#             transforms.Resize((28, 28)),
-#             transforms.ToTensor(),
-#             transforms.Normalize((0.5,), (0.5,))
-#         ])
-
-#         assert os.path.exists(self._root), f"Path {self._root} does not exist."
-
-#     def _get_data_paths(self, dataset_type: str):
-#         '''
-#         Get the paths to the images and labels .ubyte files.
-#         '''
-#         images_path = os.path.join(self._root, f'{dataset_type}-images-idx3-ubyte')
-#         labels_path = os.path.join(self._root, f'{dataset_type}-labels-idx1-ubyte')
-#         assert os.path.exists(images_path), f"{images_path} does not exist."
-#         assert os.path.exists(labels_path), f"{labels_path} does not exist."
-#         return images_path, labels_path
-
-#     def _create_dataloader(self, dataset_type: str):
-#         '''
-#         Create a DataLoader for the given dataset type (train/val/test).
-#         '''
-#         images_path, labels_path = self._get_data_paths(dataset_type)
-#         dataset = FashionMNISTDataset(images_path, labels_path, transform=self._transform)
-#         return DataLoader(dataset, batch_size=self._batch_size, shuffle=(dataset_type == 'train'))
-
-#     def load_data(self):
-#         '''
-#         Load the train, validation, and test DataLoaders.
-#         '''
-#         train_loader = self._create_dataloader('train')
-#         test_loader = self._create_dataloader('t10k')
-#         return train_loader, test_loader
-
-
-import os
-import struct
-import numpy as np
-from torch.utils.data import Dataset, DataLoader, random_split
-from torchvision import transforms
-from PIL import Image
-import torch
 
 class FashionMNISTDataset(Dataset):
     '''

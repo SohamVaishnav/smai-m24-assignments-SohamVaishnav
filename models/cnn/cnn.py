@@ -79,6 +79,10 @@ class Model_trainer:
             epochs: Number of epochs to train the model
         '''
         loss = 0
+        train_acc = [] 
+        val_acc = []
+        train_loss = []
+        val_loss = []
         for epoch in range(epochs):
             print("Epoch: ", epoch)
             self._optimizer.zero_grad()
@@ -109,8 +113,12 @@ class Model_trainer:
                 self._optimizer.step()
                 self._optimizer.zero_grad()
 
-            self.evaluate(X_train, y_train, False)
-            self.evaluate(X_valid, y_valid, False)
+            acc, loss = self.evaluate(X_train, y_train, False)
+            train_acc.append(np.mean(acc))
+            train_loss.append(np.mean(loss))
+            acc, loss = self.evaluate(X_valid, y_valid, False)
+            val_acc.append(np.mean(acc))
+            val_loss.append(np.mean(loss))
 
             # if (self._wb):
                 # wandb.log({'Train Loss': np.mean(loss_train), 'Valid Loss': np.mean(loss_valid)})
@@ -119,7 +127,7 @@ class Model_trainer:
                 # wandb.log({'Train Recall': rec_train[0], 'Valid Recall': rec_valid[0]})
                 # wandb.log({'Train F1 Score': f1_train[0], 'Valid F1 Score': f1_valid[0]})
                 # wandb.log({'epoch': epoch})
-                
+        self.plot_metrics(train_acc, val_acc, train_loss, val_loss)     
         pass
 
     def evaluate(self, X_test, y_test, isTest: bool) -> None:
@@ -158,7 +166,28 @@ class Model_trainer:
             
             print("Acc = ", np.mean(acc))
             print("Loss = ", np.mean(loss))
-        return y_pred, loss
+        return acc, loss
+
+    def plot_metrics(self, train_acc, val_acc, train_loss, val_loss):
+        plt.figure(figsize=(10, 5))
+        plt.plot(train_acc, label='Train Accuracy')
+        plt.plot(val_acc, label='Validation Accuracy')
+        plt.title('Training and Validation Accuracy')
+        plt.xlabel('Epoch')
+        plt.ylabel('Accuracy')
+        plt.legend()
+        plt.grid()
+        plt.show()
+
+        plt.figure(figsize=(10, 5))
+        plt.plot(train_loss, label='Train Loss')
+        plt.plot(val_loss, label='Validation Loss')
+        plt.title('Training and Validation Loss')
+        plt.xlabel('Epoch')
+        plt.ylabel('Loss')
+        plt.legend()
+        plt.grid()
+        plt.show()
 
 class CNN(nn.Module):
     '''
@@ -227,7 +256,7 @@ class CNN(nn.Module):
                 input = F.sigmoid(input)
             elif (self._activation == 'softmax' and i != len(self._ConvLayers)-1):
                 input = F.softmax(input)
-            if (i == len(self._ConvLayers)-1 and self._pool is not None):
+            if (self._pool is not None):
                 input = F.max_pool2d(input, self._pool[i])
             if (Viz):
                 ax = plt.subplot(1, 3, j)
@@ -247,7 +276,9 @@ class CNN(nn.Module):
                 input = F.tanh(input)
             elif (self._activation == 'sigmoid' and i != len(self._FCLayers)-1):
                 input = F.sigmoid(input)
-            elif (self._activation == 'softmax' and i != len(self._FCLayers)-1):
-                input = F.softmax(input)
+            # elif (i == len(self._FCLayers)-1):
+            #     input = F.softmax(input)
+            # if (self._dropout is not None and i != len(self._FCLayers)-2):
+            #     input = F.dropout(input, self._dropout)
         
         return input
