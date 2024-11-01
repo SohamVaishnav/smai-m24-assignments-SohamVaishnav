@@ -256,14 +256,14 @@ class CNN(nn.Module):
                 input = F.sigmoid(input)
             elif (self._activation == 'softmax' and i != len(self._ConvLayers)-1):
                 input = F.softmax(input)
-            if (self._pool is not None):
-                input = F.max_pool2d(input, self._pool[i])
             if (Viz):
                 ax = plt.subplot(1, 3, j)
                 ax.imshow(input[0, 0].detach().cpu().numpy())
                 ax.set_title('Layer #{}'.format(j))
                 ax.axis('off')
                 j += 1
+            if (self._pool is not None):
+                input = F.max_pool2d(input, self._pool[i])
         if (Viz):
             plt.show()
         
