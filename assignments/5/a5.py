@@ -5,12 +5,12 @@ import wandb
 
 import os
 import sys 
+import shutil
+import time
 
 import plotly.express as px
 import plotly.subplots as sp
 import plotly.graph_objects as go
-
-import time
 
 AssignDIR = os.path.dirname(os.path.dirname(os.path.abspath('a5.py')))
 CurrDIR = os.path.dirname(os.path.abspath('a5.py'))
@@ -21,6 +21,7 @@ sys.path.append(UserDIR)
 from models.kde.kde import KDE
 
 from sklearn.preprocessing import StandardScaler
+import librosa
 
 RawDataDIR = os.path.join(UserDIR, "./data/external/")
 PreProcessDIR = os.path.join(UserDIR, "./data/interim/5/")
@@ -75,6 +76,17 @@ def getData(source: str, mean_small, mean_large, cov_small, cov_large):
     pd.DataFrame(data, columns=['x', 'y']).to_csv(os.path.join(RawDataDIR, "data_a5.csv"), index=False)
         
     return data
+
+def storeDataHMM(src: str, target: str):
+    for root, _, file in os.walk(src):
+        for f in file:
+            if f.endswith('.wav'):
+                digit = f.split('_')[0]
+                shutil.move(os.path.join(root, f), os.path.join(target, digit))
+    print(f"Data stored in {target}.")
+    return None                
+
+# storeDataHMM(os.path.join(RawDataDIR, 'recordings'), os.path.join(RawDataDIR, 'audio_mnist'))
 
 ################################### KDE ########################################
 data = getData('circle', [1, 1], [0, 0], 0.3, 2.25)
