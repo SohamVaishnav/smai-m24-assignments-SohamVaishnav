@@ -43,10 +43,7 @@ class KDE(object):
             thresh: (float) the threshold value
         '''
         self.thresh = thresh
-        if (abs(x) <= thresh):
-            return 1
-        else:
-            return 0
+        return (x <= thresh) / (2*thresh)
     
     def gaussianKernel(self, x, thresh: float = 0.5):
         '''
@@ -68,19 +65,16 @@ class KDE(object):
             thresh: (float) the threshold value
         '''
         self.thresh = thresh
-        if (abs(x) <= thresh):
-            return 1 - abs(x/thresh)
-        else:
-            return 0
+        return (1 - np.abs(x) / thresh) * (x <= thresh)
         
-    def fit(self, kernel: str, params: dict):
+    def fit(self, kernel: str, thresh: float):
         '''
         Fit the KDE model
         '''
-        self.buildKernel(kernel, params)
+        self.buildKernel(kernel)
         self.kde = np.zeros(self.n)
         distances = np.linalg.norm(self.data[:, np.newaxis] - self.data, axis=2)
-        kernel_values = self.kernel(distances, params['thresh'])
+        kernel_values = self.kernel(distances, thresh)
         self.kde = np.mean(kernel_values, axis=1)
     
     def predict(self, x):
@@ -95,8 +89,23 @@ class KDE(object):
         '''
         Plot the KDE model
         '''
-        fig = px.scatter_3d(x=data[:, 0], y=data[:, 1], title=title)
+        fig = px.scatter(x=data[:, 0], y=data[:, 1], title=title)
         fig.update_traces(marker=dict(size=3))
+        fig.show()
+
+    def plotKDE(self, data, title: str):
+        '''
+        Plot the KDE model
+        '''
+        fig = px.scatter_3d(x=data[:, 0], y=data[:, 1], z=self.kde, title=title)
+        fig.update_traces(marker=dict(size=3))
+        fig.show()
+    
+    def plotContour(self, data, title: str):
+        '''
+        Plot the KDE model
+        '''
+        fig = go.Figure(data=[go.Contour(z=self.kde, x=data[:,0], y=data[:,1])])
         fig.show()
     
 
