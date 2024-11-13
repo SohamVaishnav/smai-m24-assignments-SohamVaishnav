@@ -1,0 +1,89 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import wandb
+
+import os
+import sys 
+
+import plotly.express as px
+import plotly.subplots as sp
+import plotly.graph_objects as go
+
+import time
+
+AssignDIR = os.path.dirname(os.path.dirname(os.path.abspath('a5.py')))
+CurrDIR = os.path.dirname(os.path.abspath('a5.py'))
+UserDIR = os.path.dirname(AssignDIR)
+
+sys.path.append(UserDIR)
+
+from models.kde.kde import KDE
+
+from sklearn.preprocessing import StandardScaler
+
+RawDataDIR = os.path.join(UserDIR, "./data/external/")
+PreProcessDIR = os.path.join(UserDIR, "./data/interim/5/")
+
+def sample_points_in_gaussian(n_points, mean, cov):
+    """
+    Sample n_points from a Gaussian distribution with given mean and covariance.
+
+    Parameters:
+        n_points (int): Number of points to sample
+        mean (ndarray): Mean of the Gaussian distribution
+        cov (ndarray): Covariance matrix of the Gaussian distribution
+    """
+    return np.random.multivariate_normal(mean, cov, n_points)
+
+def sample_points_in_circle(n_points, radius, center=(0, 0)):
+    """
+    Sample n_points uniformly within a circle of given radius and center.
+
+    Parameters:
+        n_points (int): Number of points to sample
+        radius (float): Radius of the circle
+        center (tuple): Center of the circle
+    """
+    r = radius * np.sqrt(np.random.rand(n_points))
+    theta = 2 * np.pi * np.random.rand(n_points)
+
+    x = center[0] + r * np.cos(theta)
+    y = center[1] + r * np.sin(theta)
+    
+    return np.column_stack((x, y))
+
+def getData(source: str, mean_small, mean_large, cov_small, cov_large):
+    if source == 'circle':
+        n_large = 3000
+        large_circle = sample_points_in_circle(n_large, cov_large, mean_large)
+
+        n_small = 500
+        small_circle = sample_points_in_circle(n_small, cov_small, mean_small)
+        
+        data = np.concatenate([large_circle, small_circle])
+    else:
+        n_large = 3000
+        large_circle = sample_points_in_gaussian(n_large, mean_large, cov_large)
+
+        n_small = 500
+        small_circle = sample_points_in_gaussian(n_small, mean_small, cov_small)
+        
+        data = np.concatenate([large_circle, small_circle])
+
+    np.random.shuffle(data)
+    pd.DataFrame(data, columns=['x', 'y']).to_csv(os.path.join(RawDataDIR, "data_a5.csv"), index=False)
+        
+    return data
+
+################################### KDE ########################################
+data = getData('circle', [1, 1], [0, 0], 0.3, 2.25)
+
+scaler = StandardScaler()
+data = scaler.fit_transform(data)
+type = 'triangular'
+kde = KDE(data)
+kde.buildKernel(type)
+kde.fit(type, 0.5)
+kde.plot(data, type)
+kde.plotKDE(data, type)
