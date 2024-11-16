@@ -18,8 +18,6 @@ UserDIR = os.path.dirname(AssignDIR)
 
 sys.path.append(UserDIR)
 
-from models.kde.kde import KDE
-
 from sklearn.preprocessing import StandardScaler
 import librosa
 
@@ -89,13 +87,58 @@ def storeDataHMM(src: str, target: str):
 # storeDataHMM(os.path.join(RawDataDIR, 'recordings'), os.path.join(RawDataDIR, 'audio_mnist'))
 
 ################################### KDE ########################################
-data = getData('circle', [1, 1], [0, 0], 0.3, 2.25)
+# from models.kde.kde import KDE
 
-scaler = StandardScaler()
-data = scaler.fit_transform(data)
-type = 'triangular'
-kde = KDE(data)
-kde.buildKernel(type)
-kde.fit(type, 0.5)
-kde.plot(data, type)
-kde.plotKDE(data, type)
+# data = getData('circle', [1, 1], [0, 0], 0.3, 2.25)
+
+# scaler = StandardScaler()
+# data = scaler.fit_transform(data)
+# type = 'triangular'
+# kde = KDE(data)
+# kde.buildKernel(type)
+# kde.fit(type, 0.5)
+# kde.plot(data, type)
+# kde.plotKDE(data, type)
+
+
+################################### HMM ########################################
+# from models.hmm.hmm import HMM
+
+# true_labels = []
+# pred_labels = []
+# mfccs_digit_pairs = {} 
+# digits_likelihood = {str(i): [] for i in range(10)}
+# hmm = HMM(n_states=10, n_epochs=100)
+# for root, dir, files in os.walk(os.path.join(RawDataDIR, 'audio_mnist')):
+#     mfccs = np.zeros((1, 13))
+#     if (len(files) == 0):
+#         continue
+#     for f in files:
+#         if f.endswith('.wav'):
+#             true_labels.append(f.split('_')[0])
+#             data, sr = librosa.load(os.path.join(root, f))
+#             mfcc = librosa.feature.mfcc(y=data, sr=sr, n_mfcc=13)
+#             mfccs = np.vstack((mfccs, mfcc.T))
+#     mfccs = mfccs[1:]
+#     mfccs_digit_pairs[root[-1]] = mfccs
+#     print(mfccs.shape)
+#     hmm.buildHMM(mfccs)
+#     hmm.fitHMM(os.path.join('./', 'saved_models'), f'hmm_{root[-1]}.pkl')
+#     print(f"Model for digit {root[-1]} trained successfully.")
+
+# correct = 0
+# total = 0
+# for root, dir, files in os.walk(os.path.join(RawDataDIR, 'audio_mnist')):
+#     for f in files:
+#         if f.endswith('.wav'):
+#             data, sr = librosa.load(os.path.join(root, f))
+#             mfcc = librosa.feature.mfcc(y=data, sr=sr, n_mfcc=13)
+#             _, pred = hmm.predictHMM(mfcc.T, os.path.join('./', 'saved_models'), 
+#                                                      digits_likelihood, f.split('_')[0])
+#             if (pred == f.split('_')[0]):
+#                 correct += 1
+#             total += 1
+
+# print(f"Accuracy: {correct*100/total}")
+
+
