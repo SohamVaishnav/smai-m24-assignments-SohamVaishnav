@@ -45,6 +45,12 @@ The plots clearly show how GMM tried to find global gaussian functions that can 
 ## Task 2 - Hidden Markov Models (HMMs)
 ### Visualising the MFCC of the audios
 ![mfccs](figures/mfcc_samples.png)
+Observations:\
+I find that the mfcc of each digit captures a certain kind of information content present in the audio and generates a spectrogram. Now, we observe that regardless of the digit, the most information is concentrated in the first few time instances in the audio which denotes that for each digit, while speaking, the idea of what that digit can be is indicated by the middle information. \
+Furthermore, each such array has a unique spike-like pattern that encodes the phoenetics of the digit being spoken. 
+
+This suggests that MFCC is indeed an insightful way to visualise and process audio data, and perhaps the model is learning the temporal as well as phoenetic correlations within the mfcc(s) of each digit.
+
 
 ### Implementing the Model
 The model has been implemented as `class HMM()` in `models/hmm/hmm.py` which has the following functions:
