@@ -88,28 +88,38 @@ def storeDataHMM(src: str, target: str):
 
 ################################### KDE ########################################
 # from models.kde.kde import KDE
+# from models.gmm.gmm import GaussianMixtureModel
 
 # data = getData('circle', [1, 1], [0, 0], 0.3, 2.25)
 
 # scaler = StandardScaler()
 # data = scaler.fit_transform(data)
-# type = 'triangular'
+# type = 'gaussian'
 # kde = KDE(data)
 # kde.buildKernel(type)
 # kde.fit(type, 0.5)
 # kde.plot(data, type)
 # kde.plotKDE(data, type)
 
+# gmm = GaussianMixtureModel()
+# gmm.fit(pd.DataFrame(data, columns=['x', 'y']), 2, epochs=100, epsilon=0.0001)
+# fig = sp.make_subplots(rows=1, cols=2, subplot_titles=("KDE", "GMM"))
+# fig.add_trace(go.Scatter(x = data[:,0], y = data[:,1], mode='markers', marker=dict(color=kde.kde)), row=1, col=1)
+# fig.add_trace(go.Scatter(x = data[:,0], y = data[:,1], mode='markers', marker=dict(color=gmm.getCluster())), row=1, col=2)
+# fig = px.scatter_3d(x = data[:,0], y = data[:,1], z=gmm.getMembership()[:,1]+gmm.getMembership()[:,0], color = gmm.getCluster())
+# fig.update_layout(title_text = "GMM")
+# fig.show()
+
 
 ################################### HMM ########################################
-# from models.hmm.hmm import HMM
+from models.hmm.hmm import HMM
 
-# true_labels = []
-# pred_labels = []
-# mfccs_digit_pairs = {} 
-# digits_likelihood = {str(i): [] for i in range(10)}
-# hmm = HMM(n_states=10, n_epochs=100)
-# for root, dir, files in os.walk(os.path.join(RawDataDIR, 'audio_mnist')):
+true_labels = []
+pred_labels = []
+mfccs_digit_pairs = {} 
+digits_likelihood = {str(i): [] for i in range(10)}
+hmm = HMM(n_states=10, n_epochs=100)
+# for root, dir, files in os.walk(os.path.join(RawDataDIR, 'audio_mnist/train')):
 #     mfccs = np.zeros((1, 13))
 #     if (len(files) == 0):
 #         continue
@@ -120,25 +130,33 @@ def storeDataHMM(src: str, target: str):
 #             mfcc = librosa.feature.mfcc(y=data, sr=sr, n_mfcc=13)
 #             mfccs = np.vstack((mfccs, mfcc.T))
 #     mfccs = mfccs[1:]
-#     mfccs_digit_pairs[root[-1]] = mfccs
+#     # mfccs_digit_pairs[root[-1]] = mfccs
 #     print(mfccs.shape)
 #     hmm.buildHMM(mfccs)
 #     hmm.fitHMM(os.path.join('./', 'saved_models'), f'hmm_{root[-1]}.pkl')
 #     print(f"Model for digit {root[-1]} trained successfully.")
 
-# correct = 0
-# total = 0
-# for root, dir, files in os.walk(os.path.join(RawDataDIR, 'audio_mnist')):
-#     for f in files:
-#         if f.endswith('.wav'):
-#             data, sr = librosa.load(os.path.join(root, f))
-#             mfcc = librosa.feature.mfcc(y=data, sr=sr, n_mfcc=13)
-#             _, pred = hmm.predictHMM(mfcc.T, os.path.join('./', 'saved_models'), 
-#                                                      digits_likelihood, f.split('_')[0])
-#             if (pred == f.split('_')[0]):
-#                 correct += 1
-#             total += 1
+correct = 0
+total = 0
+for root, dir, files in os.walk(os.path.join(RawDataDIR, 'self_audio_mnist')):
+    for f in files:
+        if f.endswith('.wav') or f.endswith('m4a'):
+            data, sr = librosa.load(os.path.join(root, f))
+            mfcc = librosa.feature.mfcc(y=data, sr=sr, n_mfcc=13)
+            _, pred = hmm.predictHMM(mfcc.T, os.path.join('./', 'saved_models'), 
+                                                     digits_likelihood, f.split('_')[0])
+            if (pred == f.split('_')[0]):
+                correct += 1
+            total += 1
 
-# print(f"Accuracy: {correct*100/total}")
+print(f"Accuracy: {correct*100/total}")
 
+# plt.figure(figsize=(20, 4))
+# for digit, mfccs in mfccs_digit_pairs.items():
+#     plt.subplot(2, 5, int(digit)+1)
+#     librosa.display.specshow(mfccs, x_axis='time')
+#     plt.colorbar()
+#     plt.title('MFCC for digit ' + digit)
+# plt.tight_layout()
+# plt.show()
 
